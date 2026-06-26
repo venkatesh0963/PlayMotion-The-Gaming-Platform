@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Play the cyberpunk edition of Checkers on Play Motion. Outmaneuver the System AI in a neon-lit battle of strategy!">
+<meta name="keywords" content="Checkers, Cyberpunk Game, HTML5 Game, Play Motion, Retro Games, Online Games, Browser Games, Board Game">
+<title>Play Checkers  | Play Motion</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+    --bg-color: #060615;
+    --text-color: #ffffff;
+    --primary: #00f0ff; /* Cyan */
+    --secondary: #ff003c; /* Pink/Red */
+    --accent: #fcee0a; /* Yellow */
+    --card-bg: #121225;
+    --nav-bg: rgba(6, 6, 21, 0.9);
+    --grid-color: rgba(0, 240, 255, 0.05);
+    --btn-text: #fff;
+}
+
+[data-theme="light"] {
+    --bg-color: #f0f0f5;
+    --text-color: #111122;
+    --primary: #0099ff;
+    --secondary: #d40032;
+    --accent: #e6b800;
+    --card-bg: #ffffff;
+    --nav-bg: rgba(240, 240, 245, 0.9);
+    --grid-color: rgba(0, 153, 255, 0.1);
+    --btn-text: #fff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: 
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: -1;
+}
+
+h1, h2, h3, .logo, .tag, .btn {
+    font-family: 'Orbitron', sans-serif;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    flex: 1;
+}
+
+/* Navbar */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--nav-bg);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--primary);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--primary);
+    position: relative;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    transition: 0.3s;
+    position: relative;
+    padding: 5px 0;
+}
+
+nav ul li a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--primary);
+    transition: 0.3s;
+    box-shadow: 0 0 10px var(--primary);
+}
+
+nav ul li a:hover::after {
+    width: 100%;
+}
+
+nav ul li a:hover {
+    color: var(--primary);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.theme-toggle:hover {
+    color: var(--accent);
+    text-shadow: 0 0 10px var(--accent);
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    background: var(--primary);
+    color: var(--btn-text);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    transition: 0.3s;
+    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--secondary);
+    z-index: -1;
+    transform: translate(-5px, 5px);
+    transition: 0.3s;
+}
+
+.btn:hover {
+    box-shadow: 0 0 20px var(--primary);
+    transform: translateY(-2px);
+}
+
+.btn:hover::before {
+    transform: translate(0, 0);
+}
+
+.btn.secondary {
+    background: transparent;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    clip-path: none;
+}
+
+.btn.secondary::before {
+    display: none;
+}
+
+.btn.secondary:hover {
+    background: rgba(0, 240, 255, 0.1);
+    box-shadow: inset 0 0 10px var(--primary), 0 0 10px var(--primary);
+}
+
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Layout */
+.game-layout {
+    display: flex;
+    gap: 40px;
+    margin: 60px 0;
+    align-items: flex-start;
+}
+
+.game-main {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid var(--primary);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.game-sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Game Area */
+.game-main h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    text-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
+    text-align: center;
+}
+
+.game-main h1 span {
+    color: var(--secondary);
+}
+
+.game-status {
+    font-size: 20px;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--text-color);
+    margin-bottom: 30px;
+    background: rgba(0, 240, 255, 0.05);
+    padding: 10px 30px;
+    border: 1px solid var(--primary);
+    border-radius: 5px;
+    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    min-width: 250px;
+    text-align: center;
+}
+
+.status-p1 { color: var(--primary); text-shadow: 0 0 10px var(--primary); }
+.status-p2 { color: var(--secondary); text-shadow: 0 0 10px var(--secondary); }
+
+/* Checkers Grid */
+.checkers-board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    width: 400px;
+    height: 400px;
+    border: 3px solid var(--primary);
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+    margin-bottom: 30px;
+    max-width: 100%;
+    background: var(--bg-color);
+}
+
+.checker-cell {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checker-cell.dark {
+    background: var(--card-bg);
+}
+
+.checker-cell.light {
+    background: var(--bg-color);
+}
+
+.piece {
+    width: 75%;
+    height: 75%;
+    border-radius: 50%;
+    transition: 0.2s;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    user-select: none;
+}
+
+.piece.p1 {
+    background: var(--primary);
+    box-shadow: 0 0 15px var(--primary), inset 0 0 10px rgba(0,0,0,0.5);
+    color: var(--bg-color);
+}
+
+.piece.p2 {
+    background: var(--secondary);
+    box-shadow: 0 0 15px var(--secondary), inset 0 0 10px rgba(0,0,0,0.5);
+    color: var(--bg-color);
+}
+
+.piece.king::after {
+    content: '★';
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.piece.selected {
+    box-shadow: 0 0 25px var(--accent), inset 0 0 10px rgba(0,0,0,0.5) !important;
+    border: 3px solid var(--accent);
+    transform: scale(1.1);
+}
+
+.valid-move {
+    background: rgba(0, 240, 255, 0.3) !important;
+    cursor: pointer;
+    position: relative;
+}
+
+.valid-move::after {
+    content: '';
+    position: absolute;
+    width: 30%;
+    height: 30%;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0.5;
+    box-shadow: 0 0 10px var(--accent);
+}
+
+.controls-hint {
+    margin-top: 30px;
+    color: var(--text-color);
+    opacity: 0.8;
+    text-align: center;
+    background: var(--bg-color);
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 3px solid var(--accent);
+}
+
+.controls-hint p {
+    margin: 5px 0;
+}
+
+/* Sidebar Small Cards */
+.sidebar-title {
+    font-size: 20px;
+    color: var(--text-color);
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.small-game-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: var(--card-bg);
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: 0.3s;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.small-game-card:hover {
+    border-color: var(--primary);
+    transform: translateX(5px);
+    box-shadow: -5px 5px 15px rgba(0, 240, 255, 0.1);
+}
+
+.small-game-icon {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(255, 0, 60, 0.05));
+    color: var(--primary);
+    font-size: 20px;
+    border-radius: 4px;
+}
+
+.small-game-info h4 {
+    font-size: 14px;
+    margin-bottom: 3px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.small-game-info p {
+    font-size: 11px;
+    color: #00ff88;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.small-game-info p::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background: #00ff88;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #00ff88;
+}
+
+/* About Game Section */
+.about-game {
+    background: var(--card-bg);
+    padding: 40px;
+    margin-bottom: 60px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 4px solid var(--secondary);
+}
+
+.about-game h2 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+.about-game p {
+    line-height: 1.8;
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.about-game ul {
+    margin-left: 20px;
+    margin-bottom: 20px;
+    line-height: 1.8;
+    opacity: 0.9;
+}
+
+.about-game li {
+    margin-bottom: 10px;
+}
+.about-game strong {
+    color: var(--primary);
+}
+
+/* Footer */
+footer {
+    background: var(--card-bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 60px 0 20px;
+    margin-top: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-col h3 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+.footer-col p {
+    color: var(--text-color);
+    opacity: 0.7;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.footer-col ul {
+    list-style: none;
+}
+
+.footer-col ul li {
+    margin-bottom: 12px;
+}
+
+.footer-col ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: 0.3s;
+}
+
+.footer-col ul li a:hover {
+    color: var(--primary);
+    opacity: 1;
+    padding-left: 5px;
+}
+
+.social-links {
+    display: flex;
+    gap: 15px;
+}
+
+.social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+    font-size: 18px;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.social-links a:hover {
+    background: var(--primary);
+    color: var(--btn-text);
+    border-color: var(--primary);
+    box-shadow: 0 0 15px var(--primary);
+    transform: translateY(-3px);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    opacity: 0.6;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media(max-width: 900px) {
+    .game-layout {
+        flex-direction: column;
+    }
+    .game-sidebar {
+        width: 100%;
+        margin-top: 30px;
+    }
+}
+
+@media(max-width: 768px) {
+    nav ul {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--nav-bg);
+        backdrop-filter: blur(10px);
+        padding: 20px 0;
+        text-align: center;
+        border-bottom: 1px solid var(--primary);
+    }
+
+    nav ul.active {
+        display: flex;
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+
+    .game-main h1 {
+        font-size: 28px;
+    }
+    
+    .game-main {
+        padding: 20px;
+    }
+    
+    .checkers-board {
+        width: 100%;
+        height: 80vw; /* Keep it squareish on mobile */
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="container">
+        <nav>
+            <a href="cyberpunk_gaming.html" class="logo">Play Motion</a>
+
+            <ul id="nav-menu">
+                <li><a href="cyberpunk_gaming.html">Home</a></li>
+                <li><a href="cyberpunk_gaming.html#games">Games</a></li>
+                <li><a href="#about-game">About</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-btn" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="menu-toggle" id="menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <div class="game-layout">
+        <section class="game-main">
+            <h1>Checkers <span>Cyber-Edition</span></h1>
+            
+            <div id="status" class="game-status status-p1">YOUR TURN (CYAN)</div>
+            
+            <div id="gameBoard" class="checkers-board" aria-label="Checkers Game Board">
+                <!-- Generated by JS -->
+            </div>
+            
+            <div class="controls">
+                <button id="startBtn" class="btn primary">Restart Game</button>
+            </div>
+
+            <div class="controls-hint">
+                <p><i class="fas fa-mouse-pointer"></i> Click a <strong>Cyan</strong> piece to see valid moves.</p>
+                <p>Jump over the Crimson AI to capture their pieces. Reach the opposite end to become a <strong>King (★)</strong>!</p>
+            </div>
+        </section>
+        
+        <aside class="game-sidebar">
+            <h3 class="sidebar-title">Trending Games</h3>
+            
+            <a href="snake.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-ghost"></i></div>
+                <div class="small-game-info">
+                    <h4>Snake</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="tictactoe.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-hashtag"></i></div>
+                <div class="small-game-info">
+                    <h4>Tic-Tac-Toe</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="pong.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-table-tennis"></i></div>
+                <div class="small-game-info">
+                    <h4>Pong</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="spaceshooter.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-rocket"></i></div>
+                <div class="small-game-info">
+                    <h4>Space Shooter</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="braekout.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-cubes"></i></div>
+                <div class="small-game-info">
+                    <h4>Breakout</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+        </aside>
+    </div>
+
+    <article id="about-game" class="about-game">
+        <h2>About <span>Checkers Cyber-Edition</span></h2>
+        <p>Welcome to the <strong>Checkers Cyber-Edition</strong>! Command your cyan firewall nodes against the Crimson System AI in this classic strategy board game reinvented for the neon grid.</p>
+        
+        <h3>How It Works</h3>
+        <ul>
+            <li><strong>Movement:</strong> Standard pieces move diagonally forward one square at a time. Click a piece to view available grid jumps.</li>
+            <li><strong>Capturing:</strong> If an AI piece is adjacent to yours and the space behind it is empty, you can jump over it to capture and delete it from the grid.</li>
+            <li><strong>King Promotion:</strong> If your piece reaches the far edge of the AI's territory, it gets upgraded to a King (★). Kings have the enhanced capability to move and capture diagonally <em>backwards</em> as well as forwards.</li>
+            <li><strong>AI Opponent:</strong> The System AI automatically responds to your moves. Strategize to trap it and capture all of its pieces to win!</li>
+            <li><strong>Dynamic Themes:</strong> The 8x8 grid adapts beautifully to Light or Dark mode via the navigation toggle.</li>
+        </ul>
+        
+        <p>Test your tactical foresight and dominate the board in this robust HTML5 Checkers experience.</p>
+    </article>
+</main>
+
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-col">
+                <div class="logo" style="font-size: 24px; margin-bottom: 20px;">Play Motion</div>
+                <p>Experience the next generation of competitive gaming. Join the neon revolution today.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/thecodecraft.dev/"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Games</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="terms of services.html">Terms of Service</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Play Motion. All rights reserved. Built for the future.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Theme Toggle Logic
+    const themeBtn = document.getElementById('theme-btn');
+    const htmlElement = document.documentElement;
+    const themeIcon = themeBtn.querySelector('i');
+
+    if (htmlElement.getAttribute('data-theme') === 'light') {
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+    }
+
+    themeBtn.addEventListener('click', () => {
+        if (htmlElement.getAttribute('data-theme') === 'light') {
+            htmlElement.setAttribute('data-theme', 'dark');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            htmlElement.setAttribute('data-theme', 'light');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    });
+
+    const menuBtn = document.getElementById('menu-btn');
+    const navMenu = document.getElementById('nav-menu');
+
+    menuBtn.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        const icon = menuBtn.querySelector('i');
+        if(navMenu.classList.contains('active')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        } else {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    });
+
+    // --- Checkers Game Logic ---
+    const boardElement = document.getElementById('gameBoard');
+    const statusText = document.getElementById('status');
+    const restartBtn = document.getElementById('startBtn');
+
+    let board = [];
+    let currentPlayer = 'p1'; // 'p1' (Player, Cyan) or 'p2' (AI, Red)
+    let selectedPiece = null;
+    let validMoves = [];
+    let mustJumpPiece = null; // Used for multi-jumps
+    let running = true;
+
+    // Initialize the DOM grid
+    function createBoardDOM() {
+        boardElement.innerHTML = '';
+        for (let r = 0; r < 8; r++) {
+            let row = [];
+            for (let c = 0; c < 8; c++) {
+                const cell = document.createElement('div');
+                cell.classList.add('checker-cell');
+                
+                // Checkerboard pattern
+                if ((r + c) % 2 === 1) {
+                    cell.classList.add('dark');
+                } else {
+                    cell.classList.add('light');
+                }
+                
+                cell.dataset.r = r;
+                cell.dataset.c = c;
+                cell.addEventListener('click', handleCellClick);
+                
+                boardElement.appendChild(cell);
+                row.push(null);
+            }
+            board.push(row);
+        }
+    }
+
+    function setupPieces() {
+        // Player 2 (Red/AI) at top: rows 0, 1, 2
+        for (let r = 0; r < 3; r++) {
+            for (let c = 0; c < 8; c++) {
+                if ((r + c) % 2 === 1) {
+                    board[r][c] = { player: 'p2', king: false };
+                }
+            }
+        }
+        // Player 1 (Cyan/User) at bottom: rows 5, 6, 7
+        for (let r = 5; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                if ((r + c) % 2 === 1) {
+                    board[r][c] = { player: 'p1', king: false };
+                }
+            }
+        }
+    }
+
+    function renderBoard() {
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const cell = document.querySelector(`.checker-cell[data-r='${r}'][data-c='${c}']`);
+                cell.innerHTML = '';
+                cell.classList.remove('valid-move');
+                
+                const pieceData = board[r][c];
+                if (pieceData) {
+                    const pieceElem = document.createElement('div');
+                    pieceElem.classList.add('piece', pieceData.player);
+                    if (pieceData.king) pieceElem.classList.add('king');
+                    
+                    if (selectedPiece && selectedPiece.r === r && selectedPiece.c === c) {
+                        pieceElem.classList.add('selected');
+                    }
+                    
+                    cell.appendChild(pieceElem);
+                }
+                
+                // Draw valid moves
+                const move = validMoves.find(m => m.r === r && m.c === c);
+                if (move) {
+                    cell.classList.add('valid-move');
+                }
+            }
+        }
+    }
+
+    function getMovesForPiece(r, c, piece) {
+        let moves = [];
+        let dirs = [];
+        
+        if (piece.player === 'p1' || piece.king) dirs.push(-1); // Up
+        if (piece.player === 'p2' || piece.king) dirs.push(1);  // Down
+        
+        // Check normal moves
+        dirs.forEach(dr => {
+            [-1, 1].forEach(dc => {
+                let nr = r + dr, nc = c + dc;
+                if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                    if (board[nr][nc] === null) {
+                        moves.push({ r: nr, c: nc, jump: null });
+                    }
+                }
+            });
+        });
+        
+        // Check jumps
+        dirs.forEach(dr => {
+            [-1, 1].forEach(dc => {
+                let nr = r + dr, nc = c + dc;
+                let jr = r + dr * 2, jc = c + dc * 2;
+                if (jr >= 0 && jr < 8 && jc >= 0 && jc < 8) {
+                    let adjacent = board[nr][nc];
+                    if (adjacent && adjacent.player !== piece.player && board[jr][jc] === null) {
+                        moves.push({ r: jr, c: jc, jump: {r: nr, c: nc} });
+                    }
+                }
+            });
+        });
+        
+        return moves;
+    }
+
+    function handleCellClick(e) {
+        if (!running || currentPlayer !== 'p1') return; // Ignore if game over or AI turn
+        
+        let r = parseInt(this.dataset.r);
+        let c = parseInt(this.dataset.c);
+        
+        // If clicking a valid move
+        let move = validMoves.find(m => m.r === r && m.c === c);
+        if (move) {
+            executeMove(selectedPiece.r, selectedPiece.c, r, c, move.jump);
+            return;
+        }
+        
+        // If mandatory multi-jump is active, player MUST select the mustJumpPiece
+        if (mustJumpPiece && (r !== mustJumpPiece.r || c !== mustJumpPiece.c)) {
+            return;
+        }
+
+        // If clicking own piece
+        let piece = board[r][c];
+        if (piece && piece.player === currentPlayer) {
+            selectedPiece = {r, c};
+            validMoves = getMovesForPiece(r, c, piece);
+            
+            // If forcing jumps, filter non-jumps if any jump exists
+            let hasJump = validMoves.some(m => m.jump !== null);
+            if (hasJump) {
+                validMoves = validMoves.filter(m => m.jump !== null);
+            }
+            
+            renderBoard();
+        }
+    }
+
+    function executeMove(fromR, fromC, toR, toC, jump) {
+        let piece = board[fromR][fromC];
+        board[fromR][fromC] = null;
+        board[toR][toC] = piece;
+        
+        let jumped = false;
+        if (jump) {
+            board[jump.r][jump.c] = null;
+            jumped = true;
+        }
+        
+        // Check King promotion
+        let promoted = false;
+        if (piece.player === 'p1' && toR === 0 && !piece.king) {
+            piece.king = true;
+            promoted = true;
+        } else if (piece.player === 'p2' && toR === 7 && !piece.king) {
+            piece.king = true;
+            promoted = true;
+        }
+        
+        selectedPiece = null;
+        validMoves = [];
+        mustJumpPiece = null;
+        renderBoard();
+        
+        // Check for multi-jump
+        if (jumped && !promoted) {
+            let nextMoves = getMovesForPiece(toR, toC, piece).filter(m => m.jump !== null);
+            if (nextMoves.length > 0) {
+                mustJumpPiece = {r: toR, c: toC};
+                
+                if (currentPlayer === 'p1') {
+                    // Force select for player
+                    selectedPiece = {r: toR, c: toC};
+                    validMoves = nextMoves;
+                    renderBoard();
+                    return; // Keep turn
+                } else {
+                    // AI multi-jump delay
+                    setTimeout(() => {
+                        let aiMove = nextMoves[Math.floor(Math.random() * nextMoves.length)];
+                        executeMove(toR, toC, aiMove.r, aiMove.c, aiMove.jump);
+                    }, 500);
+                    return;
+                }
+            }
+        }
+        
+        checkWinCondition();
+        if(running) {
+            switchTurn();
+        }
+    }
+
+    function switchTurn() {
+        currentPlayer = (currentPlayer === 'p1') ? 'p2' : 'p1';
+        
+        if (currentPlayer === 'p1') {
+            statusText.textContent = "YOUR TURN (CYAN)";
+            statusText.className = "game-status status-p1";
+        } else {
+            statusText.textContent = "SYSTEM AI THINKING...";
+            statusText.className = "game-status status-p2";
+            setTimeout(makeAIMove, 600);
+        }
+    }
+
+    function checkWinCondition() {
+        let p1Count = 0;
+        let p2Count = 0;
+        for(let r=0; r<8; r++){
+            for(let c=0; c<8; c++){
+                if(board[r][c] && board[r][c].player === 'p1') p1Count++;
+                if(board[r][c] && board[r][c].player === 'p2') p2Count++;
+            }
+        }
+        
+        if (p1Count === 0) {
+            endGame("SYSTEM AI");
+        } else if (p2Count === 0) {
+            endGame("PLAYER");
+        }
+    }
+
+    function endGame(winner) {
+        running = false;
+        statusText.textContent = `${winner} WINS!`;
+        statusText.className = winner === "PLAYER" ? "game-status status-p1" : "game-status status-p2";
+    }
+
+    // Basic AI
+    function makeAIMove() {
+        if (!running) return;
+        
+        let allMoves = [];
+        let jumpMoves = [];
+        
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                let piece = board[r][c];
+                if (piece && piece.player === 'p2') {
+                    let moves = getMovesForPiece(r, c, piece);
+                    moves.forEach(m => {
+                        let moveData = {fromR: r, fromC: c, toR: m.r, toC: m.c, jump: m.jump};
+                        allMoves.push(moveData);
+                        if(m.jump !== null) jumpMoves.push(moveData);
+                    });
+                }
+            }
+        }
+        
+        if (allMoves.length === 0) {
+            endGame("PLAYER"); // AI has no moves
+            return;
+        }
+        
+        let chosenMove;
+        if (jumpMoves.length > 0) {
+            chosenMove = jumpMoves[Math.floor(Math.random() * jumpMoves.length)];
+        } else {
+            chosenMove = allMoves[Math.floor(Math.random() * allMoves.length)];
+        }
+        
+        executeMove(chosenMove.fromR, chosenMove.fromC, chosenMove.toR, chosenMove.toC, chosenMove.jump);
+    }
+
+    restartBtn.addEventListener('click', () => {
+        board = [];
+        currentPlayer = 'p1';
+        selectedPiece = null;
+        validMoves = [];
+        mustJumpPiece = null;
+        running = true;
+        statusText.textContent = "YOUR TURN (CYAN)";
+        statusText.className = "game-status status-p1";
+        
+        createBoardDOM();
+        setupPieces();
+        renderBoard();
+    });
+
+    // Start game
+    createBoardDOM();
+    setupPieces();
+    renderBoard();
+
+</script>
+
+</body>
+</html>

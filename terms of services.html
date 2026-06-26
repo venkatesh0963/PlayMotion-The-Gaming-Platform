@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Terms of Service for Play Motion - the ultimate cyberpunk HTML5 gaming arcade.">
+<title>Terms of Service | Play Motion Cyberpunk Arcade</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+    --bg-color: #060615;
+    --text-color: #ffffff;
+    --primary: #00f0ff; /* Cyan */
+    --secondary: #ff003c; /* Pink/Red */
+    --accent: #fcee0a; /* Yellow */
+    --card-bg: #121225;
+    --nav-bg: rgba(6, 6, 21, 0.9);
+    --grid-color: rgba(0, 240, 255, 0.05);
+    --btn-text: #fff;
+}
+
+[data-theme="light"] {
+    --bg-color: #f0f0f5;
+    --text-color: #111122;
+    --primary: #0099ff;
+    --secondary: #d40032;
+    --accent: #e6b800;
+    --card-bg: #ffffff;
+    --nav-bg: rgba(240, 240, 245, 0.9);
+    --grid-color: rgba(0, 153, 255, 0.1);
+    --btn-text: #fff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: 
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: -1;
+}
+
+h1, h2, h3, .logo, .tag, .btn {
+    font-family: 'Orbitron', sans-serif;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    flex: 1;
+}
+
+/* Navbar */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--nav-bg);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--primary);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--primary);
+    position: relative;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    transition: 0.3s;
+    position: relative;
+    padding: 5px 0;
+}
+
+nav ul li a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--primary);
+    transition: 0.3s;
+    box-shadow: 0 0 10px var(--primary);
+}
+
+nav ul li a:hover::after {
+    width: 100%;
+}
+
+nav ul li a:hover {
+    color: var(--primary);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.theme-toggle:hover {
+    color: var(--accent);
+    text-shadow: 0 0 10px var(--accent);
+}
+
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* TOS Layout */
+.tos-section {
+    padding: 80px 0;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.tos-header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid rgba(0, 240, 255, 0.2);
+}
+
+.tos-header h1 {
+    font-size: 42px;
+    color: var(--text-color);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+}
+
+.tos-header h1 span {
+    color: var(--primary);
+    text-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+}
+
+.tos-header p {
+    font-size: 16px;
+    opacity: 0.8;
+    color: var(--accent);
+    font-family: 'Orbitron', sans-serif;
+}
+
+.tos-content {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 4px solid var(--secondary);
+    border-radius: 4px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.tos-content h2 {
+    font-size: 24px;
+    color: var(--primary);
+    margin-top: 30px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.tos-content h2:first-child {
+    margin-top: 0;
+}
+
+.tos-content p {
+    line-height: 1.8;
+    opacity: 0.9;
+    margin-bottom: 20px;
+}
+
+.tos-content ul {
+    margin-left: 20px;
+    margin-bottom: 25px;
+    line-height: 1.8;
+    opacity: 0.9;
+}
+
+.tos-content li {
+    margin-bottom: 10px;
+}
+
+.tos-content li::marker {
+    color: var(--primary);
+}
+
+.tos-content strong {
+    color: var(--accent);
+}
+
+/* Footer */
+footer {
+    background: var(--card-bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 60px 0 20px;
+    margin-top: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-col h3 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+.footer-col p {
+    color: var(--text-color);
+    opacity: 0.7;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.footer-col ul {
+    list-style: none;
+}
+
+.footer-col ul li {
+    margin-bottom: 12px;
+}
+
+.footer-col ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: 0.3s;
+}
+
+.footer-col ul li a:hover {
+    color: var(--primary);
+    opacity: 1;
+    padding-left: 5px;
+}
+
+.social-links {
+    display: flex;
+    gap: 15px;
+}
+
+.social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+    font-size: 18px;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.social-links a:hover {
+    background: var(--primary);
+    color: var(--bg-color);
+    border-color: var(--primary);
+    box-shadow: 0 0 15px var(--primary);
+    transform: translateY(-3px);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    opacity: 0.6;
+    font-size: 14px;
+}
+
+@media(max-width: 768px) {
+    nav ul {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--nav-bg);
+        backdrop-filter: blur(10px);
+        padding: 20px 0;
+        text-align: center;
+        border-bottom: 1px solid var(--primary);
+    }
+
+    nav ul.active {
+        display: flex;
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+
+    .tos-header h1 {
+        font-size: 32px;
+    }
+    
+    .tos-content {
+        padding: 20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="container">
+        <nav>
+            <a href="cyberpunk_gaming.html" class="logo">Play Motion</a>
+
+            <ul id="nav-menu">
+                <li><a href="cyberpunk_gaming.html">Home</a></li>
+                <li><a href="cyberpunk_gaming.html#games">Games</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-btn" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="menu-toggle" id="menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <section class="tos-section">
+        <div class="tos-header">
+            <h1>System <span>Protocols</span></h1>
+            <p>LAST UPDATED: 2026.06.26 // TERMS OF SERVICE</p>
+        </div>
+
+        <div class="tos-content">
+            <h2>1. Initialization & Acceptance</h2>
+            <p>By interfacing your terminal with the <strong>Play Motion Grid</strong>, you agree to execute the protocols outlined within this manifest. If you do not agree with these directives, you must immediately sever your connection and purge local cache nodes.</p>
+
+            <h2>2. Permitted Access</h2>
+            <p>Users are granted a limited, non-exclusive, revocable license to access the 25 integrated simulation modules (hereinafter referred to as "Games"). You may:</p>
+            <ul>
+                <li>Access the modules via standard web browsers.</li>
+                <li>Attempt to bypass in-game AI defensive logic for high scores.</li>
+                <li>Toggle visual themes without restriction.</li>
+            </ul>
+
+            <h2>3. Forbidden Directives (Hacking)</h2>
+            <p>While the aesthetic of this platform embraces the cyberpunk hacker ethos, literal subversion of the server architecture is strictly prohibited. Engaging in the following actions will result in an immediate IP hardware-ban:</p>
+            <ul>
+                <li>Injecting malicious JavaScript payloads into the client-side rendering engine.</li>
+                <li>Utilizing automated bot-scripts to artificially inflate leaderboard telemetry.</li>
+                <li>Attempting to access restricted root directories or source assets outside of the public scope.</li>
+            </ul>
+
+            <h2>4. System Telemetry & Privacy</h2>
+            <p>Play Motion does not utilize predatory tracking cookies. Your local configurations (such as your preferred <code>data-theme</code> state) are processed entirely client-side. We do not extract, sell, or parse your biometric hardware data to mega-corporations. You operate off the grid.</p>
+
+            <h2>5. Service Volatility</h2>
+            <p>The matrix is inherently unstable. We provide these modules <strong>"AS IS"</strong> and <strong>"AS AVAILABLE"</strong>. The administrators make no warranties that the server will remain active, error-free, or devoid of sudden logic bombs that may wipe your unsaved high scores.</p>
+
+            <h2>6. Termination of Uplink</h2>
+            <p>The SysAdmins reserve the right to sever your connection to the Play Motion servers at any time, with or without notice, if we detect anomalous packet behavior originating from your local node.</p>
+
+            <h2>7. Amendments to Protocol</h2>
+            <p>These terms may be dynamically recompiled at any moment. Continued usage of the arcade after a protocol update constitutes absolute acceptance of the revised code.</p>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-col">
+                <div class="logo" style="font-size: 24px; margin-bottom: 20px;">Play Motion</div>
+                <p>Experience the next generation of competitive gaming. Join the neon revolution today.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/thecodecraft.dev/"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Games</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="terms of services.html">Terms of Service</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Play Motion. All rights reserved. Built for the future.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Theme Toggle Logic
+    const themeBtn = document.getElementById('theme-btn');
+    const htmlElement = document.documentElement;
+    const themeIcon = themeBtn.querySelector('i');
+
+    if (htmlElement.getAttribute('data-theme') === 'light') {
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+    }
+
+    themeBtn.addEventListener('click', () => {
+        if (htmlElement.getAttribute('data-theme') === 'light') {
+            htmlElement.setAttribute('data-theme', 'dark');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            htmlElement.setAttribute('data-theme', 'light');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    });
+
+    const menuBtn = document.getElementById('menu-btn');
+    const navMenu = document.getElementById('nav-menu');
+
+    menuBtn.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        const icon = menuBtn.querySelector('i');
+        if(navMenu.classList.contains('active')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        } else {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    });
+</script>
+
+</body>
+</html>

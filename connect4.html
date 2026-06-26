@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Play the cyberpunk edition of Connect Four on Play Motion. Connect your neon data cores before the System AI to claim victory!">
+<meta name="keywords" content="Connect Four, Cyberpunk Game, HTML5 Game, Play Motion, Retro Games, Online Games, Browser Games, Puzzle">
+<title>Play Connect Four  | Play Motion</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+    --bg-color: #060615;
+    --text-color: #ffffff;
+    --primary: #00f0ff; /* Cyan */
+    --secondary: #ff003c; /* Pink/Red */
+    --accent: #fcee0a; /* Yellow */
+    --card-bg: #121225;
+    --nav-bg: rgba(6, 6, 21, 0.9);
+    --grid-color: rgba(0, 240, 255, 0.05);
+    --btn-text: #fff;
+}
+
+[data-theme="light"] {
+    --bg-color: #f0f0f5;
+    --text-color: #111122;
+    --primary: #0099ff;
+    --secondary: #d40032;
+    --accent: #e6b800;
+    --card-bg: #ffffff;
+    --nav-bg: rgba(240, 240, 245, 0.9);
+    --grid-color: rgba(0, 153, 255, 0.1);
+    --btn-text: #fff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: 
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: -1;
+}
+
+h1, h2, h3, .logo, .tag, .btn {
+    font-family: 'Orbitron', sans-serif;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    flex: 1;
+}
+
+/* Navbar */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--nav-bg);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--primary);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--primary);
+    position: relative;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    transition: 0.3s;
+    position: relative;
+    padding: 5px 0;
+}
+
+nav ul li a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--primary);
+    transition: 0.3s;
+    box-shadow: 0 0 10px var(--primary);
+}
+
+nav ul li a:hover::after {
+    width: 100%;
+}
+
+nav ul li a:hover {
+    color: var(--primary);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.theme-toggle:hover {
+    color: var(--accent);
+    text-shadow: 0 0 10px var(--accent);
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    background: var(--primary);
+    color: var(--btn-text);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    transition: 0.3s;
+    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--secondary);
+    z-index: -1;
+    transform: translate(-5px, 5px);
+    transition: 0.3s;
+}
+
+.btn:hover {
+    box-shadow: 0 0 20px var(--primary);
+    transform: translateY(-2px);
+}
+
+.btn:hover::before {
+    transform: translate(0, 0);
+}
+
+.btn.secondary {
+    background: transparent;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    clip-path: none;
+}
+
+.btn.secondary::before {
+    display: none;
+}
+
+.btn.secondary:hover {
+    background: rgba(0, 240, 255, 0.1);
+    box-shadow: inset 0 0 10px var(--primary), 0 0 10px var(--primary);
+}
+
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Layout */
+.game-layout {
+    display: flex;
+    gap: 40px;
+    margin: 60px 0;
+    align-items: flex-start;
+}
+
+.game-main {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid var(--primary);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.game-sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Game Area */
+.game-main h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    text-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
+    text-align: center;
+}
+
+.game-main h1 span {
+    color: var(--secondary);
+}
+
+.game-status {
+    font-size: 20px;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--text-color);
+    margin-bottom: 30px;
+    background: rgba(0, 240, 255, 0.05);
+    padding: 10px 30px;
+    border: 1px solid var(--primary);
+    border-radius: 5px;
+    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    min-width: 250px;
+    text-align: center;
+}
+
+.status-p1 { color: var(--primary); text-shadow: 0 0 10px var(--primary); }
+.status-p2 { color: var(--secondary); text-shadow: 0 0 10px var(--secondary); }
+
+/* Connect Four Grid */
+.connect-four-board {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    width: 420px;
+    height: 360px;
+    background: var(--card-bg);
+    border: 3px solid var(--primary);
+    padding: 10px;
+    gap: 10px;
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+    margin-bottom: 30px;
+    max-width: 100%;
+    position: relative;
+}
+
+.c4-cell {
+    background: var(--bg-color);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.c4-cell:hover {
+    background: rgba(0, 240, 255, 0.1);
+}
+
+.c4-cell.p1 {
+    background: var(--primary);
+    box-shadow: 0 0 15px var(--primary), inset 0 0 10px rgba(0,0,0,0.5);
+    cursor: default;
+    animation: dropIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.c4-cell.p2 {
+    background: var(--secondary);
+    box-shadow: 0 0 15px var(--secondary), inset 0 0 10px rgba(0,0,0,0.5);
+    cursor: default;
+    animation: dropIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.c4-cell.win-cell {
+    box-shadow: 0 0 25px #00ff88, inset 0 0 10px rgba(0,0,0,0.5);
+    border: 3px solid #00ff88;
+    transform: scale(1.1);
+    z-index: 2;
+}
+
+@keyframes dropIn {
+    0% { transform: translateY(-300px); opacity: 0; }
+    60% { transform: translateY(20px); opacity: 1; }
+    80% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+}
+
+.controls-hint {
+    margin-top: 30px;
+    color: var(--text-color);
+    opacity: 0.8;
+    text-align: center;
+    background: var(--bg-color);
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 3px solid var(--accent);
+}
+
+.controls-hint p {
+    margin: 5px 0;
+}
+
+/* Sidebar Small Cards */
+.sidebar-title {
+    font-size: 20px;
+    color: var(--text-color);
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.small-game-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: var(--card-bg);
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: 0.3s;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.small-game-card:hover {
+    border-color: var(--primary);
+    transform: translateX(5px);
+    box-shadow: -5px 5px 15px rgba(0, 240, 255, 0.1);
+}
+
+.small-game-icon {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(255, 0, 60, 0.05));
+    color: var(--primary);
+    font-size: 20px;
+    border-radius: 4px;
+}
+
+.small-game-info h4 {
+    font-size: 14px;
+    margin-bottom: 3px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.small-game-info p {
+    font-size: 11px;
+    color: #00ff88;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.small-game-info p::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background: #00ff88;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #00ff88;
+}
+
+/* About Game Section */
+.about-game {
+    background: var(--card-bg);
+    padding: 40px;
+    margin-bottom: 60px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 4px solid var(--secondary);
+}
+
+.about-game h2 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+.about-game p {
+    line-height: 1.8;
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.about-game ul {
+    margin-left: 20px;
+    margin-bottom: 20px;
+    line-height: 1.8;
+    opacity: 0.9;
+}
+
+.about-game li {
+    margin-bottom: 10px;
+}
+.about-game strong {
+    color: var(--primary);
+}
+
+/* Footer */
+footer {
+    background: var(--card-bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 60px 0 20px;
+    margin-top: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-col h3 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+.footer-col p {
+    color: var(--text-color);
+    opacity: 0.7;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.footer-col ul {
+    list-style: none;
+}
+
+.footer-col ul li {
+    margin-bottom: 12px;
+}
+
+.footer-col ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: 0.3s;
+}
+
+.footer-col ul li a:hover {
+    color: var(--primary);
+    opacity: 1;
+    padding-left: 5px;
+}
+
+.social-links {
+    display: flex;
+    gap: 15px;
+}
+
+.social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+    font-size: 18px;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.social-links a:hover {
+    background: var(--primary);
+    color: var(--btn-text);
+    border-color: var(--primary);
+    box-shadow: 0 0 15px var(--primary);
+    transform: translateY(-3px);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    opacity: 0.6;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media(max-width: 900px) {
+    .game-layout {
+        flex-direction: column;
+    }
+    .game-sidebar {
+        width: 100%;
+        margin-top: 30px;
+    }
+}
+
+@media(max-width: 768px) {
+    nav ul {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--nav-bg);
+        backdrop-filter: blur(10px);
+        padding: 20px 0;
+        text-align: center;
+        border-bottom: 1px solid var(--primary);
+    }
+
+    nav ul.active {
+        display: flex;
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+
+    .game-main h1 {
+        font-size: 28px;
+    }
+    
+    .game-main {
+        padding: 20px;
+    }
+    
+    .connect-four-board {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 7 / 6;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="container">
+        <nav>
+            <a href="cyberpunk_gaming.html" class="logo">Play Motion</a>
+
+            <ul id="nav-menu">
+                <li><a href="cyberpunk_gaming.html">Home</a></li>
+                <li><a href="cyberpunk_gaming.html#games">Games</a></li>
+                <li><a href="#about-game">About</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-btn" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="menu-toggle" id="menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <div class="game-layout">
+        <section class="game-main">
+            <h1>Connect Four <span>Cyber-Edition</span></h1>
+            
+            <div id="status" class="game-status status-p1">YOUR TURN (CYAN)</div>
+            
+            <div id="gameBoard" class="connect-four-board" aria-label="Connect Four Game Board">
+                <!-- Generated by JS -->
+            </div>
+            
+            <div class="controls">
+                <button id="startBtn" class="btn primary">Restart Game</button>
+            </div>
+
+            <div class="controls-hint">
+                <p><i class="fas fa-mouse-pointer"></i> Click any column to drop your <strong>Cyan Core</strong>.</p>
+                <p>Align 4 cores horizontally, vertically, or diagonally before the System AI to win!</p>
+            </div>
+        </section>
+        
+        <aside class="game-sidebar">
+            <h3 class="sidebar-title">Trending Games</h3>
+            
+            <a href="tictactoe.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-hashtag"></i></div>
+                <div class="small-game-info">
+                    <h4>Tic-Tac-Toe</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="checkers.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-chess-board"></i></div>
+                <div class="small-game-info">
+                    <h4>Checkers</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="pong.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-table-tennis"></i></div>
+                <div class="small-game-info">
+                    <h4>Pong</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="snake.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-ghost"></i></div>
+                <div class="small-game-info">
+                    <h4>Snake</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="flappy.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-kiwi-bird"></i></div>
+                <div class="small-game-info">
+                    <h4>Flappy Bird</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+        </aside>
+    </div>
+
+    <article id="about-game" class="about-game">
+        <h2>About <span>Connect Four Cyber-Edition</span></h2>
+        <p>Welcome to the <strong>Connect Four Cyber-Edition</strong>! Drop your neon data cores into the mainframe grid and outsmart the Crimson System AI in this classic alignment puzzle.</p>
+        
+        <h3>How It Works</h3>
+        <ul>
+            <li><strong>Gameplay:</strong> Click or tap anywhere in a column to drop your cyan data core. It will fall to the lowest available slot.</li>
+            <li><strong>Winning:</strong> The first player to align four of their cores in a row—either horizontally, vertically, or diagonally—hacks the system and wins the round!</li>
+            <li><strong>System AI:</strong> Be careful! The AI will actively try to block your horizontal, vertical, and diagonal setups while simultaneously building its own connections.</li>
+            <li><strong>Dynamic Themes:</strong> The grid infrastructure adapts perfectly to your Light or Dark mode preferences via the navbar toggle.</li>
+        </ul>
+        
+        <p>Utilize gravity and strategy to dominate the grid in this beautifully crafted HTML5 interactive experience.</p>
+    </article>
+</main>
+
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-col">
+                <div class="logo" style="font-size: 24px; margin-bottom: 20px;">Play Motion</div>
+                <p>Experience the next generation of competitive gaming. Join the neon revolution today.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/thecodecraft.dev/"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Games</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="terms of services.html">Terms of Service</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Play Motion. All rights reserved. Built for the future.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Theme Toggle Logic
+    const themeBtn = document.getElementById('theme-btn');
+    const htmlElement = document.documentElement;
+    const themeIcon = themeBtn.querySelector('i');
+
+    if (htmlElement.getAttribute('data-theme') === 'light') {
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+    }
+
+    themeBtn.addEventListener('click', () => {
+        if (htmlElement.getAttribute('data-theme') === 'light') {
+            htmlElement.setAttribute('data-theme', 'dark');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            htmlElement.setAttribute('data-theme', 'light');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    });
+
+    const menuBtn = document.getElementById('menu-btn');
+    const navMenu = document.getElementById('nav-menu');
+
+    menuBtn.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        const icon = menuBtn.querySelector('i');
+        if(navMenu.classList.contains('active')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        } else {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    });
+
+    // --- Connect Four Game Logic ---
+    const boardElement = document.getElementById('gameBoard');
+    const statusText = document.getElementById('status');
+    const restartBtn = document.getElementById('startBtn');
+
+    const ROWS = 6;
+    const COLS = 7;
+    let board = [];
+    let currentPlayer = 'p1'; // 'p1' (Cyan User) or 'p2' (Red AI)
+    let running = true;
+
+    function initGame() {
+        boardElement.innerHTML = '';
+        board = [];
+        for (let r = 0; r < ROWS; r++) {
+            let row = [];
+            for (let c = 0; c < COLS; c++) {
+                row.push(null);
+                
+                const cell = document.createElement('div');
+                cell.classList.add('c4-cell');
+                cell.dataset.r = r;
+                cell.dataset.c = c;
+                cell.addEventListener('click', () => handleColumnClick(c));
+                boardElement.appendChild(cell);
+            }
+            board.push(row);
+        }
+        
+        currentPlayer = 'p1';
+        running = true;
+        statusText.textContent = "YOUR TURN (CYAN)";
+        statusText.className = "game-status status-p1";
+    }
+
+    function getAvailableRow(col) {
+        for (let r = ROWS - 1; r >= 0; r--) {
+            if (board[r][col] === null) {
+                return r;
+            }
+        }
+        return -1;
+    }
+
+    function handleColumnClick(col) {
+        if (!running || currentPlayer !== 'p1') return;
+        
+        let row = getAvailableRow(col);
+        if (row !== -1) {
+            executeMove(row, col, 'p1');
+        }
+    }
+
+    function executeMove(r, c, player) {
+        board[r][c] = player;
+        
+        // Update DOM
+        const cell = document.querySelector(`.c4-cell[data-r='${r}'][data-c='${c}']`);
+        cell.classList.add(player);
+        
+        let winningCells = checkWinCondition(player);
+        if (winningCells) {
+            winningCells.forEach(pos => {
+                let winCell = document.querySelector(`.c4-cell[data-r='${pos[0]}'][data-c='${pos[1]}']`);
+                winCell.classList.add('win-cell');
+            });
+            endGame(player === 'p1' ? "PLAYER" : "SYSTEM AI");
+            return;
+        }
+        
+        if (checkDraw()) {
+            endGame("DRAW");
+            return;
+        }
+        
+        switchTurn();
+    }
+
+    function switchTurn() {
+        currentPlayer = (currentPlayer === 'p1') ? 'p2' : 'p1';
+        
+        if (currentPlayer === 'p1') {
+            statusText.textContent = "YOUR TURN (CYAN)";
+            statusText.className = "game-status status-p1";
+        } else {
+            statusText.textContent = "SYSTEM AI THINKING...";
+            statusText.className = "game-status status-p2";
+            setTimeout(makeAIMove, 600);
+        }
+    }
+
+    function checkWinCondition(player) {
+        // Horizontal
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS - 3; c++) {
+                if (board[r][c] === player && board[r][c+1] === player && board[r][c+2] === player && board[r][c+3] === player) {
+                    return [[r,c], [r,c+1], [r,c+2], [r,c+3]];
+                }
+            }
+        }
+        // Vertical
+        for (let r = 0; r < ROWS - 3; r++) {
+            for (let c = 0; c < COLS; c++) {
+                if (board[r][c] === player && board[r+1][c] === player && board[r+2][c] === player && board[r+3][c] === player) {
+                    return [[r,c], [r+1,c], [r+2,c], [r+3,c]];
+                }
+            }
+        }
+        // Diagonal Down-Right
+        for (let r = 0; r < ROWS - 3; r++) {
+            for (let c = 0; c < COLS - 3; c++) {
+                if (board[r][c] === player && board[r+1][c+1] === player && board[r+2][c+2] === player && board[r+3][c+3] === player) {
+                    return [[r,c], [r+1,c+1], [r+2,c+2], [r+3,c+3]];
+                }
+            }
+        }
+        // Diagonal Up-Right
+        for (let r = 3; r < ROWS; r++) {
+            for (let c = 0; c < COLS - 3; c++) {
+                if (board[r][c] === player && board[r-1][c+1] === player && board[r-2][c+2] === player && board[r-3][c+3] === player) {
+                    return [[r,c], [r-1,c+1], [r-2,c+2], [r-3,c+3]];
+                }
+            }
+        }
+        return null;
+    }
+
+    function checkDraw() {
+        for (let c = 0; c < COLS; c++) {
+            if (board[0][c] === null) return false;
+        }
+        return true;
+    }
+
+    function endGame(winner) {
+        running = false;
+        if (winner === "DRAW") {
+            statusText.textContent = "STALEMATE!";
+            statusText.className = "game-status status-p1";
+            statusText.style.color = "var(--accent)";
+        } else {
+            statusText.textContent = `${winner} WINS!`;
+            statusText.className = winner === "PLAYER" ? "game-status status-p1" : "game-status status-p2";
+        }
+    }
+
+    // AI Logic
+    function makeAIMove() {
+        if (!running) return;
+
+        let bestCol = -1;
+
+        // 1. Check if AI can win
+        for (let c = 0; c < COLS; c++) {
+            let r = getAvailableRow(c);
+            if (r !== -1) {
+                board[r][c] = 'p2';
+                if (checkWinCondition('p2')) {
+                    bestCol = c;
+                }
+                board[r][c] = null; // undo
+                if (bestCol !== -1) break;
+            }
+        }
+
+        // 2. Check if Player can win (Block)
+        if (bestCol === -1) {
+            for (let c = 0; c < COLS; c++) {
+                let r = getAvailableRow(c);
+                if (r !== -1) {
+                    board[r][c] = 'p1';
+                    if (checkWinCondition('p1')) {
+                        bestCol = c;
+                    }
+                    board[r][c] = null; // undo
+                    if (bestCol !== -1) break;
+                }
+            }
+        }
+
+        // 3. Fallback to random valid column
+        if (bestCol === -1) {
+            let validCols = [];
+            for (let c = 0; c < COLS; c++) {
+                if (getAvailableRow(c) !== -1) validCols.push(c);
+            }
+            if (validCols.length > 0) {
+                // slight preference for middle columns
+                if (validCols.includes(3) && Math.random() > 0.5) {
+                    bestCol = 3;
+                } else {
+                    bestCol = validCols[Math.floor(Math.random() * validCols.length)];
+                }
+            }
+        }
+
+        if (bestCol !== -1) {
+            let r = getAvailableRow(bestCol);
+            executeMove(r, bestCol, 'p2');
+        }
+    }
+
+    restartBtn.addEventListener('click', initGame);
+
+    // Start game
+    initGame();
+
+</script>
+
+</body>
+</html>

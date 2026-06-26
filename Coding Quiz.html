@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Play the cyberpunk edition of Coding Quiz on Play Motion. Test your netrunner knowledge and programming fundamentals!">
+<meta name="keywords" content="Coding Quiz, Programming Quiz, Cyberpunk Game, HTML5 Game, Play Motion, Educational Games, Browser Games">
+<title>Play Coding Quiz  | Play Motion</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;500;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+    --bg-color: #060615;
+    --text-color: #ffffff;
+    --primary: #00f0ff; /* Cyan */
+    --secondary: #ff003c; /* Pink/Red */
+    --accent: #fcee0a; /* Yellow */
+    --card-bg: #121225;
+    --nav-bg: rgba(6, 6, 21, 0.9);
+    --grid-color: rgba(0, 240, 255, 0.05);
+    --btn-text: #fff;
+}
+
+[data-theme="light"] {
+    --bg-color: #f0f0f5;
+    --text-color: #111122;
+    --primary: #0099ff;
+    --secondary: #d40032;
+    --accent: #e6b800;
+    --card-bg: #ffffff;
+    --nav-bg: rgba(240, 240, 245, 0.9);
+    --grid-color: rgba(0, 153, 255, 0.1);
+    --btn-text: #fff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: 
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: -1;
+}
+
+h1, h2, h3, .logo, .tag, .btn {
+    font-family: 'Orbitron', sans-serif;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    flex: 1;
+}
+
+/* Navbar */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--nav-bg);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--primary);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--primary);
+    position: relative;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    transition: 0.3s;
+    position: relative;
+    padding: 5px 0;
+}
+
+nav ul li a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--primary);
+    transition: 0.3s;
+    box-shadow: 0 0 10px var(--primary);
+}
+
+nav ul li a:hover::after {
+    width: 100%;
+}
+
+nav ul li a:hover {
+    color: var(--primary);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.theme-toggle:hover {
+    color: var(--accent);
+    text-shadow: 0 0 10px var(--accent);
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    background: var(--primary);
+    color: var(--btn-text);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    transition: 0.3s;
+    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--secondary);
+    z-index: -1;
+    transform: translate(-5px, 5px);
+    transition: 0.3s;
+}
+
+.btn:hover {
+    box-shadow: 0 0 20px var(--primary);
+    transform: translateY(-2px);
+}
+
+.btn:hover::before {
+    transform: translate(0, 0);
+}
+
+.btn.secondary {
+    background: transparent;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    clip-path: none;
+}
+
+.btn.secondary::before {
+    display: none;
+}
+
+.btn.secondary:hover {
+    background: rgba(0, 240, 255, 0.1);
+    box-shadow: inset 0 0 10px var(--primary), 0 0 10px var(--primary);
+}
+
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Layout */
+.game-layout {
+    display: flex;
+    gap: 40px;
+    margin: 60px 0;
+    align-items: flex-start;
+}
+
+.game-main {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid var(--primary);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.game-sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Game Area */
+.game-main h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    text-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
+    text-align: center;
+}
+
+.game-main h1 span {
+    color: var(--secondary);
+}
+
+.score-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+.game-score {
+    font-size: 24px;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--primary);
+    background: rgba(0, 240, 255, 0.05);
+    padding: 15px 30px;
+    border: 1px solid var(--primary);
+    border-radius: 5px;
+    text-align: center;
+    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    min-width: 150px;
+    flex: 1;
+}
+
+.game-score span {
+    display: block;
+    font-size: 12px;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+.game-status {
+    font-size: 18px;
+    font-family: 'Orbitron', sans-serif;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    min-height: 27px;
+}
+
+/* Quiz Board */
+.quiz-board {
+    width: 100%;
+    max-width: 800px;
+    background: var(--bg-color);
+    border: 2px solid var(--primary);
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
+    border-radius: 5px;
+    padding: 30px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.question-display {
+    width: 100%;
+    background: var(--card-bg);
+    border: 1px solid var(--primary);
+    border-left: 5px solid var(--primary);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.question-display p {
+    font-family: 'Fira Code', monospace;
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--text-color);
+}
+
+.question-display code {
+    background: rgba(0, 240, 255, 0.1);
+    color: var(--primary);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Fira Code', monospace;
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    width: 100%;
+}
+
+.option-btn {
+    padding: 20px 15px;
+    background: var(--card-bg);
+    border: 1px solid var(--primary);
+    color: var(--text-color);
+    font-family: 'Fira Code', monospace;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+}
+
+.option-btn:hover:not(:disabled) {
+    background: rgba(0, 240, 255, 0.05);
+    box-shadow: 5px 5px 0px rgba(0, 240, 255, 0.2);
+    transform: translate(-2px, -2px);
+}
+
+.option-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+/* Feedback states */
+.option-btn.correct {
+    background: rgba(0, 255, 136, 0.1);
+    border-color: #00ff88;
+    color: #00ff88;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+}
+
+.option-btn.wrong {
+    background: rgba(255, 0, 60, 0.1);
+    border-color: var(--secondary);
+    color: var(--secondary);
+    text-decoration: line-through;
+}
+
+.controls-hint {
+    color: var(--text-color);
+    opacity: 0.8;
+    text-align: center;
+    background: var(--bg-color);
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 3px solid var(--accent);
+    width: 100%;
+}
+
+.controls-hint p {
+    margin: 5px 0;
+}
+
+/* End Game Overlay inside Board */
+.end-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 0;
+    width: 100%;
+}
+
+.end-screen h2 {
+    color: var(--primary);
+    font-size: 32px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px var(--primary);
+}
+
+.end-screen p {
+    font-size: 20px;
+    margin-bottom: 30px;
+}
+
+/* Sidebar Small Cards */
+.sidebar-title {
+    font-size: 20px;
+    color: var(--text-color);
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.small-game-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: var(--card-bg);
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: 0.3s;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.small-game-card:hover {
+    border-color: var(--primary);
+    transform: translateX(5px);
+    box-shadow: -5px 5px 15px rgba(0, 240, 255, 0.1);
+}
+
+.small-game-icon {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(255, 0, 60, 0.05));
+    color: var(--primary);
+    font-size: 20px;
+    border-radius: 4px;
+}
+
+.small-game-info h4 {
+    font-size: 14px;
+    margin-bottom: 3px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.small-game-info p {
+    font-size: 11px;
+    color: #00ff88;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.small-game-info p::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background: #00ff88;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #00ff88;
+}
+
+/* About Game Section */
+.about-game {
+    background: var(--card-bg);
+    padding: 40px;
+    margin-bottom: 60px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 4px solid var(--secondary);
+}
+
+.about-game h2 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+.about-game p {
+    line-height: 1.8;
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.about-game ul {
+    margin-left: 20px;
+    margin-bottom: 20px;
+    line-height: 1.8;
+    opacity: 0.9;
+}
+
+.about-game li {
+    margin-bottom: 10px;
+}
+.about-game strong {
+    color: var(--primary);
+}
+
+/* Footer */
+footer {
+    background: var(--card-bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 60px 0 20px;
+    margin-top: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-col h3 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+.footer-col p {
+    color: var(--text-color);
+    opacity: 0.7;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.footer-col ul {
+    list-style: none;
+}
+
+.footer-col ul li {
+    margin-bottom: 12px;
+}
+
+.footer-col ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: 0.3s;
+}
+
+.footer-col ul li a:hover {
+    color: var(--primary);
+    opacity: 1;
+    padding-left: 5px;
+}
+
+.social-links {
+    display: flex;
+    gap: 15px;
+}
+
+.social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+    font-size: 18px;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.social-links a:hover {
+    background: var(--primary);
+    color: var(--btn-text);
+    border-color: var(--primary);
+    box-shadow: 0 0 15px var(--primary);
+    transform: translateY(-3px);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    opacity: 0.6;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media(max-width: 900px) {
+    .game-layout {
+        flex-direction: column;
+    }
+    .game-sidebar {
+        width: 100%;
+        margin-top: 30px;
+    }
+}
+
+@media(max-width: 768px) {
+    nav ul {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--nav-bg);
+        backdrop-filter: blur(10px);
+        padding: 20px 0;
+        text-align: center;
+        border-bottom: 1px solid var(--primary);
+    }
+
+    nav ul.active {
+        display: flex;
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+
+    .game-main h1 {
+        font-size: 28px;
+    }
+    
+    .game-main {
+        padding: 20px;
+    }
+    
+    .score-container {
+        flex-direction: column;
+    }
+    
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .option-btn {
+        font-size: 13px;
+        padding: 15px 10px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="container">
+        <nav>
+            <a href="cyberpunk_gaming.html" class="logo">Play Motion</a>
+
+            <ul id="nav-menu">
+                <li><a href="cyberpunk_gaming.html">Home</a></li>
+                <li><a href="cyberpunk_gaming.html#games">Games</a></li>
+                <li><a href="#about-game">About</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-btn" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="menu-toggle" id="menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <div class="game-layout">
+        <section class="game-main">
+            <h1>Coding Quiz <span>Cyber-Edition</span></h1>
+            
+            <div class="score-container">
+                <div class="game-score">
+                    <span>SCORE</span>
+                    <strong id="score">0</strong>
+                </div>
+                <div class="game-score" style="border-color: var(--secondary);">
+                    <span>QUESTION</span>
+                    <strong id="question-count" style="color: var(--secondary);">1 / 10</strong>
+                </div>
+            </div>
+
+            <div id="status" class="game-status"></div>
+            
+            <div class="quiz-board" id="quiz-board">
+                <div id="active-quiz">
+                    <div class="question-display">
+                        <p id="question-text">Initializing database query...</p>
+                    </div>
+                    
+                    <div class="options-grid" id="options-grid">
+                        <button class="option-btn" data-index="0">A: <span class="opt-text">Loading</span></button>
+                        <button class="option-btn" data-index="1">B: <span class="opt-text">Loading</span></button>
+                        <button class="option-btn" data-index="2">C: <span class="opt-text">Loading</span></button>
+                        <button class="option-btn" data-index="3">D: <span class="opt-text">Loading</span></button>
+                    </div>
+                </div>
+
+                <div class="end-screen" id="end-screen">
+                    <h2>COMPILATION COMPLETE</h2>
+                    <p id="final-score-text">You scored 0 out of 10.</p>
+                    <button id="restartBtn" class="btn primary">Execute New Session</button>
+                </div>
+            </div>
+
+            <div class="controls-hint">
+                <p><i class="fas fa-code"></i> A programming query will appear on the console.</p>
+                <p>Analyze the syntax and select the correct output or definition from the terminal options.</p>
+            </div>
+        </section>
+        
+        <aside class="game-sidebar">
+            <h3 class="sidebar-title">Trending Games</h3>
+            
+            <a href="Typing Speed Test.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-keyboard"></i></div>
+                <div class="small-game-info">
+                    <h4>Typing Speed Test</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="Country & Flag Quiz.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-flag"></i></div>
+                <div class="small-game-info">
+                    <h4>Country & Flag Quiz</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            
+            <a href="slidingpuzzle.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-th-large"></i></div>
+                <div class="small-game-info">
+                    <h4>Sliding Puzzle</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="memory.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-clone"></i></div>
+                <div class="small-game-info">
+                    <h4>Memory Card Matching</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+        </aside>
+    </div>
+
+    <article id="about-game" class="about-game">
+        <h2>About <span>Coding Quiz Cyber-Edition</span></h2>
+        <p>Welcome to the <strong>Coding Quiz Cyber-Edition</strong>! A true netrunner doesn't just use tools; they understand the raw code that builds the matrix.</p>
+        
+        <h3>How It Works</h3>
+        <ul>
+            <li><strong>The Core Dump:</strong> The system will query you with a question sourced from a vast database of programming languages (JavaScript, HTML, CSS, Python) and computer science fundamentals.</li>
+            <li><strong>Compilation:</strong> You will be provided with 4 possible outputs or definitions. Select the correct syntax to compile the node successfully.</li>
+            <li><strong>Real-Time Execution:</strong> The terminal instantly evaluates your logic. Valid syntax will compile in neon green. Invalid syntax throws a red exception error while highlighting the correct variable.</li>
+            <li><strong>Session Loop:</strong> Each hacking simulation runs a gauntlet of 10 randomized queries to ensure you are continually adapting.</li>
+            <li><strong>Scoring:</strong> Achieve a perfect 10/10 to prove your mastery of the mainframe.</li>
+        </ul>
+        
+        <p>Debug your brain, read the documentation carefully, and avoid syntax errors.</p>
+    </article>
+</main>
+
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-col">
+                <div class="logo" style="font-size: 24px; margin-bottom: 20px;">Play Motion</div>
+                <p>Experience the next generation of competitive gaming. Join the neon revolution today.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/thecodecraft.dev/"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Games</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="terms of services.html">Terms of Service</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Play Motion. All rights reserved. Built for the future.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Theme Toggle Logic
+    const themeBtn = document.getElementById('theme-btn');
+    const htmlElement = document.documentElement;
+    const themeIcon = themeBtn.querySelector('i');
+
+    if (htmlElement.getAttribute('data-theme') === 'light') {
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+    }
+
+    themeBtn.addEventListener('click', () => {
+        if (htmlElement.getAttribute('data-theme') === 'light') {
+            htmlElement.setAttribute('data-theme', 'dark');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            htmlElement.setAttribute('data-theme', 'light');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    });
+
+    const menuBtn = document.getElementById('menu-btn');
+    const navMenu = document.getElementById('nav-menu');
+
+    menuBtn.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        const icon = menuBtn.querySelector('i');
+        if(navMenu.classList.contains('active')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        } else {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    });
+
+    // --- Coding Quiz Logic ---
+    const QUESTION_BANK = [
+        {
+            q: "What does HTML stand for?",
+            opts: ["Hyper Text Markup Language", "Home Tool Markup Language", "Hyperlinks and Text Markup Language", "Hyper Tool Multi Language"],
+            ans: "Hyper Text Markup Language"
+        },
+        {
+            q: "Which symbol is used for comments in Python?",
+            opts: ["//", "/*", "#", "<" + "!--"],
+            ans: "#"
+        },
+        {
+            q: "In JavaScript, which keyword is used to declare a block-scoped variable?",
+            opts: ["var", "let", "def", "global"],
+            ans: "let"
+        },
+        {
+            q: "Which HTML attribute is used to define inline styles?",
+            opts: ["class", "font", "style", "styles"],
+            ans: "style"
+        },
+        {
+            q: "How do you select an element with id 'demo' in CSS?",
+            opts: [".demo", "#demo", "*demo", "demo"],
+            ans: "#demo"
+        },
+        {
+            q: "Which property is used in CSS to change the background color?",
+            opts: ["color", "bgcolor", "background-color", "bg-color"],
+            ans: "background-color"
+        },
+        {
+            q: "Inside which HTML element do we put the JavaScript?",
+            opts: ["<" + "script>", "<js>", "<javascript>", "<scripting>"],
+            ans: "<" + "script>"
+        },
+        {
+            q: "What is the correct way to write a JavaScript array?",
+            opts: ["var colors = 1 = ('red'), 2 = ('blue')", "var colors = (1:'red', 2:'blue')", "var colors = ['red', 'blue']", "var colors = 'red', 'blue'"],
+            ans: "var colors = ['red', 'blue']"
+        },
+        {
+            q: "Which event occurs when the user clicks on an HTML element?",
+            opts: ["onmouseclick", "onclick", "onchange", "onmouseover"],
+            ans: "onclick"
+        },
+        {
+            q: "How do you create a function in JavaScript?",
+            opts: ["function = myFunction()", "function myFunction()", "function:myFunction()", "def myFunction()"],
+            ans: "function myFunction()"
+        },
+        {
+            q: "What does CSS stand for?",
+            opts: ["Computer Style Sheets", "Creative Style Sheets", "Cascading Style Sheets", "Colorful Style Sheets"],
+            ans: "Cascading Style Sheets"
+        },
+        {
+            q: "Which SQL statement is used to extract data from a database?",
+            opts: ["EXTRACT", "SELECT", "GET", "OPEN"],
+            ans: "SELECT"
+        },
+        {
+            q: "Which operator is used to assign a value to a variable?",
+            opts: ["*", "-", "=", "x"],
+            ans: "="
+        },
+        {
+            q: "What is the correct HTML for making a checkbox?",
+            opts: ["<input type='checkbox'>", "<checkbox>", "<input type='check'>", "<check>"],
+            ans: "<input type='checkbox'>"
+        },
+        {
+            q: "Which is not a valid data type in JavaScript?",
+            opts: ["Undefined", "Boolean", "Float", "Number"],
+            ans: "Float"
+        },
+        {
+            q: "How do you write 'Hello World' in an alert box in JS?",
+            opts: ["msg('Hello World');", "alertBox('Hello World');", "alert('Hello World');", "msgBox('Hello World');"],
+            ans: "alert('Hello World');"
+        },
+        {
+            q: "Which HTML tag is used to define an internal style sheet?",
+            opts: ["<" + "style>", "<" + "script>", "<css>", "<link>"],
+            ans: "<" + "style>"
+        },
+        {
+            q: "What is the default value of the position property in CSS?",
+            opts: ["relative", "fixed", "absolute", "static"],
+            ans: "static"
+        },
+        {
+            q: "Which of the following is a CSS framework?",
+            opts: ["React", "Angular", "Tailwind", "Vue"],
+            ans: "Tailwind"
+        },
+        {
+            q: "In Git, what command is used to save your changes to the local repository?",
+            opts: ["git save", "git commit", "git push", "git store"],
+            ans: "git commit"
+        }
+    ];
+
+    const TOTAL_QUESTIONS = 10;
+    
+    const scoreElem = document.getElementById('score');
+    const questionCountElem = document.getElementById('question-count');
+    const questionText = document.getElementById('question-text');
+    const optionBtns = document.querySelectorAll('.option-btn');
+    
+    const activeQuizSection = document.getElementById('active-quiz');
+    const endScreenSection = document.getElementById('end-screen');
+    const finalScoreText = document.getElementById('final-score-text');
+    const restartBtn = document.getElementById('restartBtn');
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let quizSequence = [];
+    let currentQuestionData = null;
+    let isWaitingNext = false;
+    let correctAnswerStr = "";
+
+    function initGame() {
+        score = 0;
+        currentQuestionIndex = 0;
+        isWaitingNext = false;
+        
+        scoreElem.textContent = score;
+        
+        activeQuizSection.style.display = 'block';
+        endScreenSection.style.display = 'none';
+
+        // Shuffle questions and pick 10
+        let shuffled = [...QUESTION_BANK].sort(() => 0.5 - Math.random());
+        quizSequence = shuffled.slice(0, TOTAL_QUESTIONS);
+        
+        loadQuestion();
+    }
+
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g, 
+            tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag] || tag)
+        );
+    }
+
+    function loadQuestion() {
+        if (currentQuestionIndex >= TOTAL_QUESTIONS) {
+            endGame();
+            return;
+        }
+
+        isWaitingNext = false;
+        questionCountElem.textContent = `${currentQuestionIndex + 1} / ${TOTAL_QUESTIONS}`;
+        
+        currentQuestionData = quizSequence[currentQuestionIndex];
+        correctAnswerStr = currentQuestionData.ans;
+        
+        // Render Question with possible code block styling if it contains code
+        questionText.innerHTML = escapeHTML(currentQuestionData.q);
+
+        // Options
+        let options = [...currentQuestionData.opts];
+        options = options.sort(() => 0.5 - Math.random());
+
+        const prefix = ['A:', 'B:', 'C:', 'D:'];
+
+        // Assign to buttons
+        optionBtns.forEach((btn, index) => {
+            btn.innerHTML = `<span style="opacity: 0.5; margin-right: 10px;">${prefix[index]}</span> <span class="opt-text">${escapeHTML(options[index])}</span>`;
+            btn.dataset.ans = options[index];
+            
+            // Reset classes and state
+            btn.className = 'option-btn';
+            btn.disabled = false;
+        });
+    }
+
+    function handleOptionClick(e) {
+        if (isWaitingNext) return;
+        isWaitingNext = true;
+        
+        // Ensure we get the button element even if they click the span inside
+        const selectedBtn = e.target.closest('.option-btn');
+        if (!selectedBtn) return;
+
+        const selectedAns = selectedBtn.dataset.ans;
+        const isCorrect = selectedAns === correctAnswerStr;
+
+        // Disable all buttons
+        optionBtns.forEach(btn => btn.disabled = true);
+
+        if (isCorrect) {
+            selectedBtn.classList.add('correct');
+            score++;
+            scoreElem.textContent = score;
+        } else {
+            selectedBtn.classList.add('wrong');
+            // Highlight correct one
+            optionBtns.forEach(btn => {
+                if (btn.dataset.ans === correctAnswerStr) {
+                    btn.classList.add('correct');
+                }
+            });
+        }
+
+        setTimeout(() => {
+            currentQuestionIndex++;
+            loadQuestion();
+        }, 1500); // 1.5s delay before next question
+    }
+
+    function endGame() {
+        activeQuizSection.style.display = 'none';
+        endScreenSection.style.display = 'flex';
+        
+        let feedback = "";
+        if (score === 10) feedback = "Compilation successful. Elite hacker status achieved!";
+        else if (score >= 7) feedback = "Minor syntax errors detected, but logic is sound.";
+        else if (score >= 4) feedback = "Numerous runtime errors. Study the documentation.";
+        else feedback = "Fatal Exception: Brain.exe has stopped working.";
+
+        finalScoreText.innerHTML = `You scored <strong>${score}</strong> out of <strong>${TOTAL_QUESTIONS}</strong>.<br><br><span style="color: var(--primary); font-size: 16px;">${feedback}</span>`;
+    }
+
+    // Event Listeners
+    optionBtns.forEach(btn => {
+        btn.addEventListener('click', handleOptionClick);
+    });
+
+    restartBtn.addEventListener('click', initGame);
+
+    // Initial load
+    initGame();
+
+</script>
+
+</body>
+</html>

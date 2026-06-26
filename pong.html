@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Play the cyberpunk edition of Pong on Play Motion. Challenge the AI in a high-speed data rally and achieve victory!">
+<meta name="keywords" content="Pong Game, Cyberpunk Game, HTML5 Game, Play Motion, Retro Games, Online Games, Browser Games">
+<title>Play Pong  | Play Motion</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+    --bg-color: #060615;
+    --text-color: #ffffff;
+    --primary: #00f0ff; /* Cyan */
+    --secondary: #ff003c; /* Pink/Red */
+    --accent: #fcee0a; /* Yellow */
+    --card-bg: #121225;
+    --nav-bg: rgba(6, 6, 21, 0.9);
+    --grid-color: rgba(0, 240, 255, 0.05);
+    --btn-text: #fff;
+}
+
+[data-theme="light"] {
+    --bg-color: #f0f0f5;
+    --text-color: #111122;
+    --primary: #0099ff;
+    --secondary: #d40032;
+    --accent: #e6b800;
+    --card-bg: #ffffff;
+    --nav-bg: rgba(240, 240, 245, 0.9);
+    --grid-color: rgba(0, 153, 255, 0.1);
+    --btn-text: #fff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: 
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: -1;
+}
+
+h1, h2, h3, .logo, .tag, .btn {
+    font-family: 'Orbitron', sans-serif;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    flex: 1;
+}
+
+/* Navbar */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--nav-bg);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--primary);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--primary);
+    position: relative;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    transition: 0.3s;
+    position: relative;
+    padding: 5px 0;
+}
+
+nav ul li a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--primary);
+    transition: 0.3s;
+    box-shadow: 0 0 10px var(--primary);
+}
+
+nav ul li a:hover::after {
+    width: 100%;
+}
+
+nav ul li a:hover {
+    color: var(--primary);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.theme-toggle:hover {
+    color: var(--accent);
+    text-shadow: 0 0 10px var(--accent);
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    background: var(--primary);
+    color: var(--btn-text);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    transition: 0.3s;
+    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--secondary);
+    z-index: -1;
+    transform: translate(-5px, 5px);
+    transition: 0.3s;
+}
+
+.btn:hover {
+    box-shadow: 0 0 20px var(--primary);
+    transform: translateY(-2px);
+}
+
+.btn:hover::before {
+    transform: translate(0, 0);
+}
+
+.btn.secondary {
+    background: transparent;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    clip-path: none;
+}
+
+.btn.secondary::before {
+    display: none;
+}
+
+.btn.secondary:hover {
+    background: rgba(0, 240, 255, 0.1);
+    box-shadow: inset 0 0 10px var(--primary), 0 0 10px var(--primary);
+}
+
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Layout */
+.game-layout {
+    display: flex;
+    gap: 40px;
+    margin: 60px 0;
+    align-items: flex-start;
+}
+
+.game-main {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid var(--primary);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.game-sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Game Area */
+.game-main h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    text-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
+    text-align: center;
+}
+
+.game-main h1 span {
+    color: var(--secondary);
+}
+
+.score-board {
+    font-size: 24px;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--primary);
+    margin-bottom: 30px;
+    background: rgba(0, 240, 255, 0.05);
+    padding: 10px 30px;
+    border: 1px solid var(--primary);
+    border-radius: 5px;
+    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    display: flex;
+    gap: 30px;
+}
+
+.score-board .player-score {
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--primary);
+}
+
+.score-board .ai-score {
+    color: var(--secondary);
+    text-shadow: 0 0 10px var(--secondary);
+}
+
+#gameCanvas {
+    background: var(--bg-color);
+    border: 3px solid var(--primary);
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.15), inset 0 0 10px rgba(0, 240, 255, 0.05);
+    margin-bottom: 30px;
+    max-width: 100%;
+}
+
+.controls-hint {
+    margin-top: 30px;
+    color: var(--text-color);
+    opacity: 0.8;
+    text-align: center;
+    background: var(--bg-color);
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 3px solid var(--accent);
+}
+
+.controls-hint p {
+    margin: 5px 0;
+}
+
+.controls-hint kbd {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+    color: var(--primary);
+}
+
+/* Sidebar Small Cards */
+.sidebar-title {
+    font-size: 20px;
+    color: var(--text-color);
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.small-game-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: var(--card-bg);
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: 0.3s;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.small-game-card:hover {
+    border-color: var(--primary);
+    transform: translateX(5px);
+    box-shadow: -5px 5px 15px rgba(0, 240, 255, 0.1);
+}
+
+.small-game-icon {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(255, 0, 60, 0.05));
+    color: var(--primary);
+    font-size: 20px;
+    border-radius: 4px;
+}
+
+.small-game-info h4 {
+    font-size: 14px;
+    margin-bottom: 3px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.small-game-info p {
+    font-size: 11px;
+    color: #00ff88;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.small-game-info p::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background: #00ff88;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #00ff88;
+}
+
+/* About Game Section */
+.about-game {
+    background: var(--card-bg);
+    padding: 40px;
+    margin-bottom: 60px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 4px solid var(--secondary);
+}
+
+.about-game h2 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+.about-game p {
+    line-height: 1.8;
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.about-game ul {
+    margin-left: 20px;
+    margin-bottom: 20px;
+    line-height: 1.8;
+    opacity: 0.9;
+}
+
+.about-game li {
+    margin-bottom: 10px;
+}
+.about-game strong {
+    color: var(--primary);
+}
+
+/* Footer */
+footer {
+    background: var(--card-bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 60px 0 20px;
+    margin-top: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-col h3 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+.footer-col p {
+    color: var(--text-color);
+    opacity: 0.7;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.footer-col ul {
+    list-style: none;
+}
+
+.footer-col ul li {
+    margin-bottom: 12px;
+}
+
+.footer-col ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: 0.3s;
+}
+
+.footer-col ul li a:hover {
+    color: var(--primary);
+    opacity: 1;
+    padding-left: 5px;
+}
+
+.social-links {
+    display: flex;
+    gap: 15px;
+}
+
+.social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+    font-size: 18px;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.social-links a:hover {
+    background: var(--primary);
+    color: var(--btn-text);
+    border-color: var(--primary);
+    box-shadow: 0 0 15px var(--primary);
+    transform: translateY(-3px);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    opacity: 0.6;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media(max-width: 900px) {
+    .game-layout {
+        flex-direction: column;
+    }
+    .game-sidebar {
+        width: 100%;
+        margin-top: 30px;
+    }
+}
+
+@media(max-width: 768px) {
+    nav ul {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--nav-bg);
+        backdrop-filter: blur(10px);
+        padding: 20px 0;
+        text-align: center;
+        border-bottom: 1px solid var(--primary);
+    }
+
+    nav ul.active {
+        display: flex;
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+
+    .game-main h1 {
+        font-size: 28px;
+    }
+    
+    .game-main {
+        padding: 20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="container">
+        <nav>
+            <a href="cyberpunk_gaming.html" class="logo">Play Motion</a>
+
+            <ul id="nav-menu">
+                <li><a href="cyberpunk_gaming.html">Home</a></li>
+                <li><a href="cyberpunk_gaming.html#games">Games</a></li>
+                <li><a href="#about-game">About</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-btn" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="menu-toggle" id="menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <div class="game-layout">
+        <section class="game-main">
+            <h1>Pong <span>Cyber-Edition</span></h1>
+            
+            <div class="score-board">
+                <span class="player-score">P1: <span id="player-score">0</span></span>
+                <span>-</span>
+                <span class="ai-score">AI: <span id="ai-score">0</span></span>
+            </div>
+            
+            <canvas id="gameCanvas" width="400" height="400" aria-label="Pong Game Area"></canvas>
+            
+            <div class="controls">
+                <button id="startBtn" class="btn primary">Start Game</button>
+            </div>
+
+            <div class="controls-hint">
+                <p><i class="fas fa-keyboard"></i> Use <kbd>&uarr;</kbd> <kbd>&darr;</kbd> or <kbd>Mouse</kbd> to move your paddle.</p>
+                <p>First to score 5 points wins the match!</p>
+            </div>
+        </section>
+        
+        <aside class="game-sidebar">
+            <h3 class="sidebar-title">Trending Games</h3>
+            
+            <a href="snake.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-ghost"></i></div>
+                <div class="small-game-info">
+                    <h4>Snake</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="flappy.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-kiwi-bird"></i></div>
+                <div class="small-game-info">
+                    <h4>Flappy Bird</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="braekout.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-cubes"></i></div>
+                <div class="small-game-info">
+                    <h4>Breakout</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="tetris.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-shapes"></i></div>
+                <div class="small-game-info">
+                    <h4>Tetris</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="chess.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-chess"></i></div>
+                <div class="small-game-info">
+                    <h4>Chess</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+        </aside>
+    </div>
+
+    <article id="about-game" class="about-game">
+        <h2>About <span>Pong Cyber-Edition</span></h2>
+        <p>Welcome to the <strong>Pong Cyber-Edition</strong>! This reimagined version of the foundational arcade game places you in a high-speed data rally against a relentless AI opponent. Deflect the data packet back and forth, aiming to outmaneuver the system and score.</p>
+        
+        <h3>How It Works</h3>
+        <ul>
+            <li><strong>Movement:</strong> Use the <code>Up / Down Arrow Keys</code> or vertical <code>Mouse Movement</code> to control your paddle on the left side of the screen.</li>
+            <li><strong>Scoring:</strong> Send the energy orb past the AI's paddle on the right side to score a point. If the orb slips past your paddle, the AI scores.</li>
+            <li><strong>Game Over:</strong> The first player (or AI) to reach 5 points wins the match and secures the system.</li>
+            <li><strong>Dynamic Themes:</strong> The arena dynamically updates based on your preferred system theme (Light or Dark mode). Use the toggle in the navigation bar to switch environments!</li>
+        </ul>
+        
+        <p>Whether you're looking for a quick retro gaming fix or aiming to top the Play Motion leaderboards, Pong Cyber-Edition offers seamless, responsive gameplay powered entirely by modern HTML5 Canvas and JavaScript.</p>
+    </article>
+</main>
+
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-col">
+                <div class="logo" style="font-size: 24px; margin-bottom: 20px;">Play Motion</div>
+                <p>Experience the next generation of competitive gaming. Join the neon revolution today.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/thecodecraft.dev/"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Games</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="terms of services.html">Terms of Service</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Play Motion. All rights reserved. Built for the future.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Theme Toggle Logic
+    const themeBtn = document.getElementById('theme-btn');
+    const htmlElement = document.documentElement;
+    const themeIcon = themeBtn.querySelector('i');
+
+    // Make sure icon matches default theme
+    if (htmlElement.getAttribute('data-theme') === 'light') {
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+    }
+
+    themeBtn.addEventListener('click', () => {
+        if (htmlElement.getAttribute('data-theme') === 'light') {
+            htmlElement.setAttribute('data-theme', 'dark');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            htmlElement.setAttribute('data-theme', 'light');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    });
+
+    // Mobile Menu Toggle
+    const menuBtn = document.getElementById('menu-btn');
+    const navMenu = document.getElementById('nav-menu');
+
+    menuBtn.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        const icon = menuBtn.querySelector('i');
+        if(navMenu.classList.contains('active')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        } else {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    });
+
+    // --- Pong Game Logic ---
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const playerScoreElement = document.getElementById("player-score");
+    const aiScoreElement = document.getElementById("ai-score");
+    const startBtn = document.getElementById("startBtn");
+
+    let isPlaying = false;
+    let gameEnded = false;
+    let winner = "";
+    let gameLoop;
+
+    // Scores
+    let playerScore = 0;
+    let aiScore = 0;
+    const winScore = 5;
+
+    // Paddles
+    const paddleWidth = 10;
+    const paddleHeight = 70;
+    let playerY = (canvas.height - paddleHeight) / 2;
+    let aiY = (canvas.height - paddleHeight) / 2;
+    const paddleSpeed = 6;
+    let upPressed = false;
+    let downPressed = false;
+
+    // Ball
+    const ballRadius = 6;
+    let ballX = canvas.width / 2;
+    let ballY = canvas.height / 2;
+    let ballDx = 4;
+    let ballDy = 4;
+
+    // Get CSS variables for colors
+    function getGameColors() {
+        const style = getComputedStyle(document.body);
+        return {
+            bg: style.getPropertyValue('--bg-color').trim(),
+            primary: style.getPropertyValue('--primary').trim(),
+            secondary: style.getPropertyValue('--secondary').trim()
+        };
+    }
+
+    function resetGame() {
+        playerScore = 0;
+        aiScore = 0;
+        playerScoreElement.innerText = playerScore;
+        aiScoreElement.innerText = aiScore;
+        gameEnded = false;
+        winner = "";
+        resetBall();
+        drawGame(); // initial draw
+    }
+
+    function resetBall() {
+        ballX = canvas.width / 2;
+        ballY = canvas.height / 2;
+        ballDx = -ballDx; // Serve to the other player
+        // Randomize Y direction slightly
+        ballDy = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 2 + 3);
+        
+        // Reset paddles
+        playerY = (canvas.height - paddleHeight) / 2;
+        aiY = (canvas.height - paddleHeight) / 2;
+    }
+
+    function updateGame() {
+        // Player Movement
+        if (upPressed && playerY > 0) {
+            playerY -= paddleSpeed;
+        } else if (downPressed && playerY < canvas.height - paddleHeight) {
+            playerY += paddleSpeed;
+        }
+
+        // AI Movement (Track ball)
+        // Add a slight delay/imperfection to AI
+        let aiCenter = aiY + paddleHeight / 2;
+        if (aiCenter < ballY - 10) {
+            aiY += paddleSpeed - 1.5;
+        } else if (aiCenter > ballY + 10) {
+            aiY -= paddleSpeed - 1.5;
+        }
+        
+        // Clamp AI to canvas
+        if (aiY < 0) aiY = 0;
+        if (aiY > canvas.height - paddleHeight) aiY = canvas.height - paddleHeight;
+
+        // Ball Collision with Top/Bottom Walls
+        if (ballY + ballDy < ballRadius || ballY + ballDy > canvas.height - ballRadius) {
+            ballDy = -ballDy;
+        }
+
+        // Ball Collision with Player Paddle (Left)
+        if (ballX - ballRadius < paddleWidth) {
+            if (ballY > playerY && ballY < playerY + paddleHeight) {
+                ballDx = -ballDx;
+                // Add a bit of spin/angle based on where it hit
+                let deltaY = ballY - (playerY + paddleHeight/2);
+                ballDy = deltaY * 0.2;
+                ballX = paddleWidth + ballRadius; // prevent sticking
+            }
+        }
+
+        // Ball Collision with AI Paddle (Right)
+        if (ballX + ballRadius > canvas.width - paddleWidth) {
+            if (ballY > aiY && ballY < aiY + paddleHeight) {
+                ballDx = -ballDx;
+                let deltaY = ballY - (aiY + paddleHeight/2);
+                ballDy = deltaY * 0.2;
+                ballX = canvas.width - paddleWidth - ballRadius; // prevent sticking
+            }
+        }
+
+        // Scoring
+        if (ballX < 0) {
+            aiScore++;
+            aiScoreElement.innerText = aiScore;
+            if (aiScore >= winScore) {
+                gameOver("AI");
+            } else {
+                resetBall();
+            }
+        } else if (ballX > canvas.width) {
+            playerScore++;
+            playerScoreElement.innerText = playerScore;
+            if (playerScore >= winScore) {
+                gameOver("PLAYER");
+            } else {
+                resetBall();
+            }
+        }
+
+        // Move Ball
+        ballX += ballDx;
+        ballY += ballDy;
+    }
+
+    function drawGame() {
+        clearCanvas();
+        const colors = getGameColors();
+        
+        if (isPlaying) {
+            updateGame();
+        }
+        
+        // Draw dashed center line
+        ctx.beginPath();
+        ctx.setLineDash([10, 15]);
+        ctx.moveTo(canvas.width / 2, 0);
+        ctx.lineTo(canvas.width / 2, canvas.height);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.closePath();
+
+        if (isPlaying || (!isPlaying && !gameEnded)) {
+            drawPaddles();
+            drawBall();
+        } else if (gameEnded) {
+            drawPaddles();
+            
+            ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            let isWin = winner === "PLAYER";
+            
+            ctx.fillStyle = isWin ? colors.primary : colors.secondary;
+            ctx.font = "bold 32px Orbitron";
+            ctx.textAlign = "center";
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = ctx.fillStyle;
+            
+            let msg = isWin ? "SYSTEM SECURED" : "SYSTEM FAILURE";
+            ctx.fillText(msg, canvas.width / 2, canvas.height / 2 - 10);
+            
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "20px Poppins";
+            ctx.shadowBlur = 0;
+            ctx.fillText(isWin ? "You Win!" : "AI Wins!", canvas.width / 2, canvas.height / 2 + 30);
+        }
+    }
+
+    function clearCanvas() {
+        const colors = getGameColors();
+        ctx.fillStyle = colors.bg;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawBall() {
+        const colors = getGameColors();
+        ctx.beginPath();
+        ctx.arc(ballX, ballY, ballRadius, 0, Math.PI*2);
+        ctx.fillStyle = "#ffffff"; // White ball
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#ffffff";
+        ctx.fill();
+        ctx.closePath();
+        ctx.shadowBlur = 0; // Reset
+    }
+
+    function drawPaddles() {
+        const colors = getGameColors();
+        
+        // Player Paddle
+        ctx.beginPath();
+        ctx.rect(0, playerY, paddleWidth, paddleHeight);
+        ctx.fillStyle = colors.primary;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = colors.primary;
+        ctx.fill();
+        ctx.closePath();
+        
+        // AI Paddle
+        ctx.beginPath();
+        ctx.rect(canvas.width - paddleWidth, aiY, paddleWidth, paddleHeight);
+        ctx.fillStyle = colors.secondary;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = colors.secondary;
+        ctx.fill();
+        ctx.closePath();
+        
+        ctx.shadowBlur = 0; // Reset
+    }
+
+    function gameOver(winSide) {
+        isPlaying = false;
+        gameEnded = true;
+        winner = winSide;
+        clearInterval(gameLoop);
+        startBtn.innerText = "Play Again";
+        drawGame(); // Draw screen immediately
+    }
+
+    // Controls
+    document.addEventListener("keydown", (e) => {
+        if(e.key == "Up" || e.key == "ArrowUp") {
+            upPressed = true;
+            e.preventDefault();
+        } else if(e.key == "Down" || e.key == "ArrowDown") {
+            downPressed = true;
+            e.preventDefault();
+        }
+    });
+
+    document.addEventListener("keyup", (e) => {
+        if(e.key == "Up" || e.key == "ArrowUp") {
+            upPressed = false;
+        } else if(e.key == "Down" || e.key == "ArrowDown") {
+            downPressed = false;
+        }
+    });
+
+    document.addEventListener("mousemove", (e) => {
+        if (!isPlaying) return;
+        let relativeY = e.clientY - canvas.getBoundingClientRect().top;
+        if(relativeY > 0 && relativeY < canvas.height) {
+            playerY = relativeY - paddleHeight/2;
+            // Bound paddle within canvas
+            if (playerY < 0) playerY = 0;
+            if (playerY + paddleHeight > canvas.height) playerY = canvas.height - paddleHeight;
+        }
+    });
+
+    startBtn.addEventListener("click", () => {
+        clearInterval(gameLoop);
+        resetGame();
+        isPlaying = true;
+        
+        // Set game loop
+        gameLoop = setInterval(drawGame, 1000/60); // 60 FPS
+        startBtn.innerText = "Playing...";
+    });
+
+    // Initial setup to draw the empty board
+    drawGame();
+    
+    // Listen for theme changes to redraw canvas with new colors
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === "data-theme") {
+                if(!isPlaying) drawGame();
+            }
+        });
+    });
+    observer.observe(document.documentElement, { attributes: true });
+
+</script>
+
+</body>
+</html>

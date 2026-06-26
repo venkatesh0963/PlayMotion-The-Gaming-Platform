@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Play the cyberpunk edition of Word Search on Play Motion. Scan the data streams and isolate the target keywords!">
+<meta name="keywords" content="Word Search, Cyberpunk Game, HTML5 Game, Play Motion, Retro Games, Online Games, Browser Games, Puzzle Game">
+<title>Play Word Search  | Play Motion</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+    --bg-color: #060615;
+    --text-color: #ffffff;
+    --primary: #00f0ff; /* Cyan */
+    --secondary: #ff003c; /* Pink/Red */
+    --accent: #fcee0a; /* Yellow */
+    --card-bg: #121225;
+    --nav-bg: rgba(6, 6, 21, 0.9);
+    --grid-color: rgba(0, 240, 255, 0.05);
+    --btn-text: #fff;
+}
+
+[data-theme="light"] {
+    --bg-color: #f0f0f5;
+    --text-color: #111122;
+    --primary: #0099ff;
+    --secondary: #d40032;
+    --accent: #e6b800;
+    --card-bg: #ffffff;
+    --nav-bg: rgba(240, 240, 245, 0.9);
+    --grid-color: rgba(0, 153, 255, 0.1);
+    --btn-text: #fff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    user-select: none; /* Prevent text selection while dragging */
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: 
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: -1;
+}
+
+h1, h2, h3, .logo, .tag, .btn {
+    font-family: 'Orbitron', sans-serif;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    flex: 1;
+}
+
+/* Navbar */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--nav-bg);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--primary);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--primary);
+    position: relative;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    transition: 0.3s;
+    position: relative;
+    padding: 5px 0;
+}
+
+nav ul li a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--primary);
+    transition: 0.3s;
+    box-shadow: 0 0 10px var(--primary);
+}
+
+nav ul li a:hover::after {
+    width: 100%;
+}
+
+nav ul li a:hover {
+    color: var(--primary);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.theme-toggle:hover {
+    color: var(--accent);
+    text-shadow: 0 0 10px var(--accent);
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    background: var(--primary);
+    color: var(--btn-text);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    transition: 0.3s;
+    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--secondary);
+    z-index: -1;
+    transform: translate(-5px, 5px);
+    transition: 0.3s;
+}
+
+.btn:hover {
+    box-shadow: 0 0 20px var(--primary);
+    transform: translateY(-2px);
+}
+
+.btn:hover::before {
+    transform: translate(0, 0);
+}
+
+.btn.secondary {
+    background: transparent;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    clip-path: none;
+}
+
+.btn.secondary::before {
+    display: none;
+}
+
+.btn.secondary:hover {
+    background: rgba(0, 240, 255, 0.1);
+    box-shadow: inset 0 0 10px var(--primary), 0 0 10px var(--primary);
+}
+
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Layout */
+.game-layout {
+    display: flex;
+    gap: 40px;
+    margin: 60px 0;
+    align-items: flex-start;
+}
+
+.game-main {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid var(--primary);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.game-sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Game Area */
+.game-main h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    text-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
+    text-align: center;
+}
+
+.game-main h1 span {
+    color: var(--secondary);
+}
+
+.score-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.game-score {
+    font-size: 24px;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--primary);
+    background: rgba(0, 240, 255, 0.05);
+    padding: 10px 30px;
+    border: 1px solid var(--primary);
+    border-radius: 5px;
+    text-align: center;
+    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    min-width: 180px;
+}
+
+.game-score span {
+    display: block;
+    font-size: 12px;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+.game-status {
+    font-size: 18px;
+    font-family: 'Orbitron', sans-serif;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    min-height: 27px;
+}
+.status-win { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
+
+.word-search-layout {
+    display: flex;
+    gap: 30px;
+    width: 100%;
+    justify-content: center;
+    align-items: flex-start;
+    margin-bottom: 30px;
+}
+
+/* Word Search Grid */
+.word-search-board {
+    display: grid;
+    /* 12x12 grid will be set in JS */
+    gap: 2px;
+    background: var(--primary);
+    padding: 2px;
+    border: 3px solid var(--primary);
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+    border-radius: 4px;
+}
+
+.ws-cell {
+    width: 35px;
+    height: 35px;
+    background: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: background-color 0.1s, color 0.1s;
+}
+
+/* Highlight while dragging */
+.ws-cell.highlight {
+    background: rgba(0, 240, 255, 0.3);
+    color: var(--primary);
+    text-shadow: 0 0 5px var(--primary);
+}
+
+/* Permanent highlight for found words */
+.ws-cell.found {
+    background: rgba(0, 255, 136, 0.2);
+    color: #00ff88;
+    text-shadow: 0 0 5px #00ff88;
+}
+
+/* Word List Sidebar */
+.word-list {
+    background: rgba(0, 240, 255, 0.05);
+    border: 1px solid var(--primary);
+    padding: 20px;
+    border-radius: 5px;
+    min-width: 180px;
+}
+
+.word-list h3 {
+    font-size: 16px;
+    color: var(--primary);
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+    padding-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.word-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+.word-list li {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    color: var(--text-color);
+    margin-bottom: 10px;
+    transition: 0.3s;
+    letter-spacing: 1px;
+}
+
+.word-list li.found {
+    text-decoration: line-through;
+    color: #00ff88;
+    opacity: 0.7;
+}
+
+.controls-hint {
+    color: var(--text-color);
+    opacity: 0.8;
+    text-align: center;
+    background: var(--bg-color);
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 3px solid var(--accent);
+    width: 100%;
+}
+
+.controls-hint p {
+    margin: 5px 0;
+}
+
+/* Sidebar Small Cards */
+.sidebar-title {
+    font-size: 20px;
+    color: var(--text-color);
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.small-game-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: var(--card-bg);
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: 0.3s;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.small-game-card:hover {
+    border-color: var(--primary);
+    transform: translateX(5px);
+    box-shadow: -5px 5px 15px rgba(0, 240, 255, 0.1);
+}
+
+.small-game-icon {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(255, 0, 60, 0.05));
+    color: var(--primary);
+    font-size: 20px;
+    border-radius: 4px;
+}
+
+.small-game-info h4 {
+    font-size: 14px;
+    margin-bottom: 3px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.small-game-info p {
+    font-size: 11px;
+    color: #00ff88;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.small-game-info p::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background: #00ff88;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #00ff88;
+}
+
+/* About Game Section */
+.about-game {
+    background: var(--card-bg);
+    padding: 40px;
+    margin-bottom: 60px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 4px solid var(--secondary);
+}
+
+.about-game h2 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+.about-game p {
+    line-height: 1.8;
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.about-game ul {
+    margin-left: 20px;
+    margin-bottom: 20px;
+    line-height: 1.8;
+    opacity: 0.9;
+}
+
+.about-game li {
+    margin-bottom: 10px;
+}
+.about-game strong {
+    color: var(--primary);
+}
+
+/* Footer */
+footer {
+    background: var(--card-bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 60px 0 20px;
+    margin-top: auto;
+    position: relative;
+    overflow: hidden;
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-col h3 {
+    color: var(--text-color);
+    margin-bottom: 20px;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+.footer-col p {
+    color: var(--text-color);
+    opacity: 0.7;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.footer-col ul {
+    list-style: none;
+}
+
+.footer-col ul li {
+    margin-bottom: 12px;
+}
+
+.footer-col ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: 0.3s;
+}
+
+.footer-col ul li a:hover {
+    color: var(--primary);
+    opacity: 1;
+    padding-left: 5px;
+}
+
+.social-links {
+    display: flex;
+    gap: 15px;
+}
+
+.social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+    font-size: 18px;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.social-links a:hover {
+    background: var(--primary);
+    color: var(--btn-text);
+    border-color: var(--primary);
+    box-shadow: 0 0 15px var(--primary);
+    transform: translateY(-3px);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    opacity: 0.6;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media(max-width: 900px) {
+    .game-layout {
+        flex-direction: column;
+    }
+    .game-sidebar {
+        width: 100%;
+        margin-top: 30px;
+    }
+}
+
+@media(max-width: 768px) {
+    nav ul {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--nav-bg);
+        backdrop-filter: blur(10px);
+        padding: 20px 0;
+        text-align: center;
+        border-bottom: 1px solid var(--primary);
+    }
+
+    nav ul.active {
+        display: flex;
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+
+    .game-main h1 {
+        font-size: 28px;
+    }
+    
+    .game-main {
+        padding: 20px;
+    }
+    
+    .word-search-layout {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .ws-cell {
+        width: 25px;
+        height: 25px;
+        font-size: 14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="container">
+        <nav>
+            <a href="cyberpunk_gaming.html" class="logo">Play Motion</a>
+
+            <ul id="nav-menu">
+                <li><a href="cyberpunk_gaming.html">Home</a></li>
+                <li><a href="cyberpunk_gaming.html#games">Games</a></li>
+                <li><a href="#about-game">About</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-btn" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="menu-toggle" id="menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <div class="game-layout">
+        <section class="game-main">
+            <h1>Word Search <span>Cyber-Edition</span></h1>
+            
+            <div class="score-container">
+                <div class="game-score">
+                    <span>TARGETS ISOLATED</span>
+                    <strong id="found-count">0 / 8</strong>
+                </div>
+            </div>
+
+            <div id="status" class="game-status"></div>
+            
+            <div class="word-search-layout">
+                <div id="gameBoard" class="word-search-board" aria-label="Word Search Board">
+                    <!-- Generated by JS -->
+                </div>
+                
+                <div class="word-list">
+                    <h3>Data Targets</h3>
+                    <ul id="wordList">
+                        <!-- Generated by JS -->
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button id="startBtn" class="btn primary">Generate New Data Stream</button>
+            </div>
+
+            <div class="controls-hint">
+                <p><i class="fas fa-mouse-pointer"></i> Click and drag across the grid to highlight words.</p>
+                <p>Words can be hidden horizontally, vertically, or diagonally (both forwards and backwards).</p>
+            </div>
+        </section>
+        
+        <aside class="game-sidebar">
+            <h3 class="sidebar-title">Trending Games</h3>
+            
+            <a href="slidingpuzzle.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-th-large"></i></div>
+                <div class="small-game-info">
+                    <h4>Sliding Puzzle</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="memory.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-clone"></i></div>
+                <div class="small-game-info">
+                    <h4>Memory Card Matching</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="tetris.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-shapes"></i></div>
+                <div class="small-game-info">
+                    <h4>Tetris</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="sudoku.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-table"></i></div>
+                <div class="small-game-info">
+                    <h4>Sudoku</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+            
+            <a href="reversi.html" class="small-game-card">
+                <div class="small-game-icon"><i class="fas fa-dot-circle"></i></div>
+                <div class="small-game-info">
+                    <h4>Reversi</h4>
+                    <p>Play Now</p>
+                </div>
+            </a>
+        </aside>
+    </div>
+
+    <article id="about-game" class="about-game">
+        <h2>About <span>Word Search Cyber-Edition</span></h2>
+        <p>Welcome to the <strong>Word Search Cyber-Edition</strong>! Dive deep into the raw data stream and extract the designated target keywords before the system resets.</p>
+        
+        <h3>How It Works</h3>
+        <ul>
+            <li><strong>The Grid:</strong> A 12x12 matrix of randomized characters hides 8 specific cyberpunk-themed keywords.</li>
+            <li><strong>Target Data:</strong> Check the "Data Targets" panel on the right. These are the strings you must locate within the grid.</li>
+            <li><strong>Extraction:</strong> Click and drag your mouse across the letters to highlight a sequence. Words can be positioned horizontally, vertically, or diagonally. They can also be spelled backwards!</li>
+            <li><strong>Verification:</strong> Releasing your mouse click verifies the sequence. If it matches a target keyword, the data is secured and will permanently glow neon green. It will also be crossed off your target list.</li>
+            <li><strong>Objective:</strong> Find and isolate all 8 targets to achieve total system infiltration.</li>
+        </ul>
+        
+        <p>Stay sharp, hacker. The matrix is dense with garbage data, but the patterns are there if you look closely.</p>
+    </article>
+</main>
+
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-col">
+                <div class="logo" style="font-size: 24px; margin-bottom: 20px;">Play Motion</div>
+                <p>Experience the next generation of competitive gaming. Join the neon revolution today.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/thecodecraft.dev/"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Games</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="terms of services.html">Terms of Service</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Play Motion. All rights reserved. Built for the future.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Theme Toggle Logic
+    const themeBtn = document.getElementById('theme-btn');
+    const htmlElement = document.documentElement;
+    const themeIcon = themeBtn.querySelector('i');
+
+    if (htmlElement.getAttribute('data-theme') === 'light') {
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+    }
+
+    themeBtn.addEventListener('click', () => {
+        if (htmlElement.getAttribute('data-theme') === 'light') {
+            htmlElement.setAttribute('data-theme', 'dark');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            htmlElement.setAttribute('data-theme', 'light');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    });
+
+    const menuBtn = document.getElementById('menu-btn');
+    const navMenu = document.getElementById('nav-menu');
+
+    menuBtn.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        const icon = menuBtn.querySelector('i');
+        if(navMenu.classList.contains('active')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        } else {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+    });
+
+    // --- Word Search Logic ---
+    const boardElement = document.getElementById('gameBoard');
+    const wordListElement = document.getElementById('wordList');
+    const foundCountElem = document.getElementById('found-count');
+    const statusText = document.getElementById('status');
+    const resetBtn = document.getElementById('startBtn');
+
+    const SIZE = 12;
+    const WORD_BANK = [
+        "CYBERPUNK", "NEON", "MATRIX", "HACKER", 
+        "GLITCH", "SYNTH", "SYSTEM", "DATA",
+        "NETWORK", "ROBOT", "UPLOAD", "PROXY"
+    ];
+    let TARGET_WORDS = [];
+    const TOTAL_WORDS = 8;
+    
+    let grid = [];
+    let foundWords = [];
+    let isSelecting = false;
+    let startCell = null;
+    let currentPath = [];
+
+    const DIRECTIONS = [
+        [0, 1],   // Right
+        [1, 0],   // Down
+        [1, 1],   // Diagonal Down-Right
+        [-1, 1],  // Diagonal Up-Right
+        [0, -1],  // Left
+        [-1, 0],  // Up
+        [-1, -1], // Diagonal Up-Left
+        [1, -1]   // Diagonal Down-Left
+    ];
+
+    function initGame() {
+        boardElement.style.gridTemplateColumns = `repeat(${SIZE}, 1fr)`;
+        boardElement.innerHTML = '';
+        wordListElement.innerHTML = '';
+        foundWords = [];
+        foundCountElem.textContent = `0 / ${TOTAL_WORDS}`;
+        statusText.textContent = '';
+        statusText.className = 'game-status';
+
+        // Select 8 random words
+        let shuffledBank = [...WORD_BANK].sort(() => 0.5 - Math.random());
+        TARGET_WORDS = shuffledBank.slice(0, TOTAL_WORDS);
+
+        // Populate word list UI
+        TARGET_WORDS.forEach(word => {
+            const li = document.createElement('li');
+            li.textContent = word;
+            li.id = `word-${word}`;
+            wordListElement.appendChild(li);
+        });
+
+        generateGrid();
+        renderGrid();
+    }
+
+    function generateGrid() {
+        // Initialize empty grid
+        grid = Array(SIZE).fill(null).map(() => Array(SIZE).fill(''));
+
+        // Place words
+        TARGET_WORDS.forEach(word => {
+            let placed = false;
+            let attempts = 0;
+            while (!placed && attempts < 100) {
+                attempts++;
+                const dir = DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
+                const startR = Math.floor(Math.random() * SIZE);
+                const startC = Math.floor(Math.random() * SIZE);
+
+                if (canPlaceWord(word, startR, startC, dir)) {
+                    placeWord(word, startR, startC, dir);
+                    placed = true;
+                }
+            }
+        });
+
+        // Fill empty spaces with random letters
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+                if (grid[r][c] === '') {
+                    grid[r][c] = alphabet[Math.floor(Math.random() * alphabet.length)];
+                }
+            }
+        }
+    }
+
+    function canPlaceWord(word, r, c, dir) {
+        for (let i = 0; i < word.length; i++) {
+            const nr = r + i * dir[0];
+            const nc = c + i * dir[1];
+            
+            if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) return false;
+            if (grid[nr][nc] !== '' && grid[nr][nc] !== word[i]) return false;
+        }
+        return true;
+    }
+
+    function placeWord(word, r, c, dir) {
+        for (let i = 0; i < word.length; i++) {
+            const nr = r + i * dir[0];
+            const nc = c + i * dir[1];
+            grid[nr][nc] = word[i];
+        }
+    }
+
+    function renderGrid() {
+        for (let r = 0; r < SIZE; r++) {
+            for (let c = 0; c < SIZE; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'ws-cell';
+                cell.textContent = grid[r][c];
+                cell.dataset.r = r;
+                cell.dataset.c = c;
+
+                // Mouse events for drawing
+                cell.addEventListener('mousedown', handleMouseDown);
+                cell.addEventListener('mouseenter', handleMouseEnter);
+                
+                // Touch events for mobile support
+                cell.addEventListener('touchstart', handleTouchStart, {passive: false});
+                
+                boardElement.appendChild(cell);
+            }
+        }
+        
+        // Global mouseup to catch releases outside the grid
+        document.addEventListener('mouseup', handleMouseUp);
+        boardElement.addEventListener('touchmove', handleTouchMove, {passive: false});
+        document.addEventListener('touchend', handleMouseUp);
+    }
+
+    function handleMouseDown(e) {
+        if(e.button !== 0 && e.type !== 'touchstart') return; // Only left click
+        isSelecting = true;
+        startCell = this;
+        clearHighlights();
+        currentPath = [this];
+        this.classList.add('highlight');
+    }
+
+    function handleMouseEnter(e) {
+        if (!isSelecting || !startCell) return;
+        
+        const endCell = this;
+        calculatePath(startCell, endCell);
+    }
+    
+    function handleTouchStart(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+        if(target && target.classList.contains('ws-cell')) {
+            handleMouseDown.call(target, e);
+        }
+    }
+    
+    function handleTouchMove(e) {
+        e.preventDefault();
+        if (!isSelecting) return;
+        const touch = e.touches[0];
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+        if(target && target.classList.contains('ws-cell')) {
+            handleMouseEnter.call(target, e);
+        }
+    }
+
+    function calculatePath(start, end) {
+        const sr = parseInt(start.dataset.r);
+        const sc = parseInt(start.dataset.c);
+        const er = parseInt(end.dataset.r);
+        const ec = parseInt(end.dataset.c);
+
+        const dr = er - sr;
+        const dc = ec - sc;
+
+        // Ensure it's a valid straight or diagonal line
+        if (dr !== 0 && dc !== 0 && Math.abs(dr) !== Math.abs(dc)) {
+            return; // Not a valid angle
+        }
+
+        clearHighlights();
+        currentPath = [];
+
+        const steps = Math.max(Math.abs(dr), Math.abs(dc));
+        const stepR = dr === 0 ? 0 : dr / Math.abs(dr);
+        const stepC = dc === 0 ? 0 : dc / Math.abs(dc);
+
+        for (let i = 0; i <= steps; i++) {
+            const r = sr + i * stepR;
+            const c = sc + i * stepC;
+            const cell = document.querySelector(`.ws-cell[data-r="${r}"][data-c="${c}"]`);
+            if (cell) {
+                cell.classList.add('highlight');
+                currentPath.push(cell);
+            }
+        }
+    }
+
+    function clearHighlights() {
+        const cells = document.querySelectorAll('.ws-cell.highlight');
+        cells.forEach(c => c.classList.remove('highlight'));
+    }
+
+    function handleMouseUp(e) {
+        if (!isSelecting) return;
+        isSelecting = false;
+        
+        if (currentPath.length > 0) {
+            checkSelectedWord();
+        }
+        
+        clearHighlights();
+        currentPath = [];
+        startCell = null;
+    }
+
+    function checkSelectedWord() {
+        let wordStr = currentPath.map(c => c.textContent).join('');
+        let reverseStr = currentPath.map(c => c.textContent).reverse().join('');
+
+        let foundWord = null;
+
+        if (TARGET_WORDS.includes(wordStr) && !foundWords.includes(wordStr)) {
+            foundWord = wordStr;
+        } else if (TARGET_WORDS.includes(reverseStr) && !foundWords.includes(reverseStr)) {
+            foundWord = reverseStr;
+        }
+
+        if (foundWord) {
+            foundWords.push(foundWord);
+            
+            // Mark cells as found
+            currentPath.forEach(c => c.classList.add('found'));
+            
+            // Update UI list
+            document.getElementById(`word-${foundWord}`).classList.add('found');
+            
+            // Update Score
+            foundCountElem.textContent = `${foundWords.length} / ${TOTAL_WORDS}`;
+            
+            checkWin();
+        }
+    }
+
+    function checkWin() {
+        if (foundWords.length === TOTAL_WORDS) {
+            statusText.textContent = "ALL TARGETS EXTRACTED. SYSTEM INFILTRATED.";
+            statusText.className = "game-status status-win";
+        }
+    }
+
+    resetBtn.addEventListener('click', initGame);
+
+    // Run on load
+    initGame();
+
+</script>
+
+</body>
+</html>
