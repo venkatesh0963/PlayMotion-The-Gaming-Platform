@@ -37,3 +37,7 @@ Welcome to **PlayMotion**, a beautiful, fully responsive, and single-page gaming
 ## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome! Feel free to check the issues page or submit a pull request.
+
+---
+
+**Developed by One Square 98**
