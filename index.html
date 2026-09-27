@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playmotion | Gaming</title>
+    <style>
+        :root {
+            /* Minimalist White Theme */
+            --bg-dark: #ffffff;
+            --bg-card: transparent;
+            --text-main: #111111;
+            --text-muted: #666666;
+            --accent-primary: #111111;
+            --accent-hover: #333333;
+            --border-color: #eaeaea;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header */
+        header {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: var(--text-main);
+            text-decoration: none;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .logo span {
+            color: var(--text-muted);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-main);
+        }
+
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 6px;
+        }
+
+        .menu-toggle .bar {
+            width: 30px;
+            height: 1px;
+            background-color: var(--text-main);
+            transition: all 0.3s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+            }
+            .nav-links {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: var(--bg-dark);
+                flex-direction: column;
+                align-items: center;
+                gap: 0;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.4s ease;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .nav-links.active {
+                max-height: 400px;
+            }
+            .nav-links a {
+                padding: 1.5rem;
+                width: 100%;
+                text-align: center;
+                border-top: 1px solid var(--border-color);
+            }
+            .menu-toggle.is-active .bar:nth-child(2) { opacity: 0; }
+            .menu-toggle.is-active .bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+            .menu-toggle.is-active .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 2rem;
+            position: relative;
+            background-color: var(--bg-dark);
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+            letter-spacing: -1px;
+        }
+
+        .hero-content p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 2.5rem;
+            background-color: #2563eb;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn:hover {
+            background-color: #1d4ed8;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        /* Section Layout */
+        section {
+            padding: 8rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 4rem;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* Games Grid (3x2) */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3rem;
+        }
+
+        @media (max-width: 992px) {
+            .games-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .games-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .hero-content h1 { font-size: 2.2rem; }
+            section { padding: 5rem 1rem; }
+            .games-grid { gap: 2rem; }
+        }
+
+        /* Game Card */
+        .game-card {
+            background-color: transparent;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border: 4px solid #2563eb;
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .game-card:hover {
+            border-color: #1d4ed8;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15);
+        }
+
+        .game-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: contain;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 0.5rem;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .game-card:hover img {
+            transform: scale(1.03);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .card-content {
+            padding: 1.5rem 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 400;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .card-btn {
+            align-self: flex-start;
+            padding: 0.6rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            background-color: #2563eb;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+        }
+
+        .card-btn:hover {
+            background-color: #1d4ed8;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        /* Rank Band */
+        .rank-band {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: #111;
+            color: #fff;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            z-index: 10;
+        }
+
+        /* FAQ Section */
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .faq-question {
+            padding: 1.5rem 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 400;
+            font-size: 1.1rem;
+            user-select: none;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 250px;
+            padding-bottom: 1.5rem;
+        }
+
+        .faq-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+            color: var(--text-muted);
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
+        }
+
+        /* Contact Section (Simplified to Socials) */
+        .contact-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+        }
+
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 400;
+            transition: color 0.3s;
+        }
+
+        .social-icons a:hover {
+            color: #2563eb;
+        }
+        
+        .social-icons svg {
+            transition: transform 0.3s, color 0.3s;
+        }
+        
+        .social-icons a:hover svg {
+            transform: scale(1.1);
+        }
+
+        /* Professional Footer */
+        footer {
+            padding: 5rem 2rem 2rem;
+            border-top: 1px solid var(--border-color);
+            background-color: #f9f9f9;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+            margin-bottom: 4rem;
+            text-align: left;
+        }
+
+        .footer-col h3 {
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .footer-col h3 span {
+            color: var(--text-muted);
+        }
+
+        .footer-col.brand-col p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            max-width: 300px;
+        }
+
+        .footer-col h4 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+        }
+
+        .footer-col a {
+            display: block;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            transition: color 0.3s;
+        }
+
+        .footer-col a:hover {
+            color: #2563eb;
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 992px) {
+            .footer-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .footer-col.brand-col p {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+                text-align: center;
+            }
+            .footer-col.brand-col p {
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="nav-container">
+            <a href="#" class="logo">Play<span>motion</span></a>
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <nav class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#games">Games</a>
+                <a href="#faq">FAQ</a>
+                <a href="#contact">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Experience Next-Gen Gaming</h1>
+            <p>Dive into the most immersive, action-packed worlds. Discover, play, and conquer with Playmotion's top-rated games collection.</p>
+            <a href="#games" class="btn">Explore Games</a>
+        </div>
+    </section>
+
+    <!-- Games Section -->
+    <section id="games">
+        <h2 class="section-title">Trending Games</h2>
+        <div class="games-grid" id="gamesGrid">
+            <!-- Game Cards injected via JavaScript -->
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Do I need to download the games?</span>
+                    <span class="faq-icon">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Some of our premium titles require a download for the best graphical experience, while others can be played instantly in your browser via our proprietary cloud gaming technology.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Are the games free to play?</span>
+                    <span class="faq-icon">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>We offer a diverse mix of free-to-play titles with optional cosmetics, as well as premium titles available for a one-time purchase or through our Playmotion+ subscription model.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>What platforms are supported?</span>
+                    <span class="faq-icon">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Playmotion games are cross-platform compatible. You can play seamlessly across Windows, macOS, Linux, and supported iOS/Android mobile devices with cross-save enabled.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>How does the ranking system work?</span>
+                    <span class="faq-icon">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Our top games are ranked dynamically based on concurrent player counts, community ratings, and recent content updates to ensure you're always seeing the most active titles.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <h2 class="section-title">Connect With Us</h2>
+        <div class="contact-container" style="text-align: center;">
+            <p style="color: var(--text-muted); margin-bottom: 3rem; font-size: 1.1rem;">Follow us on social media for the latest updates, game releases, and community events.</p>
+            <div class="social-icons" style="gap: 4rem;">
+                <a href="https://instagram.com" target="_blank" aria-label="Instagram" style="flex-direction: column; gap: 1rem;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    <span style="font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px;">Instagram</span>
+                </a>
+                <a href="https://youtube.com" target="_blank" aria-label="YouTube" style="flex-direction: column; gap: 1rem;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2C1 8.14 1 12 1 12s0 3.86.46 5.58a2.78 2.78 0 0 0 1.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2C23 15.86 23 12 23 12s0-3.86-.46-5.58z"></path><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"></polygon></svg>
+                    <span style="font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px;">YouTube</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-col brand-col">
+                <h3>Play<span>motion</span></h3>
+                <p>Delivering next-generation gaming experiences and immersive worlds to players worldwide. Your ultimate gaming destination.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Games</h4>
+                <a href="#">Solar Race</a>
+                <a href="#">City Drive</a>
+                <a href="#">Capital Empire</a>
+                <a href="#">All Games</a>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <a href="#">About Us</a>
+                <a href="#">Careers</a>
+                <a href="#">Press</a>
+                <a href="#">Blog</a>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <a href="#">Help Center</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2026 Playmotion Gaming. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Array of 6 games for the 3x2 grid
+        const games = [
+            { name: 'Solar Race', desc: 'High-speed anti-gravity racing across solar systems and glowing tracks.', img: 'images/solar_race.png', url: 'https://solar-race.vercel.app/' },
+            { name: 'City Drive', desc: 'Cruise through an expansive open-world city with fully customizable vehicles.', img: 'images/city_drive.jpg', url: 'https://neon-car-game-gray.vercel.app/' },
+            { name: 'Capital Empire', desc: 'Build, manage, and expand your ultimate sprawling metropolis into an empire.', img: 'images/capital_empire.png', url: 'https://empire-capital-s-puce.vercel.app/' },
+            { name: 'Galactic Wars', desc: 'Command massive star fleets in intense tactical space battles.', img: 'https://images.unsplash.com/photo-1614729939124-03290b56c9ce?auto=format&fit=crop&w=600&q=80', url: '' },
+            { name: 'Survival Island', desc: 'Gather resources and survive against harsh natural elements.', img: 'https://images.unsplash.com/photo-1506452305024-9d3f02d1c9b5?auto=format&fit=crop&w=600&q=80', url: '' },
+            { name: 'Zombie Outbreak', desc: 'Co-op survival shooter where teamwork is the only way to live.', img: 'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?auto=format&fit=crop&w=600&q=80', url: '' }
+        ];
+
+        const gamesGrid = document.getElementById('gamesGrid');
+        let htmlContent = '';
+
+        // Generate 6 cards
+        games.forEach((game, index) => {
+            const linkTag = game.url 
+                ? `<a href="${game.url}" target="_blank" class="card-btn">Play Now</a>`
+                : `<a href="#" class="card-btn" onclick="event.preventDefault(); alert('Coming Soon: ${game.name}');">Play Now</a>`;
+
+            htmlContent += `
+                <div class="game-card">
+                    <div class="rank-band">#${index + 1}</div>
+                    <img src="${game.img}" alt="${game.name}" loading="lazy">
+                    <div class="card-content">
+                        <h3 class="card-title">${game.name}</h3>
+                        <p class="card-desc">${game.desc}</p>
+                        ${linkTag}
+                    </div>
+                </div>
+            `;
+        });
+        
+        gamesGrid.innerHTML = htmlContent;
+
+        // FAQ Accordion Functionality
+        const faqItems = document.querySelectorAll('.faq-item');
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            question.addEventListener('click', () => {
+                // Close other open items
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item) {
+                        otherItem.classList.remove('active');
+                    }
+                });
+                // Toggle clicked item
+                item.classList.toggle('active');
+            });
+        });
+
+        // Mobile Menu Toggle
+        const menuToggle = document.querySelector('#mobile-menu');
+        const navLinksContainer = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('is-active');
+            navLinksContainer.classList.toggle('active');
+        });
+
+        // Close mobile menu on link click
+        navLinksContainer.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('is-active');
+                navLinksContainer.classList.remove('active');
+            });
+        });
+
+        // Smooth Scrolling for Nav Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                if(this.getAttribute('href') !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if(target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
