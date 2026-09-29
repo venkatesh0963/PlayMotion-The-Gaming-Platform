@@ -347,6 +347,19 @@
             text-transform: uppercase;
             color: var(--text-muted);
             text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background-color: #2563eb;
+            border-radius: 2px;
         }
 
         /* Games Grid (3x2) */
