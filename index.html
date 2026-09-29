@@ -83,10 +83,21 @@
             text-decoration: none;
             letter-spacing: 4px;
             text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
         }
 
         .logo span {
             color: var(--text-muted);
+        }
+        
+        .logo-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .logo:hover .logo-icon {
+            transform: translateX(4px);
         }
 
         .nav-links {
@@ -614,7 +625,15 @@
     <!-- Header -->
     <header>
         <div class="nav-container">
-            <a href="#" class="logo">Play<span>motion</span></a>
+            <a href="#" class="logo">
+                <svg class="logo-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="6 3 20 12 6 21 6 3" fill="#2563eb"></polygon>
+                    <line x1="1" y1="12" x2="6" y2="12" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"></line>
+                    <line x1="2" y1="7" x2="6" y2="9" stroke="#2563eb" stroke-width="2" stroke-linecap="round"></line>
+                    <line x1="2" y1="17" x2="6" y2="15" stroke="#2563eb" stroke-width="2" stroke-linecap="round"></line>
+                </svg>
+                Play<span>motion</span>
+            </a>
             <div class="menu-toggle" id="mobile-menu">
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -764,7 +783,15 @@
     <footer>
         <div class="footer-container">
             <div class="footer-col brand-col">
-                <h3>Play<span>motion</span></h3>
+                <h3 style="display: flex; align-items: center; gap: 0.6rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="6 3 20 12 6 21 6 3" fill="#2563eb"></polygon>
+                        <line x1="1" y1="12" x2="6" y2="12" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"></line>
+                        <line x1="2" y1="7" x2="6" y2="9" stroke="#2563eb" stroke-width="2" stroke-linecap="round"></line>
+                        <line x1="2" y1="17" x2="6" y2="15" stroke="#2563eb" stroke-width="2" stroke-linecap="round"></line>
+                    </svg>
+                    Play<span>motion</span>
+                </h3>
                 <p>Delivering next-generation gaming experiences and immersive worlds to players worldwide. Your ultimate gaming destination.</p>
             </div>
             <div class="footer-col">
