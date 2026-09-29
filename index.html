@@ -17,6 +17,7 @@
             --header-bg: rgba(255, 255, 255, 0.95);
             --img-bg: #f8f9fa;
             --faq-bg: #f9f9f9;
+            --footer-bg: #f9f9f9;
             --rank-bg: #111111;
             --rank-text: #ffffff;
         }
@@ -33,6 +34,7 @@
             --header-bg: rgba(15, 23, 42, 0.95);
             --img-bg: #1e293b;
             --faq-bg: #1e293b;
+            --footer-bg: #1e293b;
             --rank-bg: #f8fafc;
             --rank-text: #0f172a;
         }
@@ -522,7 +524,8 @@
         footer {
             padding: 5rem 2rem 2rem;
             border-top: 1px solid var(--border-color);
-            background-color: #f9f9f9;
+            background-color: var(--footer-bg);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
 
         .footer-container {
