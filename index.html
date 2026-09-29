@@ -6,7 +6,7 @@
     <title>Playmotion | Gaming</title>
     <style>
         :root {
-            /* Minimalist White Theme */
+            /* Minimalist Light Theme */
             --bg-dark: #ffffff;
             --bg-card: transparent;
             --text-main: #111111;
@@ -14,6 +14,27 @@
             --accent-primary: #111111;
             --accent-hover: #333333;
             --border-color: #eaeaea;
+            --header-bg: rgba(255, 255, 255, 0.95);
+            --img-bg: #f8f9fa;
+            --faq-bg: #f9f9f9;
+            --rank-bg: #111111;
+            --rank-text: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme */
+            --bg-dark: #0f172a;
+            --bg-card: transparent;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-primary: #f8fafc;
+            --accent-hover: #e2e8f0;
+            --border-color: #1e293b;
+            --header-bg: rgba(15, 23, 42, 0.95);
+            --img-bg: #1e293b;
+            --faq-bg: #1e293b;
+            --rank-bg: #f8fafc;
+            --rank-text: #0f172a;
         }
 
         * {
@@ -29,17 +50,19 @@
             line-height: 1.6;
             scroll-behavior: smooth;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* Header */
         header {
-            background-color: rgba(255, 255, 255, 0.95);
+            background-color: var(--header-bg);
             backdrop-filter: blur(10px);
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
             border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
 
         .nav-container {
@@ -67,6 +90,23 @@
         .nav-links {
             display: flex;
             gap: 3rem;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            color: var(--text-main);
         }
 
         .nav-links a {
@@ -220,7 +260,7 @@
             margin-bottom: 1.5rem;
             font-weight: 800;
             letter-spacing: -2px;
-            background: linear-gradient(135deg, #111111 0%, #2563eb 100%);
+            background: linear-gradient(135deg, var(--text-main) 0%, #2563eb 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             opacity: 0;
@@ -336,10 +376,10 @@
             width: 100%;
             height: 250px;
             object-fit: contain;
-            background-color: #f8f9fa;
+            background-color: var(--img-bg);
             border-radius: 6px;
             padding: 0.5rem;
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            transition: background-color 0.3s ease, transform 0.4s ease, box-shadow 0.4s ease;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
         
@@ -393,12 +433,13 @@
             position: absolute;
             top: 1rem;
             right: 1rem;
-            background-color: #111;
-            color: #fff;
+            background-color: var(--rank-bg);
+            color: var(--rank-text);
             padding: 0.2rem 0.6rem;
             font-size: 0.8rem;
             letter-spacing: 1px;
             z-index: 10;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* FAQ Section */
@@ -581,6 +622,10 @@
                 <a href="#games">Games</a>
                 <a href="#faq">FAQ</a>
                 <a href="#contact">Contact</a>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">
+                    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
             </nav>
         </div>
     </header>
@@ -828,6 +873,42 @@
                     }
                 }
             });
+        });
+
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('theme-toggle');
+        const sunIcon = themeToggle.querySelector('.sun-icon');
+        const moonIcon = themeToggle.querySelector('.moon-icon');
+        
+        // Check for saved theme preference or system preference
+        const savedTheme = localStorage.getItem('playmotion-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            sunIcon.style.display = 'block';
+            moonIcon.style.display = 'none';
+        } else {
+            sunIcon.style.display = 'none';
+            moonIcon.style.display = 'block';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            let targetTheme = 'light';
+            
+            if (currentTheme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                targetTheme = 'dark';
+                sunIcon.style.display = 'block';
+                moonIcon.style.display = 'none';
+            }
+            
+            localStorage.setItem('playmotion-theme', targetTheme);
         });
     </script>
 </body>
