@@ -1,4 +1,4 @@
-# PlayMotion - The Gaming Platform
+# PlayMotion - The Gaming Platform..
 
 Welcome to **PlayMotion**, a beautiful, fully responsive, and single-page gaming platform hub designed with a sleek minimalist aesthetic.
 
