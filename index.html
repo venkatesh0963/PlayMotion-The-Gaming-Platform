@@ -2,1288 +2,1447 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="PlayMotion - Discover and play exciting browser games.">
-  <title>PlayMotion | Play Your World</title>
-
-  <style>
-    :root {
-      --bg: #ffffff;
-      --surface: #f7f8f5;
-      --card: #ffffff;
-      --text: #171717;
-      --muted: #777b76;
-      --border: #e8eae5;
-      --lime: #b8ff3c;
-      --purple: #7c5cff;
-      --radius: 18px;
-      --shadow: 0 8px 30px rgba(0,0,0,0.045);
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-    }
-
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-
-    button {
-      font: inherit;
-    }
-
-    .container {
-      width: min(1160px, 90%);
-      margin: auto;
-    }
-
-    /* HEADER */
-
-    header {
-      background: rgba(255,255,255,0.94);
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      backdrop-filter: blur(12px);
-    }
-
-    .navbar {
-      min-height: 76px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 25px;
-    }
-
-    .logo {
-      font-size: 27px;
-      font-weight: 900;
-      letter-spacing: -1.5px;
-    }
-
-    .logo span {
-      color: var(--purple);
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 30px;
-      list-style: none;
-    }
-
-    .nav-links a {
-      font-size: 14px;
-      font-weight: 600;
-      color: #555;
-      transition: 0.2s;
-    }
-
-    .nav-links a:hover {
-      color: var(--purple);
-    }
-
-    .nav-button {
-      background: var(--lime);
-      padding: 11px 21px;
-      border-radius: 30px;
-      font-size: 13px;
-      font-weight: 800;
-      border: none;
-      cursor: pointer;
-    }
-
-    /* HERO */
-
-    .hero {
-      padding: 95px 0 85px;
-      background:
-        radial-gradient(circle at 85% 20%, #eee9ff 0, transparent 30%),
-        radial-gradient(circle at 10% 90%, #efffdc 0, transparent 28%),
-        #fff;
-      overflow: hidden;
-    }
-
-    .hero-content {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      align-items: center;
-      gap: 55px;
-    }
-
-    .hero-label {
-      display: inline-block;
-      background: #efffdc;
-      padding: 7px 14px;
-      border-radius: 30px;
-      color: #416b0a;
-      font-size: 12px;
-      font-weight: 800;
-      margin-bottom: 22px;
-    }
-
-    .hero h1 {
-      font-size: clamp(42px, 6vw, 72px);
-      line-height: 1.05;
-      letter-spacing: -4px;
-      max-width: 650px;
-    }
-
-    .hero h1 span {
-      color: var(--purple);
-    }
-
-    .hero p {
-      color: var(--muted);
-      max-width: 490px;
-      margin: 24px 0 30px;
-      font-size: 16px;
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 13px;
-    }
-
-    .primary-btn,
-    .secondary-btn {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      padding: 14px 24px;
-      border-radius: 30px;
-      font-size: 14px;
-      font-weight: 800;
-      transition: 0.2s;
-    }
-
-    .primary-btn {
-      background: var(--lime);
-      color: #171717;
-    }
-
-    .primary-btn:hover {
-      transform: translateY(-3px);
-    }
-
-    .secondary-btn {
-      border: 1px solid var(--border);
-      background: #fff;
-    }
-
-    .secondary-btn:hover {
-      border-color: var(--purple);
-      color: var(--purple);
-    }
-
-    .hero-visual {
-      min-height: 330px;
-      border-radius: 30px;
-      background: linear-gradient(135deg, #e8ffbd, #e7ddff);
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-
-    .hero-visual::before {
-      content: "";
-      position: absolute;
-      width: 250px;
-      height: 250px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.5);
-    }
-
-    .hero-game-card {
-      position: relative;
-      width: 205px;
-      padding: 12px;
-      border-radius: 22px;
-      background: #fff;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.12);
-      transform: rotate(-7deg);
-    }
-
-    .hero-game-card img {
-      width: 100%;
-      aspect-ratio: 1;
-      object-fit: cover;
-      border-radius: 15px;
-      display: block;
-    }
-
-    .hero-game-card h3 {
-      font-size: 15px;
-      margin: 10px 4px 2px;
-    }
-
-    .hero-game-card p {
-      font-size: 11px;
-      margin: 0 4px 4px;
-    }
-
-    .hero-floating {
-      position: absolute;
-      background: #fff;
-      border-radius: 15px;
-      padding: 13px 17px;
-      font-weight: 800;
-      font-size: 13px;
-      box-shadow: var(--shadow);
-    }
-
-    .floating-one {
-      top: 45px;
-      right: 25px;
-    }
-
-    .floating-two {
-      bottom: 45px;
-      left: 20px;
-    }
-
-    /* COMMON SECTION */
-
-    section {
-      scroll-margin-top: 85px;
-    }
-
-    .section {
-      padding: 85px 0;
-    }
-
-    .section-heading {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 20px;
-      margin-bottom: 32px;
-    }
-
-    .eyebrow {
-      font-size: 11px;
-      color: var(--purple);
-      font-weight: 900;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .section-heading h2 {
-      font-size: clamp(30px, 4vw, 43px);
-      letter-spacing: -1.8px;
-      line-height: 1.2;
-      margin-top: 8px;
-    }
-
-    .section-heading p {
-      color: var(--muted);
-      font-size: 14px;
-      max-width: 390px;
-    }
-
-    /* GAME FILTERS */
-
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 30px;
-    }
-
-    .filter-btn {
-      border: 1px solid var(--border);
-      background: #fff;
-      color: #555;
-      padding: 9px 18px;
-      border-radius: 30px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 700;
-      transition: 0.2s;
-    }
-
-    .filter-btn:hover {
-      border-color: var(--purple);
-      color: var(--purple);
-    }
-
-    .filter-btn.active {
-      background: var(--lime);
-      border-color: var(--lime);
-      color: #171717;
-    }
-
-    /* GAME CARDS */
-
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 23px;
-    }
-
-    .game-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      transition: 0.25s;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.015);
-    }
-
-    .game-card:hover {
-      transform: translateY(-6px);
-      box-shadow: var(--shadow);
-      border-color: #d8d8d8;
-    }
-
-    /* GAME PROFILE IMAGE
-       Use square 512x512 images in the images folder.
-    */
-
-    .game-image-wrap {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      overflow: hidden;
-      background: #eeeaff;
-    }
-
-    .game-image {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-      transition: transform 0.4s;
-    }
-
-    .game-card:hover .game-image {
-      transform: scale(1.06);
-    }
-
-    .game-number {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      padding: 5px 10px;
-      border-radius: 20px;
-      background: rgba(255,255,255,0.92);
-      color: #222;
-      font-size: 11px;
-      font-weight: 900;
-    }
-
-    .game-details {
-      padding: 17px;
-    }
-
-    .game-category {
-      display: inline-block;
-      background: #f1edff;
-      color: var(--purple);
-      font-size: 10px;
-      font-weight: 900;
-      padding: 5px 10px;
-      border-radius: 20px;
-      margin-bottom: 9px;
-    }
-
-    .game-details h3 {
-      font-size: 16px;
-      letter-spacing: -0.3px;
-      margin-bottom: 5px;
-    }
-
-    .game-details p {
-      color: var(--muted);
-      font-size: 12px;
-      min-height: 38px;
-      margin-bottom: 15px;
-    }
-
-    .play-btn {
-      display: block;
-      width: 100%;
-      text-align: center;
-      padding: 10px;
-      border-radius: 10px;
-      background: var(--lime);
-      color: #171717;
-      font-size: 12px;
-      font-weight: 900;
-      transition: 0.2s;
-    }
-
-    .play-btn:hover {
-      background: #a5ee2d;
-    }
-
-    .no-games {
-      display: none;
-      text-align: center;
-      color: var(--muted);
-      padding: 35px;
-      grid-column: 1 / -1;
-    }
-
-    /* FEATURE STRIP */
-
-    .feature-strip {
-      background: #f6f7f3;
-      padding: 55px 0;
-    }
-
-    .features {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-    }
-
-    .feature {
-      display: flex;
-      gap: 15px;
-      align-items: flex-start;
-    }
-
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 15px;
-      display: grid;
-      place-items: center;
-      flex-shrink: 0;
-      background: var(--lime);
-      font-size: 21px;
-    }
-
-    .feature:nth-child(2) .feature-icon {
-      background: #e9e2ff;
-    }
-
-    .feature:nth-child(3) .feature-icon {
-      background: #ffe9ce;
-    }
-
-    .feature h3 {
-      font-size: 15px;
-      margin-bottom: 5px;
-    }
-
-    .feature p {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    /* FAQ */
-
-    .faq-section {
-      background: #fafbf9;
-    }
-
-    .faq-container {
-      max-width: 760px;
-      margin: 0 auto;
-    }
-
-    .faq-item {
-      border-bottom: 1px solid var(--border);
-    }
-
-    .faq-question {
-      width: 100%;
-      padding: 21px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      text-align: left;
-      border: none;
-      background: transparent;
-      font-weight: 800;
-      font-size: 15px;
-      cursor: pointer;
-      color: var(--text);
-      gap: 15px;
-    }
-
-    .faq-question span:last-child {
-      color: var(--purple);
-      font-size: 22px;
-    }
-
-    .faq-answer {
-      display: none;
-      color: var(--muted);
-      font-size: 14px;
-      padding: 0 35px 20px 0;
-    }
-
-    .faq-item.open .faq-answer {
-      display: block;
-    }
-
-    /* COMMUNITY */
-
-    .community {
-      padding: 75px 0;
-    }
-
-    .community-box {
-      padding: 55px 35px;
-      border-radius: 25px;
-      background: linear-gradient(120deg, #edffd6, #eee9ff);
-      text-align: center;
-    }
-
-    .community-box h2 {
-      font-size: clamp(30px, 4vw, 44px);
-      letter-spacing: -2px;
-    }
-
-    .community-box p {
-      max-width: 500px;
-      margin: 14px auto 25px;
-      color: #666;
-      font-size: 14px;
-    }
-
-    /* FOOTER */
-
-    footer {
-      background: #171717;
-      color: #fff;
-      padding: 55px 0 22px;
-    }
-
-    .footer-top {
-      display: grid;
-      grid-template-columns: 1.5fr 1fr 1fr 1fr;
-      gap: 35px;
-      padding-bottom: 40px;
-    }
-
-    .footer-logo {
-      font-size: 27px;
-      font-weight: 900;
-      letter-spacing: -1.5px;
-    }
-
-    .footer-logo span {
-      color: var(--lime);
-    }
-
-    .footer-description {
-      color: #aaa;
-      font-size: 13px;
-      max-width: 270px;
-      margin-top: 13px;
-    }
-
-    .footer-column h4 {
-      font-size: 14px;
-      margin-bottom: 16px;
-    }
-
-    .footer-column a {
-      display: block;
-      color: #aaa;
-      font-size: 13px;
-      margin-bottom: 10px;
-      transition: 0.2s;
-    }
-
-    .footer-column a:hover {
-      color: var(--lime);
-    }
-
-    .footer-bottom {
-      border-top: 1px solid #333;
-      padding-top: 20px;
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-      color: #888;
-      font-size: 12px;
-    }
-
-    /* RESPONSIVE */
-
-    @media (max-width: 950px) {
-      .games-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .hero-content {
-        gap: 30px;
-      }
-
-      .footer-top {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 680px) {
-      .navbar {
-        min-height: 65px;
-      }
-
-      .nav-links {
-        display: none;
-      }
-
-      .hero {
-        padding: 65px 0;
-      }
-
-      .hero-content {
-        grid-template-columns: 1fr;
-      }
-
-      .hero h1 {
-        letter-spacing: -2px;
-      }
-
-      .hero-visual {
-        min-height: 290px;
-      }
-
-      .section {
-        padding: 60px 0;
-      }
-
-      .section-heading {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .games-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 13px;
-      }
-
-      .game-details {
-        padding: 12px;
-      }
-
-      .game-details h3 {
-        font-size: 14px;
-      }
-
-      .game-details p {
-        font-size: 11px;
-      }
-
-      .features {
-        grid-template-columns: 1fr;
-      }
-
-      .footer-top {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .community-box {
-        padding: 40px 20px;
-      }
-    }
-
-    @media (max-width: 380px) {
-      .games-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .footer-top {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="PlayMotion - Discover and play exciting games.">
+<title>PlayMotion | Discover. Play. Enjoy.</title>
+
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #f7f8f5;
+  --text: #171717;
+  --muted: #777b76;
+  --border: #e8eae5;
+  --lime: #b8ff3c;
+  --purple: #7c5cff;
+  --radius: 18px;
+  --shadow: 0 8px 30px rgba(0,0,0,.05);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font: inherit;
+}
+
+.container {
+  width: min(1160px, 90%);
+  margin: auto;
+}
+
+section {
+  scroll-margin-top: 85px;
+}
+
+/* HEADER */
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255,255,255,.95);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+}
+
+.navbar {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+}
+
+.logo {
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: -1.5px;
+}
+
+.logo span {
+  color: var(--purple);
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  transition: .2s;
+}
+
+.nav-links a:hover {
+  color: var(--purple);
+}
+
+.nav-button {
+  background: var(--lime);
+  padding: 11px 21px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* HERO */
+
+.hero {
+  padding: 95px 0 85px;
+  background:
+    radial-gradient(circle at 85% 20%, #eee9ff 0, transparent 30%),
+    radial-gradient(circle at 10% 90%, #efffdc 0, transparent 28%),
+    #fff;
+}
+
+.hero-content {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  align-items: center;
+  gap: 55px;
+}
+
+.hero-label {
+  display: inline-block;
+  background: #efffdc;
+  padding: 7px 14px;
+  border-radius: 30px;
+  color: #416b0a;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 22px;
+}
+
+.hero h1 {
+  font-size: clamp(42px, 6vw, 72px);
+  line-height: 1.05;
+  letter-spacing: -4px;
+  max-width: 650px;
+}
+
+.hero h1 span {
+  color: var(--purple);
+}
+
+.hero p {
+  color: var(--muted);
+  max-width: 490px;
+  margin: 24px 0 30px;
+  font-size: 16px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 13px;
+}
+
+.primary-btn,
+.secondary-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 14px 24px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 800;
+  transition: .2s;
+}
+
+.primary-btn {
+  background: var(--lime);
+  color: #171717;
+}
+
+.primary-btn:hover {
+  transform: translateY(-3px);
+}
+
+.secondary-btn {
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.secondary-btn:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.hero-visual {
+  min-height: 330px;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #e8ffbd, #e7ddff);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-game-card {
+  position: relative;
+  width: 205px;
+  padding: 12px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 20px 50px rgba(0,0,0,.12);
+  transform: rotate(-7deg);
+}
+
+.hero-game-card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 15px;
+  display: block;
+}
+
+.hero-game-card h3 {
+  font-size: 15px;
+  margin: 10px 4px 2px;
+}
+
+.hero-game-card p {
+  font-size: 11px;
+  margin: 0 4px 4px;
+}
+
+.hero-floating {
+  position: absolute;
+  background: #fff;
+  border-radius: 15px;
+  padding: 13px 17px;
+  font-weight: 800;
+  font-size: 13px;
+  box-shadow: var(--shadow);
+}
+
+.floating-one {
+  top: 45px;
+  right: 25px;
+}
+
+.floating-two {
+  bottom: 45px;
+  left: 20px;
+}
+
+/* SECTION HEADINGS */
+
+.section {
+  padding: 85px 0;
+}
+
+.section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  color: var(--purple);
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.section-heading h2 {
+  font-size: clamp(30px, 4vw, 43px);
+  letter-spacing: -1.8px;
+  line-height: 1.2;
+  margin-top: 8px;
+}
+
+.section-heading p {
+  color: var(--muted);
+  font-size: 14px;
+  max-width: 390px;
+}
+
+/* SEARCH */
+
+.search-box {
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 22px;
+  position: relative;
+}
+
+.search-box input {
+  width: 100%;
+  border: 1px solid var(--border);
+  padding: 13px 16px;
+  border-radius: 12px;
+  outline: none;
+  font-size: 14px;
+  background: #fff;
+}
+
+.search-box input:focus {
+  border-color: var(--purple);
+}
+
+/* FILTERS */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.filter-btn {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: #555;
+  padding: 9px 18px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  transition: .2s;
+}
+
+.filter-btn:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.filter-btn.active {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: #171717;
+}
+
+/* GAME GRID */
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 23px;
+}
+
+.game-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: .25s;
+  box-shadow: 0 3px 12px rgba(0,0,0,.015);
+}
+
+.game-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow);
+  border-color: #d8d8d8;
+}
+
+/* GAME COVER IMAGES */
+
+.game-image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #eeeaff;
+}
+
+.game-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform .4s;
+}
+
+.game-card:hover .game-image {
+  transform: scale(1.06);
+}
+
+.game-number {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: rgba(255,255,255,.92);
+  color: #222;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.game-details {
+  padding: 17px;
+}
+
+.game-category {
+  display: inline-block;
+  background: #f1edff;
+  color: var(--purple);
+  font-size: 10px;
+  font-weight: 900;
+  padding: 5px 10px;
+  border-radius: 20px;
+  margin-bottom: 9px;
+}
+
+.game-details h3 {
+  font-size: 16px;
+  letter-spacing: -.3px;
+  margin-bottom: 5px;
+}
+
+.game-details p {
+  color: var(--muted);
+  font-size: 12px;
+  min-height: 38px;
+  margin-bottom: 15px;
+}
+
+.play-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--lime);
+  color: #171717;
+  font-size: 12px;
+  font-weight: 900;
+  transition: .2s;
+}
+
+.play-btn:hover {
+  background: #a5ee2d;
+}
+
+.no-games {
+  display: none;
+  text-align: center;
+  color: var(--muted);
+  padding: 35px;
+  grid-column: 1 / -1;
+}
+
+/* FEATURES */
+
+.feature-strip {
+  background: #f6f7f3;
+  padding: 55px 0;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+.feature {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+}
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--lime);
+  font-size: 21px;
+}
+
+.feature:nth-child(2) .feature-icon {
+  background: #e9e2ff;
+}
+
+.feature:nth-child(3) .feature-icon {
+  background: #ffe9ce;
+}
+
+.feature h3 {
+  font-size: 15px;
+  margin-bottom: 5px;
+}
+
+.feature p {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* FAQ */
+
+.faq-section {
+  background: #fafbf9;
+}
+
+.faq-container {
+  max-width: 760px;
+  margin: auto;
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--border);
+}
+
+.faq-question {
+  width: 100%;
+  padding: 21px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  border: none;
+  background: transparent;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  color: var(--text);
+  gap: 15px;
+}
+
+.faq-question span:last-child {
+  color: var(--purple);
+  font-size: 22px;
+}
+
+.faq-answer {
+  display: none;
+  color: var(--muted);
+  font-size: 14px;
+  padding: 0 35px 20px 0;
+}
+
+.faq-item.open .faq-answer {
+  display: block;
+}
+
+/* COMMUNITY */
+
+.community {
+  padding: 75px 0;
+}
+
+.community-box {
+  padding: 55px 35px;
+  border-radius: 25px;
+  background: linear-gradient(120deg, #edffd6, #eee9ff);
+  text-align: center;
+}
+
+.community-box h2 {
+  font-size: clamp(30px, 4vw, 44px);
+  letter-spacing: -2px;
+}
+
+.community-box p {
+  max-width: 500px;
+  margin: 14px auto 25px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* FOOTER */
+
+footer {
+  background: #171717;
+  color: #fff;
+  padding: 55px 0 22px;
+}
+
+.footer-top {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 35px;
+  padding-bottom: 40px;
+}
+
+.footer-logo {
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: -1.5px;
+}
+
+.footer-logo span {
+  color: var(--lime);
+}
+
+.footer-description {
+  color: #aaa;
+  font-size: 13px;
+  max-width: 270px;
+  margin-top: 13px;
+}
+
+.footer-column h4 {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.footer-column a {
+  display: block;
+  color: #aaa;
+  font-size: 13px;
+  margin-bottom: 10px;
+  transition: .2s;
+}
+
+.footer-column a:hover {
+  color: var(--lime);
+}
+
+.footer-bottom {
+  border-top: 1px solid #333;
+  padding-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: #888;
+  font-size: 12px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 950px) {
+  .games-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .hero-content {
+    gap: 30px;
+  }
+
+  .footer-top {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .navbar {
+    min-height: 65px;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .hero {
+    padding: 65px 0;
+  }
+
+  .hero-content {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    letter-spacing: -2px;
+  }
+
+  .hero-visual {
+    min-height: 290px;
+  }
+
+  .section {
+    padding: 60px 0;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .games-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 13px;
+  }
+
+  .game-details {
+    padding: 12px;
+  }
+
+  .game-details h3 {
+    font-size: 14px;
+  }
+
+  .game-details p {
+    font-size: 11px;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-top {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .community-box {
+    padding: 40px 20px;
+  }
+}
+
+@media (max-width: 380px) {
+  .games-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-top {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
 </head>
 
 <body>
 
-  <!-- HEADER -->
+<!-- HEADER -->
 
-  <header>
-    <div class="container navbar">
+<header>
+  <div class="container navbar">
 
-      <a href="#" class="logo">Play<span>Motion</span></a>
+    <a href="#home" class="logo">Play<span>Motion</span></a>
 
-      <ul class="nav-links">
-        <li><a href="#home">Home</a></li>
-        <li><a href="#games">Games</a></li>
-        <li><a href="#features">Features</a></li>
-        <li><a href="#faq">FAQ</a></li>
-        <li><a href="#community">Community</a></li>
-      </ul>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#games">Games</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#community">Community</a></li>
+    </ul>
 
-      <a href="#games" class="nav-button">Explore Games ↗</a>
+    <a href="#games" class="nav-button">Explore Games ↗</a>
+
+  </div>
+</header>
+
+
+<!-- HERO -->
+
+<section class="hero" id="home">
+
+  <div class="container hero-content">
+
+    <div>
+      <span class="hero-label">✦ YOUR NEXT GAME STARTS HERE</span>
+
+      <h1>
+        Play Your
+        <span>World.</span>
+      </h1>
+
+      <p>
+        Discover exciting games, explore new worlds and
+        enjoy your favourite gaming experiences with PlayMotion.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#games" class="primary-btn">Explore Games ↗</a>
+        <a href="#features" class="secondary-btn">Discover More</a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+
+      <div class="hero-floating floating-one">
+        🎮 12 Games
+      </div>
+
+      <div class="hero-game-card">
+
+        <img
+          src="images/f1-car-race.jpg"
+          alt="F1 Car Race"
+          onerror="this.src='images/game-placeholder.png'"
+        >
+
+        <h3>F1 Car Race</h3>
+        <p>Start your racing adventure.</p>
+
+      </div>
+
+      <div class="hero-floating floating-two">
+        ✦ Discover. Play. Enjoy.
+      </div>
 
     </div>
-  </header>
+
+  </div>
+</section>
 
 
-  <!-- HERO SECTION -->
+<!-- GAME LIBRARY -->
 
-  <section class="hero" id="home">
-    <div class="container hero-content">
+<section class="section" id="games">
+
+  <div class="container">
+
+    <div class="section-heading">
 
       <div>
-        <span class="hero-label">✦ YOUR NEXT GAME STARTS HERE</span>
-
-        <h1>
-          Play Your
-          <span>World.</span>
-        </h1>
-
-        <p>
-          Discover exciting games, explore new worlds and enjoy
-          your favourite gaming experiences with PlayMotion.
-        </p>
-
-        <div class="hero-actions">
-          <a href="#games" class="primary-btn">Explore Games ↗</a>
-          <a href="#features" class="secondary-btn">Discover More</a>
-        </div>
+        <span class="eyebrow">GAME LIBRARY</span>
+        <h2>Explore Our Games</h2>
       </div>
 
-      <div class="hero-visual">
+      <p>
+        Find your next favourite game. Explore different
+        genres and discover new experiences.
+      </p>
 
-        <div class="hero-floating floating-one">
-          🎮 11+ Games
-        </div>
+    </div>
 
-        <div class="hero-game-card">
-          <img
-            src="images/metropolis-city-1.jpg"
-            alt="Metropolis City game"
-            onerror="this.src='images/game-placeholder.png'"
-          >
-          <h3>Metropolis City 1</h3>
-          <p>Build your dream city.</p>
-        </div>
+    <!-- SEARCH -->
 
-        <div class="hero-floating floating-two">
-          ✦ Discover. Play. Enjoy.
-        </div>
+    <div class="search-box">
+      <input
+        type="search"
+        id="gameSearch"
+        placeholder="Search games..."
+        aria-label="Search games"
+      >
+    </div>
 
+    <!-- CATEGORY FILTERS -->
+
+    <div class="filters" id="filters">
+
+      <button class="filter-btn active" data-filter="All">
+        All Games
+      </button>
+
+      <button class="filter-btn" data-filter="Racing">
+        Racing
+      </button>
+
+      <button class="filter-btn" data-filter="Tycoon">
+        Tycoon
+      </button>
+
+      <button class="filter-btn" data-filter="Strategy">
+        Strategy
+      </button>
+
+      <button class="filter-btn" data-filter="Arcade">
+        Arcade
+      </button>
+
+      <button class="filter-btn" data-filter="Adventure">
+        Adventure
+      </button>
+
+      <button class="filter-btn" data-filter="Simulation">
+        Simulation
+      </button>
+
+      <button class="filter-btn" data-filter="Survival">
+        Survival
+      </button>
+
+    </div>
+
+    <!-- GAME CARDS -->
+
+    <div class="games-grid" id="gamesGrid"></div>
+
+  </div>
+</section>
+
+
+<!-- FEATURES -->
+
+<section class="feature-strip" id="features">
+
+  <div class="container">
+
+    <div class="section-heading">
+
+      <div>
+        <span class="eyebrow">WHY PLAYMOTION</span>
+        <h2>A Better Way to Play</h2>
       </div>
 
     </div>
-  </section>
 
+    <div class="features">
 
-  <!-- GAMES SECTION -->
+      <div class="feature">
 
-  <section class="section" id="games">
-    <div class="container">
-
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">GAME LIBRARY</span>
-          <h2>Explore Our Games</h2>
-        </div>
-
-        <p>
-          Find your next favourite game. Explore different
-          genres and discover new experiences.
-        </p>
-      </div>
-
-      <!-- GAME FILTERS -->
-
-      <div class="filters" id="filters">
-        <button class="filter-btn active" data-filter="All">All Games</button>
-        <button class="filter-btn" data-filter="Racing">Racing</button>
-        <button class="filter-btn" data-filter="Tycoon">Tycoon</button>
-        <button class="filter-btn" data-filter="Idle">Idle</button>
-        <button class="filter-btn" data-filter="Strategy">Strategy</button>
-        <button class="filter-btn" data-filter="Arcade">Arcade</button>
-      </div>
-
-      <!-- GAME CARDS ARE GENERATED WITH JAVASCRIPT -->
-
-      <div class="games-grid" id="gamesGrid"></div>
-
-    </div>
-  </section>
-
-
-  <!-- FEATURES -->
-
-  <section class="feature-strip" id="features">
-    <div class="container">
-
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">WHY PLAYMOTION</span>
-          <h2>A Better Way to Play</h2>
-        </div>
-      </div>
-
-      <div class="features">
-
-        <div class="feature">
-          <div class="feature-icon">🎮</div>
-          <div>
-            <h3>Multiple Game Genres</h3>
-            <p>Explore racing, tycoon, idle, strategy and arcade games.</p>
-          </div>
-        </div>
-
-        <div class="feature">
-          <div class="feature-icon">⚡</div>
-          <div>
-            <h3>Easy Discovery</h3>
-            <p>Find games quickly with simple categories and filters.</p>
-          </div>
-        </div>
-
-        <div class="feature">
-          <div class="feature-icon">🌎</div>
-          <div>
-            <h3>Explore New Worlds</h3>
-            <p>Discover different game ideas and exciting experiences.</p>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-
-  <!-- FAQ -->
-
-  <section class="section faq-section" id="faq">
-    <div class="container">
-
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">HELP CENTRE</span>
-          <h2>Frequently Asked Questions</h2>
-        </div>
-      </div>
-
-      <div class="faq-container">
-
-        <div class="faq-item">
-          <button class="faq-question">
-            <span>What is PlayMotion?</span>
-            <span>+</span>
-          </button>
-          <div class="faq-answer">
-            PlayMotion is a gaming hub where you can discover
-            different games and explore different genres.
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-question">
-            <span>How can I play a game?</span>
-            <span>+</span>
-          </button>
-          <div class="faq-answer">
-            Browse the game library and select the game you
-            want to play. The Play Now link can be connected
-            to the game's actual page.
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-question">
-            <span>Are there different game categories?</span>
-            <span>+</span>
-          </button>
-          <div class="faq-answer">
-            Yes. The library includes racing, tycoon, idle,
-            strategy and arcade categories.
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-question">
-            <span>Can I play on mobile?</span>
-            <span>+</span>
-          </button>
-          <div class="faq-answer">
-            The PlayMotion website is responsive and adapts
-            to mobile, tablet and desktop screens. Individual
-            games must also support mobile devices.
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-question">
-            <span>Will more games be added?</span>
-            <span>+</span>
-          </button>
-          <div class="faq-answer">
-            More games can be added to the library by
-            updating the game list in the JavaScript code.
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-
-  <!-- COMMUNITY -->
-
-  <section class="community" id="community">
-    <div class="container">
-
-      <div class="community-box">
-        <span class="eyebrow">JOIN THE EXPERIENCE</span>
-
-        <h2>Ready to Explore?</h2>
-
-        <p>
-          Discover your next gaming experience.
-          Explore the PlayMotion game library and find something to enjoy.
-        </p>
-
-        <a href="#games" class="primary-btn">Explore All Games ↗</a>
-      </div>
-
-    </div>
-  </section>
-
-
-  <!-- FOOTER -->
-
-  <footer>
-    <div class="container">
-
-      <div class="footer-top">
+        <div class="feature-icon">🎮</div>
 
         <div>
-          <a href="#" class="footer-logo">Play<span>Motion</span></a>
-
-          <p class="footer-description">
-            Discover new games, explore different worlds
-            and enjoy gaming with PlayMotion.
+          <h3>Multiple Game Genres</h3>
+          <p>
+            Explore racing, tycoon, idle, strategy and arcade games.
           </p>
         </div>
 
-        <div class="footer-column">
-          <h4>Explore</h4>
-          <a href="#home">Home</a>
-          <a href="#games">All Games</a>
-          <a href="#features">Features</a>
-        </div>
+      </div>
 
-        <div class="footer-column">
-          <h4>Categories</h4>
-          <a href="#games">Racing</a>
-          <a href="#games">Tycoon</a>
-          <a href="#games">Strategy</a>
-          <a href="#games">Arcade</a>
-        </div>
+      <div class="feature">
 
-        <div class="footer-column">
-          <h4>Information</h4>
-          <a href="#faq">FAQ</a>
-          <a href="#community">Community</a>
-          <a href="mailto:hello@example.com">Contact</a>
+        <div class="feature-icon">⚡</div>
+
+        <div>
+          <h3>Easy Discovery</h3>
+          <p>
+            Find games quickly with simple categories and filters.
+          </p>
         </div>
 
       </div>
 
-      <div class="footer-bottom">
-        <span>© 2026 PlayMotion. All rights reserved.</span>
-        <span>Discover. Play. Enjoy.</span>
+      <div class="feature">
+
+        <div class="feature-icon">🌎</div>
+
+        <div>
+          <h3>Explore New Worlds</h3>
+          <p>
+            Discover different game ideas and exciting experiences.
+          </p>
+        </div>
+
       </div>
 
     </div>
-  </footer>
+
+  </div>
+</section>
 
 
-  <!-- JAVASCRIPT -->
+<!-- FAQ -->
 
-  <script>
+<section class="section faq-section" id="faq">
 
-    // =====================================
-    // GAME DATA
-    // Change image paths and play links here.
-    // =====================================
+  <div class="container">
 
-    const games = [
+    <div class="section-heading">
 
-      {
-        title: "Metropolis City 1",
-        genre: "Tycoon",
-        description: "Build, manage and grow your dream city.",
-        image: "images/metropolis-city-1.jpg",
-        link: "#"
-      },
+      <div>
+        <span class="eyebrow">HELP CENTRE</span>
+        <h2>Frequently Asked Questions</h2>
+      </div>
 
-      {
-        title: "Dune Drift",
-        genre: "Racing",
-        description: "Experience exciting desert racing adventures.",
-        image: "images/dune-drift.jpg",
-        link: "#"
-      },
+    </div>
 
-      {
-        title: "Pick Me Up Idle",
-        genre: "Idle",
-        description: "Grow your business and build your empire.",
-        image: "images/pick-me-up-idle.jpg",
-        link: "#"
-      },
+    <div class="faq-container">
 
-      {
-        title: "Meridian Empire Tycoon",
-        genre: "Tycoon",
-        description: "Create an empire and expand your business.",
-        image: "images/meridian-empire-tycoon.jpg",
-        link: "#"
-      },
+      <div class="faq-item">
 
-      {
-        title: "Harbor Tycoon",
-        genre: "Tycoon",
-        description: "Build and manage a successful harbor.",
-        image: "images/harbor-tycoon.jpg",
-        link: "#"
-      },
+        <button class="faq-question">
+          <span>What is PlayMotion?</span>
+          <span>+</span>
+        </button>
 
-      {
-        title: "Tower War",
-        genre: "Strategy",
-        description: "Plan your moves and conquer new territories.",
-        image: "images/tower-war.jpg",
-        link: "#"
-      },
+        <div class="faq-answer">
+          PlayMotion is a gaming hub where you can discover
+          different games and explore different genres.
+        </div>
 
-      {
-        title: "Sky Hub Tycoon",
-        genre: "Tycoon",
-        description: "Build and manage your own sky hub.",
-        image: "images/sky-hub-tycoon.jpg",
-        link: "#"
-      },
+      </div>
 
-      {
-        title: "Canyon GP",
-        genre: "Racing",
-        description: "Race through challenging canyon tracks.",
-        image: "images/canyon-gp.jpg",
-        link: "#"
-      },
+      <div class="faq-item">
 
-      {
-        title: "Stickman Dash",
-        genre: "Arcade",
-        description: "Jump, run and overcome exciting challenges.",
-        image: "images/stickman-dash.jpg",
-        link: "#"
-      },
+        <button class="faq-question">
+          <span>How can I play a game?</span>
+          <span>+</span>
+        </button>
 
-      {
-        title: "Space Race",
-        genre: "Racing",
-        description: "Explore thrilling races beyond Earth.",
-        image: "images/space-race.jpg",
-        link: "#"
-      },
+        <div class="faq-answer">
+          Browse the game library and select the game you
+          want to play. The Play Now link can be connected
+          to the game's actual page.
+        </div>
 
-      {
-        title: "City Race",
-        genre: "Racing",
-        description: "Race through busy streets and city tracks.",
-        image: "images/city-race.jpg",
-        link: "#"
-      }
+      </div>
 
-    ];
+      <div class="faq-item">
+
+        <button class="faq-question">
+          <span>Are there different game categories?</span>
+          <span>+</span>
+        </button>
+
+        <div class="faq-answer">
+          Yes. The library includes racing, tycoon, arcade,
+          adventure, simulation, strategy and survival categories.
+        </div>
+
+      </div>
+
+      <div class="faq-item">
+
+        <button class="faq-question">
+          <span>Can I play on mobile?</span>
+          <span>+</span>
+        </button>
+
+        <div class="faq-answer">
+          The PlayMotion website is responsive and adapts
+          to mobile, tablet and desktop screens. Individual
+          games must also support mobile devices.
+        </div>
+
+      </div>
+
+      <div class="faq-item">
+
+        <button class="faq-question">
+          <span>Will more games be added?</span>
+          <span>+</span>
+        </button>
+
+        <div class="faq-answer">
+          More games can be added to the library by
+          updating the game list in the JavaScript code.
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</section>
 
 
-    // =====================================
-    // RENDER GAME CARDS
-    // =====================================
+<!-- COMMUNITY -->
 
-    const gamesGrid = document.getElementById("gamesGrid");
+<section class="community" id="community">
 
-    function renderGames(gameList) {
+  <div class="container">
 
-      gamesGrid.innerHTML = "";
+    <div class="community-box">
 
-      if (gameList.length === 0) {
-        gamesGrid.innerHTML =
-          '<div class="no-games" style="display:block;">No games found.</div>';
-        return;
-      }
+      <span class="eyebrow">JOIN THE EXPERIENCE</span>
 
-      gameList.forEach((game, index) => {
+      <h2>Ready to Explore?</h2>
 
-        const card = document.createElement("article");
-        card.className = "game-card";
+      <p>
+        Discover your next gaming experience.
+        Explore the PlayMotion game library and find something to enjoy.
+      </p>
 
-        const imageWrap = document.createElement("div");
-        imageWrap.className = "game-image-wrap";
+      <a href="#games" class="primary-btn">
+        Explore All Games ↗
+      </a>
 
-        const image = document.createElement("img");
-        image.className = "game-image";
-        image.src = game.image;
-        image.alt = game.title;
-        image.loading = "lazy";
+    </div>
 
-        // Fallback when an image is missing.
-        image.onerror = function () {
-          this.onerror = null;
-          this.src =
-            "data:image/svg+xml;charset=UTF-8," +
-            encodeURIComponent(`
-              <svg xmlns="http://www.w3.org/2000/svg"
-                   viewBox="0 0 512 512">
-                <rect width="512" height="512" fill="#eeeaff"/>
-                <circle cx="256" cy="205" r="75" fill="#b8ff3c"/>
-                <path d="M215 165 L215 245 L290 205 Z" fill="#7c5cff"/>
-                <text x="256" y="340"
-                  font-family="Arial"
-                  font-size="25"
-                  font-weight="bold"
-                  text-anchor="middle"
-                  fill="#171717">PLAYMOTION</text>
-              </svg>
-            `);
-        };
+  </div>
+</section>
 
-        const number = document.createElement("span");
-        number.className = "game-number";
-        number.textContent = String(index + 1).padStart(2, "0");
 
-        imageWrap.appendChild(image);
-        imageWrap.appendChild(number);
+<!-- FOOTER -->
 
-        const details = document.createElement("div");
-        details.className = "game-details";
+<footer>
 
-        const category = document.createElement("span");
-        category.className = "game-category";
-        category.textContent = game.genre;
+  <div class="container">
 
-        const title = document.createElement("h3");
-        title.textContent = game.title;
+    <div class="footer-top">
 
-        const description = document.createElement("p");
-        description.textContent = game.description;
+      <div>
 
-        const playButton = document.createElement("a");
-        playButton.className = "play-btn";
-        playButton.href = game.link;
-        playButton.textContent = "Play Now ↗";
+        <a href="#home" class="footer-logo">
+          Play<span>Motion</span>
+        </a>
 
-        details.appendChild(category);
-        details.appendChild(title);
-        details.appendChild(description);
-        details.appendChild(playButton);
+        <p class="footer-description">
+          Discover new games, explore different worlds
+          and enjoy gaming with PlayMotion.
+        </p>
 
-        card.appendChild(imageWrap);
-        card.appendChild(details);
+      </div>
 
-        gamesGrid.appendChild(card);
+      <div class="footer-column">
 
-      });
+        <h4>Explore</h4>
+
+        <a href="#home">Home</a>
+        <a href="#games">All Games</a>
+        <a href="#features">Features</a>
+
+      </div>
+
+      <div class="footer-column">
+
+        <h4>Categories</h4>
+
+        <a href="#games">Racing</a>
+        <a href="#games">Tycoon</a>
+        <a href="#games">Strategy</a>
+        <a href="#games">Arcade</a>
+
+      </div>
+
+      <div class="footer-column">
+
+        <h4>Information</h4>
+
+        <a href="#faq">FAQ</a>
+        <a href="#community">Community</a>
+        <a href="mailto:hello@example.com">Contact</a>
+
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+
+      <span>© 2026 PlayMotion. All rights reserved.</span>
+      <span>Discover. Play. Enjoy.</span>
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+<!-- JAVASCRIPT -->
+
+<script>
+
+// ==========================================
+// GAME DATA
+// Edit titles, descriptions, image paths
+// and game URLs here.
+// ==========================================
+
+const games = [
+
+  {
+    title: "F1 Car Race",
+    genre: "Racing",
+    description: "Experience exciting Formula-style racing challenges.",
+    image: "images/f1-car-race.jpg",
+    link: "#"
+  },
+
+  {
+    title: "Stickman",
+    genre: "Arcade",
+    description: "Enjoy fun platforming and stickman adventures.",
+    image: "images/stickman.jpg",
+    link: "#"
+  },
+
+  {
+    title: "Tower War",
+    genre: "Strategy",
+    description: "Build your strategy and conquer enemy towers.",
+    image: "images/tower-war.jpg",
+    link: "#"
+  },
+
+  {
+    title: "Dune Drift",
+    genre: "Racing",
+    description: "Race across challenging desert landscapes.",
+    image: "images/dune-drift.jpg",
+    link: "#"
+  },
+
+  {
+    title: "Little Vale",
+    genre: "Adventure",
+    description: "Explore a charming world full of discoveries.",
+    image: "images/little-vale.jpg",
+    link: "#"
+  },
+
+  {
+    title: "Harbour Tycoon",
+    genre: "Tycoon",
+    description: "Build and manage a successful harbour.",
+    image: "images/harbour-tycoon.jpg",
+    link: "#"
+  },
+
+  {
+    title: "Tiny Acres",
+    genre: "Simulation",
+    description: "Create and manage your own little farm.",
+    image: "images/tiny-acres.jpg",
+    link: "#"
+  },
+
+  {
+    title: "Mob Master",
+    genre: "Arcade",
+    description: "Grow your crowd and overcome challenges.",
+    image: "images/mob-master.jpg",
+    link: "#"
+  },
+
+  {
+    title: "Mini Motel",
+    genre: "Tycoon",
+    description: "Build and manage your own motel business.",
+    image: "images/mini-motel.jpg",
+    link: "#"
+  },
+
+  {
+    title: "Tiny Transit",
+    genre: "Simulation",
+    description: "Create and manage a transport network.",
+    image: "images/tiny-transit.jpg",
+    link: "#"
+  },
+
+  {
+    title: "Typing Test",
+    genre: "Arcade",
+    description: "Test your typing speed and accuracy.",
+    image: "images/typing-test.jpg",
+    link: "#"
+  },
+
+  {
+    title: "Zombie Breakout",
+    genre: "Survival",
+    description: "Explore, collect resources and survive in a zombie world.",
+    image: "images/zombie-breakout.jpg",
+    link: "#"
+  }
+
+];
+
+
+// ==========================================
+// GAME RENDERING
+// ==========================================
+
+const gamesGrid = document.getElementById("gamesGrid");
+
+let activeFilter = "All";
+let searchText = "";
+
+function renderGames() {
+
+  const filteredGames = games.filter(game => {
+
+    const matchesCategory =
+      activeFilter === "All" ||
+      game.genre === activeFilter;
+
+    const matchesSearch =
+      game.title.toLowerCase().includes(searchText) ||
+      game.genre.toLowerCase().includes(searchText);
+
+    return matchesCategory && matchesSearch;
+
+  });
+
+  gamesGrid.innerHTML = "";
+
+  if (filteredGames.length === 0) {
+
+    gamesGrid.innerHTML = `
+      <div class="no-games" style="display:block;">
+        No games found. Try another search.
+      </div>
+    `;
+
+    return;
+  }
+
+  filteredGames.forEach((game, index) => {
+
+    const card = document.createElement("article");
+    card.className = "game-card";
+
+    const imageWrap = document.createElement("div");
+    imageWrap.className = "game-image-wrap";
+
+    const image = document.createElement("img");
+    image.className = "game-image";
+    image.src = game.image;
+    image.alt = game.title;
+    image.loading = "lazy";
+
+    // Fallback graphic if the game cover is missing.
+    image.onerror = function() {
+
+      this.onerror = null;
+
+      this.src =
+        "data:image/svg+xml;charset=UTF-8," +
+        encodeURIComponent(`
+          <svg xmlns="http://www.w3.org/2000/svg"
+               viewBox="0 0 512 512">
+            <rect width="512" height="512" fill="#eeeaff"/>
+            <circle cx="256" cy="205" r="75" fill="#b8ff3c"/>
+            <path d="M215 165 L215 245 L290 205 Z" fill="#7c5cff"/>
+            <text x="256" y="340"
+              font-family="Arial"
+              font-size="25"
+              font-weight="bold"
+              text-anchor="middle"
+              fill="#171717">PLAYMOTION</text>
+          </svg>
+        `);
+
+    };
+
+    const number = document.createElement("span");
+    number.className = "game-number";
+    number.textContent = String(index + 1).padStart(2, "0");
+
+    imageWrap.appendChild(image);
+    imageWrap.appendChild(number);
+
+    const details = document.createElement("div");
+    details.className = "game-details";
+
+    const category = document.createElement("span");
+    category.className = "game-category";
+    category.textContent = game.genre;
+
+    const title = document.createElement("h3");
+    title.textContent = game.title;
+
+    const description = document.createElement("p");
+    description.textContent = game.description;
+
+    const playButton = document.createElement("a");
+    playButton.className = "play-btn";
+    playButton.href = game.link;
+    playButton.textContent = "Play Now ↗";
+
+    details.appendChild(category);
+    details.appendChild(title);
+    details.appendChild(description);
+    details.appendChild(playButton);
+
+    card.appendChild(imageWrap);
+    card.appendChild(details);
+
+    gamesGrid.appendChild(card);
+
+  });
+
+}
+
+
+// ==========================================
+// CATEGORY FILTERS
+// ==========================================
+
+const filterButtons =
+  document.querySelectorAll(".filter-btn");
+
+filterButtons.forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    filterButtons.forEach(btn =>
+      btn.classList.remove("active")
+    );
+
+    button.classList.add("active");
+
+    activeFilter = button.dataset.filter;
+
+    renderGames();
+
+  });
+
+});
+
+
+// ==========================================
+// GAME SEARCH
+// ==========================================
+
+const gameSearch = document.getElementById("gameSearch");
+
+gameSearch.addEventListener("input", () => {
+
+  searchText = gameSearch.value.trim().toLowerCase();
+
+  renderGames();
+
+});
+
+
+// ==========================================
+// FAQ ACCORDION
+// ==========================================
+
+const faqItems =
+  document.querySelectorAll(".faq-item");
+
+faqItems.forEach(item => {
+
+  const question =
+    item.querySelector(".faq-question");
+
+  question.addEventListener("click", () => {
+
+    const wasOpen = item.classList.contains("open");
+
+    faqItems.forEach(faq => {
+
+      faq.classList.remove("open");
+
+      faq.querySelector(
+        ".faq-question span:last-child"
+      ).textContent = "+";
+
+    });
+
+    if (!wasOpen) {
+
+      item.classList.add("open");
+
+      item.querySelector(
+        ".faq-question span:last-child"
+      ).textContent = "−";
 
     }
 
+  });
 
-    // =====================================
-    // GAME FILTERS
-    // =====================================
-
-    const filterButtons =
-      document.querySelectorAll(".filter-btn");
-
-    filterButtons.forEach(button => {
-
-      button.addEventListener("click", () => {
-
-        filterButtons.forEach(btn =>
-          btn.classList.remove("active")
-        );
-
-        button.classList.add("active");
-
-        const selectedGenre = button.dataset.filter;
-
-        if (selectedGenre === "All") {
-          renderGames(games);
-        } else {
-          const filteredGames = games.filter(
-            game => game.genre === selectedGenre
-          );
-
-          renderGames(filteredGames);
-        }
-
-      });
-
-    });
+});
 
 
-    // =====================================
-    // FAQ ACCORDION
-    // =====================================
+// ==========================================
+// INITIALIZE WEBSITE
+// ==========================================
 
-    const faqItems =
-      document.querySelectorAll(".faq-item");
+renderGames();
 
-    faqItems.forEach(item => {
-
-      const question =
-        item.querySelector(".faq-question");
-
-      question.addEventListener("click", () => {
-
-        const wasOpen = item.classList.contains("open");
-
-        faqItems.forEach(faq => {
-          faq.classList.remove("open");
-          faq.querySelector(
-            ".faq-question span:last-child"
-          ).textContent = "+";
-        });
-
-        if (!wasOpen) {
-          item.classList.add("open");
-          item.querySelector(
-            ".faq-question span:last-child"
-          ).textContent = "−";
-        }
-
-      });
-
-    });
-
-
-    // =====================================
-    // INITIALIZE WEBSITE
-    // =====================================
-
-    renderGames(games);
-
-  </script>
+</script>
 
 </body>
 </html>
