@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PlayMotion</title>
-<script src="./_runtime/react.js"></script>
-<script src="./_runtime/react-dom.js"></script>
-<script src="./_runtime/support.js"></script>
 </head>
 <body>
-<x-dc>
+
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
@@ -104,18 +102,20 @@ sc-if,sc-for{display:contents}
 
 <div style="display:flex;flex-direction:column;gap:14px">
 <div role="group" aria-label="Filter games by type" style="display:flex;flex-wrap:wrap;gap:10px">
-<sc-for list="{{ filters }}" as="f" hint-placeholder-count="6">
-<button class="chip" type="button" onClick="{{ f.pick }}" aria-pressed="{{ f.pressed }}" style="font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid {{ f.border }};background:{{ f.bg }};color:{{ f.color }}"><span>{{ f.label }}</span><span style="opacity:0.7;font-weight:600">{{ f.count }}</span></button>
-</sc-for>
+<button class="chip active" type="button" data-filter="All" aria-pressed="true" style="font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid #10202A;background:#10202A;color:#F6F8F7"><span>All</span><span style="opacity:0.7;font-weight:600">18</span></button>
+<button class="chip" type="button" data-filter="Tycoon" aria-pressed="false" style="font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid #C5D1CE;background:#FFFFFF;color:#10202A"><span>Tycoon</span><span style="opacity:0.7;font-weight:600">5</span></button>
+<button class="chip" type="button" data-filter="Racing" aria-pressed="false" style="font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid #C5D1CE;background:#FFFFFF;color:#10202A"><span>Racing</span><span style="opacity:0.7;font-weight:600">2</span></button>
+<button class="chip" type="button" data-filter="Builder" aria-pressed="false" style="font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid #C5D1CE;background:#FFFFFF;color:#10202A"><span>Builder</span><span style="opacity:0.7;font-weight:600">3</span></button>
+<button class="chip" type="button" data-filter="Action" aria-pressed="false" style="font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid #C5D1CE;background:#FFFFFF;color:#10202A"><span>Action</span><span style="opacity:0.7;font-weight:600">6</span></button>
+<button class="chip" type="button" data-filter="Strategy" aria-pressed="false" style="font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid #C5D1CE;background:#FFFFFF;color:#10202A"><span>Strategy</span><span style="opacity:0.7;font-weight:600">2</span></button>
 </div>
-<p aria-live="polite" style="margin:0;font-size:14px;color:#4D626B">{{ status }}</p>
+<p id="games-status" aria-live="polite" style="margin:0;font-size:14px;color:#4D626B">Showing 18 of 18 games</p>
 </div>
 
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:22px">
 
 <!-- 1 Little Vale -->
-<sc-if value="{{ show.littleVale }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Builder" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#CBEBC4,#8ACB93)">
 <img src="./assets/4291aed409152166ce6b05971111855e.jpg" alt="Little Vale: a city-building game with an isometric town" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
 </div>
@@ -127,11 +127,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Little%20Vale.html" data-game-url="./games/Little%20Vale.html" data-game-title="Little Vale" target="_blank" aria-label="Play Little Vale" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 2 Canyon GP -->
-<sc-if value="{{ show.formulaCar }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Racing" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#2B0F16,#C93B27)">
 <img src="./assets/27735fd1b6b584796d8834636d063a5e.jpg" alt="Canyon GP: a blue race car on a canyon track" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
 </div>
@@ -143,11 +142,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Canyon%20GP.html" data-game-url="./games/Canyon%20GP.html" data-game-title="Canyon GP" target="_blank" aria-label="Play Canyon GP" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 3 DuneDrift -->
-<sc-if value="{{ show.duneDrift }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Racing" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#FFD9A0,#F29A4A)">
 <img src="./assets/b14fa75a5e5aa8a926cbe645f02fb3ae.jpg" alt="DuneDrift: a top-down drift and police chase game" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
 </div>
@@ -159,11 +157,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Dune%20Drift.html" data-game-url="./games/Dune%20Drift.html" data-game-title="DuneDrift" target="_blank" aria-label="Play DuneDrift" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 4 Tiny Acres -->
-<sc-if value="{{ show.tinyAcres }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Builder" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#D9F0B8,#A7D678)">
 <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Tiny Acres artwork: a red barn beside crop rows" style="position:absolute;inset:0;width:100%;height:100%">
 <circle cx="50" cy="42" r="20" fill="#FFF2A6"></circle>
@@ -188,11 +185,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Tiny%20Acres.html" data-game-url="./games/Tiny%20Acres.html" data-game-title="Tiny Acres" target="_blank" aria-label="Play Tiny Acres" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 5 Mini Motel -->
-<sc-if value="{{ show.miniMotel }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Tycoon" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#171B45,#3B3F8C)">
 <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Mini Motel artwork: a roadside motel at night with a lit sign" style="position:absolute;inset:0;width:100%;height:100%">
 <circle cx="268" cy="40" r="16" fill="#F3F0D2"></circle>
@@ -219,11 +215,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Mini%20Motel.html" data-game-url="./games/Mini%20Motel.html" data-game-title="Mini Motel" target="_blank" aria-label="Play Mini Motel" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 6 Stickman Game -->
-<sc-if value="{{ show.stickman }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Action" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#F1F3F5,#BCC5CC)">
 <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Stickman Game artwork: a stick figure mid-kick" style="position:absolute;inset:0;width:100%;height:100%">
 <line x1="0" y1="170" x2="320" y2="170" stroke="#1A1A1A" stroke-width="4"></line>
@@ -251,11 +246,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Stickman%20Dash.html" data-game-url="./games/Stickman%20Dash.html" data-game-title="Stickman Game" target="_blank" aria-label="Play Stickman Game" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 7 Tower War -->
-<sc-if value="{{ show.towerWar }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Strategy" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#8FB8E8,#E1EEFA)">
 <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Tower War artwork: a blue tower facing a red tower" style="position:absolute;inset:0;width:100%;height:100%">
 <rect x="0" y="162" width="320" height="38" fill="#5C7A3A"></rect>
@@ -279,11 +273,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Tower%20War.html" data-game-url="./games/Tower%20War.html" data-game-title="Tower War" target="_blank" aria-label="Play Tower War" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 8 Harbour Tycoon -->
-<sc-if value="{{ show.harbour }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Tycoon" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#A9E4EC,#4DAFC4)">
 <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Harbour Tycoon artwork: a cargo ship and a dockside crane" style="position:absolute;inset:0;width:100%;height:100%">
 <rect x="0" y="136" width="320" height="64" fill="#1F6F86"></rect>
@@ -311,11 +304,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Harbor%20Tycoon.html" data-game-url="./games/Harbor%20Tycoon.html" data-game-title="Harbour Tycoon" target="_blank" aria-label="Play Harbour Tycoon" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 9 MobMaster -->
-<sc-if value="{{ show.mobMaster }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Action" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#211828,#552B45)">
 <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="MobMaster artwork: a crowd of followers behind a crowned leader" style="position:absolute;inset:0;width:100%;height:100%">
 <circle cx="78" cy="132" r="13" fill="#2B8CA3"></circle><circle cx="108" cy="152" r="13" fill="#4DAFC4"></circle>
@@ -336,11 +328,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Mob%20Master.html" data-game-url="./games/Mob%20Master.html" data-game-title="MobMaster" target="_blank" aria-label="Play MobMaster" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 10 Tiny Transit -->
-<sc-if value="{{ show.tinyTransit }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Strategy" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#F3F7FA,#D2E0EA)">
 <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Tiny Transit artwork: colored transit lines joining stations" style="position:absolute;inset:0;width:100%;height:100%">
 <g fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
@@ -364,11 +355,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Tiny%20Transit.html" data-game-url="./games/Tiny%20Transit.html" data-game-title="Tiny Transit" target="_blank" aria-label="Play Tiny Transit" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 11 Street Rush 3D -->
-<sc-if value="{{ show.streetRush }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Action" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#FF9A52,#7A2E5E)">
 <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Street Rush 3D artwork: a city skyline at sunset with a car on the road" style="position:absolute;inset:0;width:100%;height:100%">
 <circle cx="220" cy="92" r="34" fill="#FFD27A"></circle>
@@ -398,11 +388,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Street%20Rush%203D.html" data-game-url="./games/Street%20Rush%203D.html" data-game-title="Street Rush 3D" target="_blank" aria-label="Play Street Rush 3D" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 12 Taxi Tycoon -->
-<sc-if value="{{ show.taxi }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Tycoon" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#FFD84A,#F2A61C)">
 <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Taxi Tycoon artwork: a yellow taxi with a roof sign" style="position:absolute;inset:0;width:100%;height:100%">
 <rect x="0" y="160" width="320" height="40" fill="#2A2A2E"></rect>
@@ -426,11 +415,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Taxi%20Tycoon.html" data-game-url="./games/Taxi%20Tycoon.html" data-game-title="Taxi Tycoon" target="_blank" aria-label="Play Taxi Tycoon" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 13 Airplane Business Tycoon -->
-<sc-if value="{{ show.airline }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Tycoon" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#5AA9E6,#CDE7FA)">
 <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Airplane Business Tycoon artwork: a passenger jet climbing past clouds" style="position:absolute;inset:0;width:100%;height:100%">
 <ellipse cx="60" cy="150" rx="54" ry="16" fill="#fff" opacity="0.9"></ellipse><ellipse cx="96" cy="140" rx="34" ry="14" fill="#fff" opacity="0.9"></ellipse>
@@ -454,11 +442,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Airplane%20Business%20Tycoon.html" data-game-url="./games/Airplane%20Business%20Tycoon.html" data-game-title="Airplane Business Tycoon" target="_blank" aria-label="Play Airplane Business Tycoon" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 14 Boss Block -->
-<sc-if value="{{ show.bossBlock }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Strategy" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#0A1F45,#1B3B6F);display:flex;align-items:center;justify-content:center">
 <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Boss Block artwork: geometric block defense puzzle" style="position:absolute;inset:0;width:100%;height:100%">
 <rect x="0" y="0" width="320" height="200" fill="#0a1f45" opacity="0.6"></rect>
@@ -480,11 +467,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Boss%20Block.html" data-game-url="./games/Boss%20Block.html" data-game-title="Boss Block" target="_blank" aria-label="Play Boss Block" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 15 Thread Peak -->
-<sc-if value="{{ show.threadPeak }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Action" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#0F0D24,#281E52);display:flex;align-items:center;justify-content:center">
 <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Thread Peak artwork: neon vertical climber game" style="position:absolute;inset:0;width:100%;height:100%">
 <polyline points="30,170 80,120 130,140 180,80 230,110 280,40" stroke="#3BE8FF" stroke-width="4" fill="none" stroke-linecap="round"></polyline>
@@ -502,11 +488,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Thread%20Peak.html" data-game-url="./games/Thread%20Peak.html" data-game-title="Thread Peak" target="_blank" aria-label="Play Thread Peak" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 16 Echoes of the Iron Palace -->
-<sc-if value="{{ show.monkFight }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Action" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#2E2018,#5A3825);display:flex;align-items:center;justify-content:center">
 <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Echoes of the Iron Palace artwork: 3D martial arts action" style="position:absolute;inset:0;width:100%;height:100%">
 <circle cx="160" cy="70" r="32" fill="#C89B4E" opacity="0.7"></circle>
@@ -523,11 +508,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/monk%20fight.html" data-game-url="./games/monk%20fight.html" data-game-title="Echoes of Iron Palace" target="_blank" aria-label="Play Echoes of the Iron Palace" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 17 Zombie World -->
-<sc-if value="{{ show.zombieWorld }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Action" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#07090D,#1E080B);display:flex;align-items:center;justify-content:center">
 <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Zombie World artwork: 2.5D apocalyptic survival action" style="position:absolute;inset:0;width:100%;height:100%">
 <rect x="0" y="0" width="320" height="200" fill="#07090d"></rect>
@@ -548,11 +532,10 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/zombie%20world.html" data-game-url="./games/zombie%20world.html" data-game-title="Last Isle: Zombie World" target="_blank" aria-label="Play Zombie World" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 <!-- 18 Kheti Farm -->
-<sc-if value="{{ show.khetiFarm }}" hint-placeholder-val="{{ true }}">
-<article class="card" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
+<article class="card" data-category="Builder" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
 <div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#F5E4B5,#87BA55);display:flex;align-items:center;justify-content:center">
 <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Kheti Farm artwork: cozy farming simulator" style="position:absolute;inset:0;width:100%;height:100%">
 <circle cx="70" cy="50" r="24" fill="#FFC83D" opacity="0.9"></circle>
@@ -570,7 +553,7 @@ sc-if,sc-for{display:contents}
 <a class="play" href="./games/Kheti%20Karo.html" data-game-url="./games/Kheti%20Karo.html" data-game-title="Kheti Farm" target="_blank" aria-label="Play Kheti Farm" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
-</sc-if>
+
 
 </div>
 
@@ -701,52 +684,8 @@ Can I suggest a game?
 </footer>
 
 </div>
-</x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":3300}}'>
-class Component extends DCLogic {
-constructor(props) {
-super(props);
-this.state = { filter: 'All' };
-}
-renderVals() {
-const games = [
-['littleVale', 'Builder'], ['formulaCar', 'Racing'], ['duneDrift', 'Racing'],
-['tinyAcres', 'Builder'], ['miniMotel', 'Tycoon'], ['stickman', 'Action'],
-['towerWar', 'Strategy'], ['harbour', 'Tycoon'], ['mobMaster', 'Action'],
-['tinyTransit', 'Strategy'], ['streetRush', 'Action'], ['taxi', 'Tycoon'],
-['airline', 'Tycoon'],
-['bossBlock', 'Strategy'], ['threadPeak', 'Action'], ['monkFight', 'Action'],
-['zombieWorld', 'Action'], ['khetiFarm', 'Builder']
-];
-const cats = ['All', 'Tycoon', 'Racing', 'Builder', 'Action', 'Strategy'];
-const current = this.state.filter;
-const matches = games.filter((g) => current === 'All' || g[1] === current);
-const shown = matches;
-const show = {};
-games.forEach((g) => { show[g[0]] = shown.indexOf(g) >= 0; });
-const filters = cats.map((c) => {
-const active = c === current;
-return {
-label: c,
-count: c === 'All' ? games.length : games.filter((g) => g[1] === c).length,
-pressed: active ? 'true' : 'false',
-bg: active ? '#10202A' : '#FFFFFF',
-color: active ? '#F6F8F7' : '#10202A',
-border: active ? '#10202A' : '#C5D1CE',
-pick: () => this.setState({ filter: c })
-};
-});
-const status = current === 'All'
-? 'Showing ' + shown.length + ' of ' + matches.length + ' games'
-: 'Showing ' + shown.length + ' ' + current.toLowerCase() + (shown.length === 1 ? ' game' : ' games');
-return {
-show,
-filters,
-status
-};
-}
-}
-</script>
+
+
 
 <!-- PLAYMOTION GAME PLAYER MODAL -->
 <div id="playmotion-game-modal" role="dialog" aria-modal="true" aria-label="Game Player" style="display:none;position:fixed;inset:0;z-index:999999;background:rgba(10,16,22,0.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
@@ -882,6 +821,44 @@ status
     if (e.key === 'Escape' && modal.style.display === 'flex') {
       closeGame();
     }
+  });
+
+  // Category Filter Functionality
+  const filterButtons = document.querySelectorAll('.chip[data-filter]');
+  const gameCards = document.querySelectorAll('.card[data-category]');
+  const statusEl = document.getElementById('games-status');
+
+  function setFilter(category) {
+    let count = 0;
+    gameCards.forEach(function(card) {
+      const cardCat = card.getAttribute('data-category');
+      if (category === 'All' || cardCat === category) {
+        card.style.display = 'flex';
+        count++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    filterButtons.forEach(function(btn) {
+      const isActive = btn.getAttribute('data-filter') === category;
+      btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      btn.style.background = isActive ? '#10202A' : '#FFFFFF';
+      btn.style.color = isActive ? '#F6F8F7' : '#10202A';
+      btn.style.borderColor = isActive ? '#10202A' : '#C5D1CE';
+    });
+
+    if (statusEl) {
+      statusEl.textContent = category === 'All'
+        ? ('Showing ' + count + ' of ' + gameCards.length + ' games')
+        : ('Showing ' + count + ' ' + category.toLowerCase() + (count === 1 ? ' game' : ' games'));
+    }
+  }
+
+  filterButtons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      setFilter(btn.getAttribute('data-filter'));
+    });
   });
 
   // Delegated click handler: catches clicks on any .play button or card thumbnail
