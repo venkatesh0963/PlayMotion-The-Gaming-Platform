@@ -4,19 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PlayMotion</title>
-</head>
-<body>
-
-<helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Unbounded:wght@500;700;800&amp;display=swap">
 <style>
 body{margin:0;background:#F6F8F7}
-.card{cursor:pointer}
-@keyframes playmotion-spin{to{transform:rotate(360deg)}}
-#playmotion-game-modal button:hover,#playmotion-game-modal a:hover{opacity:0.9;filter:brightness(1.15)}
-.card{transition:transform .2s ease,border-color .2s ease}
+.card{cursor:pointer;transition:transform .2s ease,border-color .2s ease}
 .card:hover{transform:translateY(-4px);border-color:#FF6A3D}
 .play{transition:background .15s ease}
 .play:hover{background:#FFC83D}
@@ -27,12 +20,12 @@ summary{list-style:none;cursor:pointer}
 summary::-webkit-details-marker{display:none}
 details[open] .chev{transform:rotate(45deg)}
 .chev{transition:transform .2s ease}
-sc-if,sc-for{display:contents}
 .chip{transition:border-color .15s ease}
 .chip:hover{border-color:#B5440F}
 @media (prefers-reduced-motion:reduce){.card,.play,.chev,.chip{transition:none}.card:hover{transform:none}}
 </style>
-</helmet>
+</head>
+<body>
 
 <div style="background:#F6F8F7;color:#10202A;font-family:'Manrope',system-ui,sans-serif;font-size:16px;line-height:1.55;min-height:100%">
 
@@ -59,7 +52,7 @@ sc-if,sc-for{display:contents}
 <div style="max-width:1200px;margin:0 auto;padding:72px 24px 80px;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:48px">
 <div style="flex:1 1 440px;min-width:0;display:flex;flex-direction:column;gap:24px">
 <p style="margin:0;display:inline-flex;align-self:flex-start;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#B5440F">
-<span style="width:28px;height:3px;background:#FFC83D;display:inline-block"></span>13 games live now
+<span style="width:28px;height:3px;background:#FFC83D;display:inline-block"></span>17 games live now
 </p>
 <h1 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:800;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-0.03em;text-wrap:balance">Pick a game. Hit play.</h1>
 <p style="margin:0;max-width:520px;font-size:18px;color:#4D626B">PlayMotion is a growing shelf of quick games: tycoons, racers, builders and brawlers. Open one and you are playing in seconds.</p>
@@ -102,14 +95,14 @@ sc-if,sc-for{display:contents}
 
 <div style="display:flex;flex-direction:column;gap:14px">
 <div role="group" aria-label="Filter games by type" style="display:flex;flex-wrap:wrap;gap:10px">
-<button class="chip active" type="button" data-filter="All" aria-pressed="true" style="font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid #10202A;background:#10202A;color:#F6F8F7"><span>All</span><span style="opacity:0.7;font-weight:600">18</span></button>
-<button class="chip" type="button" data-filter="Tycoon" aria-pressed="false" style="font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid #C5D1CE;background:#FFFFFF;color:#10202A"><span>Tycoon</span><span style="opacity:0.7;font-weight:600">5</span></button>
+<button class="chip active" type="button" data-filter="All" aria-pressed="true" style="font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid #10202A;background:#10202A;color:#F6F8F7"><span>All</span><span style="opacity:0.7;font-weight:600">17</span></button>
+<button class="chip" type="button" data-filter="Tycoon" aria-pressed="false" style="font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid #C5D1CE;background:#FFFFFF;color:#10202A"><span>Tycoon</span><span style="opacity:0.7;font-weight:600">4</span></button>
 <button class="chip" type="button" data-filter="Racing" aria-pressed="false" style="font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid #C5D1CE;background:#FFFFFF;color:#10202A"><span>Racing</span><span style="opacity:0.7;font-weight:600">2</span></button>
 <button class="chip" type="button" data-filter="Builder" aria-pressed="false" style="font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid #C5D1CE;background:#FFFFFF;color:#10202A"><span>Builder</span><span style="opacity:0.7;font-weight:600">3</span></button>
 <button class="chip" type="button" data-filter="Action" aria-pressed="false" style="font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid #C5D1CE;background:#FFFFFF;color:#10202A"><span>Action</span><span style="opacity:0.7;font-weight:600">6</span></button>
 <button class="chip" type="button" data-filter="Strategy" aria-pressed="false" style="font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;min-height:44px;padding:0 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid #C5D1CE;background:#FFFFFF;color:#10202A"><span>Strategy</span><span style="opacity:0.7;font-weight:600">2</span></button>
 </div>
-<p id="games-status" aria-live="polite" style="margin:0;font-size:14px;color:#4D626B">Showing 18 of 18 games</p>
+<p id="games-status" aria-live="polite" style="margin:0;font-size:14px;color:#4D626B">Showing 17 of 17 games</p>
 </div>
 
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:22px">
@@ -124,7 +117,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Little Vale</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">City-building game</p>
 </div>
-<a class="play" href="./games/Little%20Vale.html" data-game-url="./games/Little%20Vale.html" data-game-title="Little Vale" target="_blank" aria-label="Play Little Vale" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/Little%20Vale.html" target="_blank" rel="noopener noreferrer" aria-label="Play Little Vale" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -139,7 +132,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Canyon GP</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">3 laps, 8 cars, 1 winner</p>
 </div>
-<a class="play" href="./games/Canyon%20GP.html" data-game-url="./games/Canyon%20GP.html" data-game-title="Canyon GP" target="_blank" aria-label="Play Canyon GP" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/Canyon%20GP.html" target="_blank" rel="noopener noreferrer" aria-label="Play Canyon GP" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -154,7 +147,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">DuneDrift</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">Drift, race and outrun the police</p>
 </div>
-<a class="play" href="./games/Dune%20Drift.html" data-game-url="./games/Dune%20Drift.html" data-game-title="DuneDrift" target="_blank" aria-label="Play DuneDrift" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/Dune%20Drift.html" target="_blank" rel="noopener noreferrer" aria-label="Play DuneDrift" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -182,7 +175,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Tiny Acres</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">Small farm sim</p>
 </div>
-<a class="play" href="./games/Tiny%20Acres.html" data-game-url="./games/Tiny%20Acres.html" data-game-title="Tiny Acres" target="_blank" aria-label="Play Tiny Acres" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/Tiny%20Acres.html" target="_blank" rel="noopener noreferrer" aria-label="Play Tiny Acres" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -212,7 +205,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Mini Motel</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">Run a roadside motel</p>
 </div>
-<a class="play" href="./games/Mini%20Motel.html" data-game-url="./games/Mini%20Motel.html" data-game-title="Mini Motel" target="_blank" aria-label="Play Mini Motel" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/Mini%20Motel.html" target="_blank" rel="noopener noreferrer" aria-label="Play Mini Motel" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -243,7 +236,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Stickman Game</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">Fast stick-figure action</p>
 </div>
-<a class="play" href="./games/Stickman%20Dash.html" data-game-url="./games/Stickman%20Dash.html" data-game-title="Stickman Game" target="_blank" aria-label="Play Stickman Game" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/Stickman%20Dash.html" target="_blank" rel="noopener noreferrer" aria-label="Play Stickman Game" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -270,7 +263,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Tower War</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">Tower versus tower strategy</p>
 </div>
-<a class="play" href="./games/Tower%20War.html" data-game-url="./games/Tower%20War.html" data-game-title="Tower War" target="_blank" aria-label="Play Tower War" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/Tower%20War.html" target="_blank" rel="noopener noreferrer" aria-label="Play Tower War" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -301,7 +294,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Harbour Tycoon</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">Build a busy port</p>
 </div>
-<a class="play" href="./games/Harbor%20Tycoon.html" data-game-url="./games/Harbor%20Tycoon.html" data-game-title="Harbour Tycoon" target="_blank" aria-label="Play Harbour Tycoon" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/Harbor%20Tycoon.html" target="_blank" rel="noopener noreferrer" aria-label="Play Harbour Tycoon" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -325,34 +318,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">MobMaster</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">Grow your crowd, take over</p>
 </div>
-<a class="play" href="./games/Mob%20Master.html" data-game-url="./games/Mob%20Master.html" data-game-title="MobMaster" target="_blank" aria-label="Play MobMaster" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
-</div>
-</article>
-
-
-<!-- 10 Tiny Transit -->
-<article class="card" data-category="Strategy" style="display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #D5DEDC;border-radius:10px;overflow:hidden">
-<div style="position:relative;aspect-ratio:16/9;background:linear-gradient(#F3F7FA,#D2E0EA)">
-<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Tiny Transit artwork: colored transit lines joining stations" style="position:absolute;inset:0;width:100%;height:100%">
-<g fill="none" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
-<polyline points="30,60 110,60 150,100 150,150 230,150 290,150" stroke="#E8452C"></polyline>
-<polyline points="40,150 90,150 150,100 210,60 290,60" stroke="#2B8CA3"></polyline>
-<polyline points="150,24 150,100 214,100 214,176" stroke="#FFC83D"></polyline>
-</g>
-<g fill="#fff" stroke="#14212A" stroke-width="4">
-<circle cx="30" cy="60" r="8"></circle><circle cx="110" cy="60" r="8"></circle><circle cx="150" cy="100" r="10"></circle>
-<circle cx="150" cy="150" r="8"></circle><circle cx="290" cy="150" r="8"></circle><circle cx="40" cy="150" r="8"></circle>
-<circle cx="210" cy="60" r="8"></circle><circle cx="290" cy="60" r="8"></circle><circle cx="150" cy="24" r="8"></circle>
-<circle cx="214" cy="100" r="8"></circle><circle cx="214" cy="176" r="8"></circle>
-</g>
-</svg>
-</div>
-<div style="display:flex;flex-direction:column;gap:14px;padding:16px 16px 18px;flex:1">
-<div style="display:flex;flex-direction:column;gap:2px">
-<h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Tiny Transit</h3>
-<p style="margin:0;font-size:14px;color:#4D626B">Plan routes, keep the city moving</p>
-</div>
-<a class="play" href="./games/Tiny%20Transit.html" data-game-url="./games/Tiny%20Transit.html" data-game-title="Tiny Transit" target="_blank" aria-label="Play Tiny Transit" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/Mob%20Master.html" target="_blank" rel="noopener noreferrer" aria-label="Play MobMaster" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -385,7 +351,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Street Rush 3D</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">Small open-city 3D game</p>
 </div>
-<a class="play" href="./games/Street%20Rush%203D.html" data-game-url="./games/Street%20Rush%203D.html" data-game-title="Street Rush 3D" target="_blank" aria-label="Play Street Rush 3D" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/Block%20City.html" target="_blank" rel="noopener noreferrer" aria-label="Play Street Rush 3D" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -412,7 +378,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Taxi Tycoon</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">Grow a taxi company</p>
 </div>
-<a class="play" href="./games/Taxi%20Tycoon.html" data-game-url="./games/Taxi%20Tycoon.html" data-game-title="Taxi Tycoon" target="_blank" aria-label="Play Taxi Tycoon" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/Pick%20Me%20Up%20Idle.html" target="_blank" rel="noopener noreferrer" aria-label="Play Taxi Tycoon" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -439,7 +405,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Airplane Business Tycoon</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">Build your own airline</p>
 </div>
-<a class="play" href="./games/Airplane%20Business%20Tycoon.html" data-game-url="./games/Airplane%20Business%20Tycoon.html" data-game-title="Airplane Business Tycoon" target="_blank" aria-label="Play Airplane Business Tycoon" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/Boss%20Block.html" target="_blank" rel="noopener noreferrer" aria-label="Play Airplane Business Tycoon" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -464,7 +430,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Boss Block</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">Block puzzle defense strategy</p>
 </div>
-<a class="play" href="./games/Boss%20Block.html" data-game-url="./games/Boss%20Block.html" data-game-title="Boss Block" target="_blank" aria-label="Play Boss Block" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/Boss%20Block.html" target="_blank" rel="noopener noreferrer" aria-label="Play Boss Block" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -485,7 +451,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Thread Peak</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">Neon vertical climb and dash</p>
 </div>
-<a class="play" href="./games/Thread%20Peak.html" data-game-url="./games/Thread%20Peak.html" data-game-title="Thread Peak" target="_blank" aria-label="Play Thread Peak" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/Thread%20Peak.html" target="_blank" rel="noopener noreferrer" aria-label="Play Thread Peak" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -505,7 +471,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Echoes of Iron Palace</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">3D martial arts action RPG</p>
 </div>
-<a class="play" href="./games/monk%20fight.html" data-game-url="./games/monk%20fight.html" data-game-title="Echoes of Iron Palace" target="_blank" aria-label="Play Echoes of the Iron Palace" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/monk%20fight.html" target="_blank" rel="noopener noreferrer" aria-label="Play Echoes of the Iron Palace" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -529,7 +495,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Last Isle: Zombie World</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">2.5D zombie survival shooter</p>
 </div>
-<a class="play" href="./games/zombie%20world.html" data-game-url="./games/zombie%20world.html" data-game-title="Last Isle: Zombie World" target="_blank" aria-label="Play Zombie World" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/zombie%20world.html" target="_blank" rel="noopener noreferrer" aria-label="Play Zombie World" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -550,7 +516,7 @@ sc-if,sc-for{display:contents}
 <h3 style="margin:0;font-family:'Unbounded',sans-serif;font-weight:700;font-size:17px;line-height:1.25">Kheti Farm</h3>
 <p style="margin:0;font-size:14px;color:#4D626B">Cozy crop harvest simulator</p>
 </div>
-<a class="play" href="./games/Kheti%20Karo.html" data-game-url="./games/Kheti%20Karo.html" data-game-title="Kheti Farm" target="_blank" aria-label="Play Kheti Farm" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
+<a class="play" href="./games/Kheti%20Karo.html" target="_blank" rel="noopener noreferrer" aria-label="Play Kheti Farm" style="margin-top:auto;background:#FF6A3D;color:#0C1419;text-decoration:none;font-weight:700;font-size:15px;min-height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px"><svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>Play</a>
 </div>
 </article>
 
@@ -685,144 +651,8 @@ Can I suggest a game?
 
 </div>
 
-
-
-<!-- PLAYMOTION GAME PLAYER MODAL -->
-<div id="playmotion-game-modal" role="dialog" aria-modal="true" aria-label="Game Player" style="display:none;position:fixed;inset:0;z-index:999999;background:rgba(10,16,22,0.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
-  <div id="playmotion-modal-card" style="width:100%;max-width:1300px;height:min(94vh,880px);background:#0C1419;border:1px solid rgba(255,255,255,0.12);border-radius:14px;box-shadow:0 24px 64px rgba(0,0,0,0.7),0 4px 16px rgba(0,0,0,0.4);display:flex;flex-direction:column;overflow:hidden;position:relative">
-    
-    <!-- Top Control Bar -->
-    <div style="background:#131E24;border-bottom:1px solid rgba(255,255,255,0.08);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:#F6F8F7;font-family:'Manrope',system-ui,sans-serif;user-select:none;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:12px;min-width:0">
-        <div style="width:28px;height:28px;border-radius:6px;background:#FF6A3D;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="12" height="14" viewBox="0 0 14 16" aria-hidden="true"><polygon points="1,1 1,15 13,8" fill="#0C1419"></polygon></svg>
-        </div>
-        <span id="playmotion-game-title" style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:350px">Game Title</span>
-        <span style="background:rgba(255,200,61,0.18);color:#FFC83D;font-weight:700;font-size:11px;padding:3px 8px;border-radius:99px;letter-spacing:0.04em;text-transform:uppercase">Playing Now</span>
-      </div>
-
-      <div style="display:flex;align-items:center;gap:8px">
-        <!-- Restart Button -->
-        <button id="playmotion-game-restart" type="button" title="Restart Game" aria-label="Restart Game" style="background:rgba(255,255,255,0.08);color:#F6F8F7;border:1px solid rgba(255,255,255,0.12);padding:7px 12px;border-radius:6px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .15s">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-          <span>Restart</span>
-        </button>
-
-        <!-- Open in New Tab Button -->
-        <a id="playmotion-game-newtab" href="#" target="_blank" title="Open in New Tab" aria-label="Open game in new browser tab" style="background:rgba(255,255,255,0.08);color:#F6F8F7;border:1px solid rgba(255,255,255,0.12);padding:7px 12px;border-radius:6px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:background .15s">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
-          <span>New Tab</span>
-        </a>
-
-        <!-- Fullscreen Button -->
-        <button id="playmotion-game-fullscreen" type="button" title="Toggle Fullscreen" aria-label="Fullscreen" style="background:rgba(255,255,255,0.08);color:#F6F8F7;border:1px solid rgba(255,255,255,0.12);padding:7px 12px;border-radius:6px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .15s">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-          <span>Fullscreen</span>
-        </button>
-
-        <!-- Close Button -->
-        <button id="playmotion-game-close" type="button" title="Close Game (Esc)" aria-label="Close game" style="background:#FF6A3D;color:#0C1419;border:0;padding:7px 14px;border-radius:6px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .15s">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          <span>Close</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Iframe Container -->
-    <div style="flex:1 1 auto;position:relative;background:#000000;overflow:hidden">
-      <!-- Loading Spinner -->
-      <div id="playmotion-game-spinner" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#0C1419;color:#F6F8F7;font-family:'Unbounded',sans-serif;font-size:14px;z-index:2;pointer-events:none;transition:opacity .25s ease">
-        <div style="width:36px;height:36px;border:3px solid rgba(255,255,255,0.15);border-top-color:#FF6A3D;border-radius:50%;animation:playmotion-spin 0.8s linear infinite"></div>
-        <span>Loading Game...</span>
-      </div>
-      <iframe id="playmotion-game-iframe" src="about:blank" title="PlayMotion Game" allow="autoplay; fullscreen; gamepad; focus-without-user-activation *" style="width:100%;height:100%;border:0;display:block;position:relative;z-index:1" tabindex="0"></iframe>
-    </div>
-  </div>
-</div>
-
 <script>
 (function() {
-  const modal = document.getElementById('playmotion-game-modal');
-  const modalTitle = document.getElementById('playmotion-game-title');
-  const modalIframe = document.getElementById('playmotion-game-iframe');
-  const modalNewTab = document.getElementById('playmotion-game-newtab');
-  const modalClose = document.getElementById('playmotion-game-close');
-  const modalRestart = document.getElementById('playmotion-game-restart');
-  const modalFullscreen = document.getElementById('playmotion-game-fullscreen');
-  const modalSpinner = document.getElementById('playmotion-game-spinner');
-  const modalCard = document.getElementById('playmotion-modal-card');
-
-  let currentGameUrl = '';
-
-  function openGame(url, title) {
-    if (!url) return;
-    currentGameUrl = url;
-    modalTitle.textContent = title || 'PlayMotion Game';
-    modalNewTab.href = url;
-    modalSpinner.style.opacity = '1';
-    modalSpinner.style.display = 'flex';
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-
-    modalIframe.onload = function() {
-      modalSpinner.style.opacity = '0';
-      setTimeout(function() { modalSpinner.style.display = 'none'; }, 250);
-      try { modalIframe.focus(); } catch (err) {}
-    };
-
-    modalIframe.src = url;
-  }
-
-  function closeGame() {
-    modal.style.display = 'none';
-    modalIframe.src = 'about:blank';
-    currentGameUrl = '';
-    document.body.style.overflow = '';
-    if (document.fullscreenElement) {
-      try { document.exitFullscreen(); } catch (err) {}
-    }
-  }
-
-  function restartGame() {
-    if (currentGameUrl) {
-      modalSpinner.style.opacity = '1';
-      modalSpinner.style.display = 'flex';
-      modalIframe.src = currentGameUrl;
-    }
-  }
-
-  function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      if (modalCard.requestFullscreen) {
-        modalCard.requestFullscreen();
-      } else if (modalCard.webkitRequestFullscreen) {
-        modalCard.webkitRequestFullscreen();
-      }
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      }
-    }
-  }
-
-  modalClose.addEventListener('click', closeGame);
-  modalRestart.addEventListener('click', restartGame);
-  modalFullscreen.addEventListener('click', toggleFullscreen);
-
-  modal.addEventListener('click', function(e) {
-    if (e.target === modal) {
-      closeGame();
-    }
-  });
-
-  window.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && modal.style.display === 'flex') {
-      closeGame();
-    }
-  });
-
   // Category Filter Functionality
   const filterButtons = document.querySelectorAll('.chip[data-filter]');
   const gameCards = document.querySelectorAll('.card[data-category]');
@@ -861,37 +691,16 @@ Can I suggest a game?
     });
   });
 
-  // Delegated click handler: catches clicks on any .play button or card thumbnail
+  // Open game in a new tab when clicking a card thumbnail
   document.addEventListener('click', function(e) {
-    // 1. Play button
-    const playBtn = e.target.closest('.play');
-    if (playBtn && playBtn.hasAttribute('data-game-url')) {
-      if (e.ctrlKey || e.metaKey || e.shiftKey) return;
-      e.preventDefault();
-      const url = playBtn.getAttribute('data-game-url');
-      const title = playBtn.getAttribute('data-game-title') || 'Game';
-      openGame(url, title);
-      return;
-    }
-
-    // 2. Card thumbnail/image
     const cardMedia = e.target.closest('.card > div:first-child');
-    if (cardMedia) {
-      const card = cardMedia.closest('.card');
-      const cardPlayBtn = card ? card.querySelector('.play[data-game-url]') : null;
-      if (cardPlayBtn) {
-        e.preventDefault();
-        const url = cardPlayBtn.getAttribute('data-game-url');
-        const title = cardPlayBtn.getAttribute('data-game-title') || 'Game';
-        openGame(url, title);
-      }
+    if (!cardMedia) return;
+    const card = cardMedia.closest('.card');
+    const playBtn = card ? card.querySelector('a.play[href]') : null;
+    if (playBtn) {
+      window.open(playBtn.href, '_blank', 'noopener,noreferrer');
     }
   });
-
-  window.PlayMotion = {
-    openGame: openGame,
-    closeGame: closeGame
-  };
 })();
 </script>
 
