@@ -1,0 +1,3906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Echoes of the Iron Palace - 3D Action RPG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+/* ==========================================================================
+   ECHOES OF THE IRON PALACE - COMPLETE UNIFIED STYLESHEET
+   Authentic Ancient Chinese Fantasy Aesthetic & Full Mobile Responsiveness
+   ========================================================================== */
+
+:root {
+  --wood-brown: #49372C;
+  --wood-dark: #2E2018;
+  --stone-grey: #77736C;
+  --lantern-gold: #C89B4E;
+  --forest-green: #425D43;
+  --monk-red: #A64F35;
+  --night-blue: #273D52;
+  --mist-beige: #C5B9A3;
+  --spirit-gold: #D5AA55;
+  --spirit-gold-glow: rgba(213, 170, 85, 0.4);
+  --ink-black: #12100E;
+  --ink-paper: #E8DFC8;
+  --crimson-accent: #C23B22;
+  --jade-green: #2E8B57;
+  --dragon-cyan: #3CAEA3;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--ink-black);
+  font-family: 'Cinzel', 'Noto Serif SC', 'Georgia', serif;
+  color: var(--ink-paper);
+  touch-action: none;
+}
+
+#canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  touch-action: none;
+}
+
+#game-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Vignette & Cinematic Overlay */
+#cinematic-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  box-shadow: inset 0 0 120px rgba(18, 16, 14, 0.85);
+  transition: background 0.8s ease, box-shadow 0.8s ease;
+}
+
+#cinematic-overlay.memory-echo {
+  background: radial-gradient(circle, rgba(213, 170, 85, 0.15) 0%, rgba(73, 55, 44, 0.6) 100%);
+  box-shadow: inset 0 0 160px rgba(166, 79, 53, 0.7);
+  animation: pulseEcho 3s infinite alternate;
+}
+
+@keyframes pulseEcho {
+  0% { opacity: 0.85; }
+  100% { opacity: 1; }
+}
+
+/* ==========================================================================
+   HEADS-UP DISPLAY (HUD)
+   ========================================================================== */
+#hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: env(safe-area-inset-top, 16px) env(safe-area-inset-right, 16px) env(safe-area-inset-bottom, 16px) env(safe-area-inset-left, 16px);
+  padding: 16px;
+}
+
+/* Top Bar: Player Stats & Mini-map */
+.hud-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.player-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(30, 24, 20, 0.92) 0%, rgba(18, 16, 14, 0.85) 100%);
+  border: 1px solid var(--lantern-gold);
+  border-radius: 6px;
+  padding: 8px 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(200, 155, 78, 0.2);
+  pointer-events: auto;
+}
+
+.portrait-wrapper {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 2px solid var(--spirit-gold);
+  background: radial-gradient(circle, #3a2e26 0%, #171310 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 12px var(--spirit-gold-glow);
+  flex-shrink: 0;
+}
+
+.portrait-wrapper svg {
+  width: 38px;
+  height: 38px;
+  fill: var(--ink-paper);
+}
+
+.level-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background: var(--monk-red);
+  color: #FFF;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 1px 5px;
+  border-radius: 10px;
+  border: 1px solid var(--spirit-gold);
+}
+
+.vitals {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 160px;
+}
+
+.char-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: var(--lantern-gold);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+.region-label {
+  font-size: 10px;
+  color: var(--mist-beige);
+  font-style: italic;
+  margin-left: 8px;
+}
+
+.bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-bar {
+  position: relative;
+  width: 100%;
+  height: 11px;
+  background: rgba(18, 16, 14, 0.9);
+  border: 1px solid rgba(197, 185, 163, 0.3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.stat-fill {
+  height: 100%;
+  width: 100%;
+  transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.stat-fill.hp {
+  background: linear-gradient(90deg, #8B2500 0%, #C23B22 60%, #E74C3C 100%);
+  box-shadow: 0 0 8px rgba(194, 59, 34, 0.6);
+}
+
+.stat-fill.chi {
+  background: linear-gradient(90deg, #9C7A2E 0%, #D5AA55 60%, #F5D77F 100%);
+  box-shadow: 0 0 8px rgba(213, 170, 85, 0.8);
+}
+
+.stat-fill.xp {
+  background: linear-gradient(90deg, #2E6B4F 0%, #3CAEA3 100%);
+}
+
+.bar-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 8.5px;
+  font-weight: bold;
+  color: #FFF;
+  text-shadow: 0 1px 2px #000;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* Top Right: Compass & Minimap */
+.hud-top-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.minimap-container {
+  position: relative;
+  width: 115px;
+  height: 115px;
+  border-radius: 50%;
+  border: 2px solid var(--lantern-gold);
+  background: rgba(18, 16, 14, 0.88);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.6), inset 0 0 15px rgba(0,0,0,0.9);
+  overflow: hidden;
+}
+
+#minimap-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.compass-n {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-weight: bold;
+  color: var(--crimson-accent);
+  pointer-events: none;
+}
+
+.quick-menu-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-hud-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  background: rgba(30, 24, 20, 0.88);
+  border: 1px solid var(--lantern-gold);
+  color: var(--ink-paper);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  font-size: 16px;
+}
+
+.btn-hud-icon:hover, .btn-hud-icon:active {
+  background: var(--monk-red);
+  color: #FFF;
+  border-color: var(--spirit-gold);
+  transform: translateY(-2px);
+  box-shadow: 0 0 12px var(--spirit-gold-glow);
+}
+
+/* Quest Tracker */
+.quest-tracker {
+  position: absolute;
+  top: 90px;
+  left: 16px;
+  max-width: 250px;
+  background: linear-gradient(135deg, rgba(24, 19, 16, 0.88) 0%, rgba(15, 12, 10, 0.75) 100%);
+  border-left: 3px solid var(--spirit-gold);
+  padding: 8px 12px;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  pointer-events: auto;
+  transition: all 0.3s ease;
+}
+
+.quest-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--spirit-gold);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 3px;
+  letter-spacing: 0.5px;
+}
+
+.quest-desc {
+  font-size: 11px;
+  color: var(--mist-beige);
+  line-height: 1.35;
+}
+
+.quest-progress {
+  margin-top: 5px;
+  font-size: 10.5px;
+  color: var(--lantern-gold);
+  font-weight: bold;
+}
+
+/* Boss Health Bar (Top Center) */
+#boss-bar-container {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 440px;
+  max-width: 85vw;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  z-index: 15;
+}
+
+.boss-name {
+  font-size: 15px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: #FFF;
+  text-shadow: 0 0 8px var(--crimson-accent);
+  text-align: center;
+}
+
+.boss-bar-frame {
+  width: 100%;
+  height: 14px;
+  background: rgba(18, 16, 14, 0.9);
+  border: 2px solid var(--lantern-gold);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 0 15px rgba(194, 59, 34, 0.5);
+}
+
+.boss-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #8B0000 0%, #C23B22 60%, #FF4500 100%);
+  transition: width 0.25s ease;
+}
+
+.boss-phase {
+  font-size: 10.5px;
+  color: var(--spirit-gold);
+  letter-spacing: 1px;
+  font-style: italic;
+}
+
+/* Center Prompt / Interaction */
+#interaction-prompt {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(20, 16, 13, 0.92);
+  border: 1px solid var(--spirit-gold);
+  border-radius: 4px;
+  padding: 8px 16px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.8), 0 0 15px var(--spirit-gold-glow);
+  pointer-events: auto;
+  cursor: pointer;
+  animation: floatPrompt 2s infinite ease-in-out;
+  z-index: 12;
+}
+
+@keyframes floatPrompt {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-50%, -56%); }
+}
+
+.key-pill {
+  background: var(--monk-red);
+  color: #FFF;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  border: 1px solid var(--spirit-gold);
+}
+
+.prompt-text {
+  font-size: 12.5px;
+  color: var(--ink-paper);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* Bottom Action Bar: Abilities & Cooldowns */
+.hud-bottom {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  pointer-events: auto;
+}
+
+.ability-dock {
+  display: flex;
+  gap: 10px;
+  background: linear-gradient(180deg, rgba(30, 24, 20, 0.75) 0%, rgba(18, 16, 14, 0.95) 100%);
+  border: 1px solid var(--lantern-gold);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  padding: 8px 14px 4px 14px;
+  box-shadow: 0 -4px 25px rgba(0,0,0,0.7);
+}
+
+.ability-slot {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--stone-grey);
+  border-radius: 6px;
+  background: radial-gradient(circle, #2d241d 0%, #15110e 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.ability-slot.active {
+  border-color: var(--spirit-gold);
+  box-shadow: 0 0 10px var(--spirit-gold-glow);
+}
+
+.ability-slot:hover, .ability-slot:active {
+  transform: translateY(-3px);
+  border-color: var(--lantern-gold);
+}
+
+.ability-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.ability-key {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  font-size: 8px;
+  font-weight: bold;
+  color: var(--lantern-gold);
+}
+
+.ability-cost {
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  font-size: 8px;
+  color: var(--mist-beige);
+}
+
+.cooldown-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  background: rgba(0, 0, 0, 0.75);
+  pointer-events: none;
+  transition: height 0.1s linear;
+}
+
+/* Floating Notifications */
+#notification-area {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 12;
+  width: 90%;
+  max-width: 400px;
+}
+
+.notification-pill {
+  background: rgba(24, 20, 16, 0.92);
+  border: 1px solid var(--lantern-gold);
+  color: var(--ink-paper);
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+  text-align: center;
+  animation: slideFadeIn 0.3s ease-out, fadeOut 0.5s ease-in 2.5s forwards;
+}
+
+@keyframes slideFadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ==========================================================================
+   TOUCH / MOBILE ON-SCREEN CONTROLS
+   ========================================================================== */
+#touch-controls {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  display: none;
+  justify-content: space-between;
+  align-items: flex-end;
+  pointer-events: none;
+  z-index: 25;
+}
+
+.touch-joystick {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 2px solid rgba(200, 155, 78, 0.6);
+  background: rgba(18, 16, 14, 0.45);
+  backdrop-filter: blur(2px);
+  position: relative;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.touch-stick {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--spirit-gold) 0%, #8C6A2E 100%);
+  border: 2px solid #FFF;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.9;
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+
+.touch-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 48px);
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.touch-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(166, 79, 53, 0.9) 0%, rgba(122, 46, 32, 0.95) 100%);
+  border: 2px solid var(--spirit-gold);
+  color: #FFF;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  cursor: pointer;
+  touch-action: none;
+  position: relative;
+}
+
+.touch-btn.touch-btn-heal {
+  background: linear-gradient(135deg, rgba(46, 139, 87, 0.95) 0%, rgba(20, 80, 45, 1) 100%) !important;
+  border-color: #58D68D !important;
+  box-shadow: 0 0 12px rgba(88, 214, 141, 0.6) !important;
+}
+
+.touch-btn.touch-btn-heal.active-heal {
+  animation: pulseHeal 1.2s infinite alternate;
+  border-color: #FFF !important;
+}
+
+@keyframes pulseHeal {
+  0% { transform: scale(1); box-shadow: 0 0 8px #58D68D; }
+  100% { transform: scale(1.1); box-shadow: 0 0 20px #58D68D; }
+}
+
+.touch-btn.touch-btn-attack {
+  background: linear-gradient(135deg, rgba(194, 59, 34, 0.95) 0%, rgba(139, 37, 0, 1) 100%) !important;
+  border-color: #FFD700 !important;
+}
+
+.touch-btn:active {
+  transform: scale(0.92);
+  background: var(--crimson-accent);
+  box-shadow: 0 0 15px var(--spirit-gold);
+}
+
+/* ==========================================================================
+   DIALOGUE SYSTEM & MEMORY ECHO CUTSCENE
+   ========================================================================== */
+#dialogue-modal {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 720px;
+  max-width: 92vw;
+  background: linear-gradient(135deg, rgba(26, 20, 16, 0.96) 0%, rgba(14, 11, 9, 0.98) 100%);
+  border: 2px solid var(--lantern-gold);
+  border-radius: 8px;
+  padding: 16px 20px;
+  display: none;
+  gap: 16px;
+  align-items: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.9), 0 0 20px var(--spirit-gold-glow);
+  z-index: 50;
+  pointer-events: auto;
+}
+
+.dialogue-portrait {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid var(--spirit-gold);
+  background: radial-gradient(circle, #3d2f25 0%, #15110e 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 15px var(--spirit-gold-glow);
+  font-size: 30px;
+}
+
+.dialogue-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dialogue-speaker {
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  color: var(--spirit-gold);
+  text-transform: uppercase;
+}
+
+.dialogue-text {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-paper);
+  min-height: 42px;
+}
+
+.dialogue-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.btn-dialogue-next {
+  background: var(--monk-red);
+  color: #FFF;
+  border: 1px solid var(--lantern-gold);
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+
+.btn-dialogue-next:hover, .btn-dialogue-next:active {
+  background: var(--crimson-accent);
+  box-shadow: 0 0 10px var(--spirit-gold-glow);
+}
+
+/* ==========================================================================
+   PALACE JOURNAL / MODAL MENU (Tab, J, P)
+   ========================================================================== */
+#journal-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 820px;
+  max-width: 94vw;
+  height: 540px;
+  max-height: 88vh;
+  background: linear-gradient(135deg, rgba(25, 20, 16, 0.98) 0%, rgba(13, 10, 8, 0.99) 100%);
+  border: 2px solid var(--lantern-gold);
+  border-radius: 8px;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.95), 0 0 30px rgba(200, 155, 78, 0.2);
+  display: none;
+  flex-direction: column;
+  z-index: 100;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.journal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 18px;
+  background: rgba(18, 14, 11, 0.9);
+  border-bottom: 1px solid var(--wood-brown);
+}
+
+.journal-title {
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  color: var(--spirit-gold);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  color: var(--mist-beige);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.2s;
+}
+
+.btn-close:hover, .btn-close:active {
+  color: var(--crimson-accent);
+}
+
+.journal-nav {
+  display: flex;
+  background: rgba(30, 24, 19, 0.85);
+  border-bottom: 1px solid var(--lantern-gold);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.journal-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-tab {
+  flex: 1;
+  min-width: 100px;
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  color: var(--mist-beige);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-right: 1px solid rgba(73, 55, 44, 0.5);
+  white-space: nowrap;
+}
+
+.nav-tab:last-child {
+  border-right: none;
+}
+
+.nav-tab:hover, .nav-tab:active {
+  color: var(--spirit-gold);
+  background: rgba(73, 55, 44, 0.4);
+}
+
+.nav-tab.active {
+  color: #FFF;
+  background: var(--monk-red);
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
+}
+
+.journal-body {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.tab-pane {
+  display: none;
+  height: 100%;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+/* Tab: Character Status */
+.status-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 18px;
+}
+
+.char-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(18, 14, 11, 0.6);
+  border: 1px solid var(--wood-brown);
+  border-radius: 6px;
+  padding: 14px;
+}
+
+.char-big-avatar {
+  font-size: 64px;
+  margin: 6px 0;
+  text-shadow: 0 0 20px var(--spirit-gold-glow);
+}
+
+.char-summary {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.char-summary h3 {
+  color: var(--spirit-gold);
+  font-size: 16px;
+}
+
+.char-summary p {
+  color: var(--mist-beige);
+  font-size: 11px;
+  font-style: italic;
+}
+
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(18, 14, 11, 0.6);
+  border: 1px solid var(--wood-brown);
+  border-radius: 6px;
+  padding: 14px;
+  font-size: 12.5px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 5px;
+  border-bottom: 1px dashed rgba(119, 115, 108, 0.3);
+}
+
+.stat-label {
+  color: var(--mist-beige);
+}
+
+.stat-val {
+  color: var(--spirit-gold);
+  font-weight: bold;
+}
+
+/* Tab: Skill Tree */
+.skills-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sp-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(30, 24, 19, 0.8);
+  border: 1px solid var(--lantern-gold);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--spirit-gold);
+}
+
+.skill-branches {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.branch-column {
+  background: rgba(18, 14, 11, 0.6);
+  border: 1px solid var(--wood-brown);
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.branch-title {
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  color: var(--spirit-gold);
+  border-bottom: 1px solid var(--wood-brown);
+  padding-bottom: 4px;
+}
+
+.skill-node {
+  background: rgba(30, 24, 19, 0.8);
+  border: 1px solid var(--stone-grey);
+  border-radius: 4px;
+  padding: 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.skill-node:hover:not(.unlocked), .skill-node:active:not(.unlocked) {
+  border-color: var(--lantern-gold);
+  background: rgba(73, 55, 44, 0.5);
+}
+
+.skill-node.unlocked {
+  border-color: var(--spirit-gold);
+  background: rgba(166, 79, 53, 0.3);
+  box-shadow: 0 0 10px var(--spirit-gold-glow);
+}
+
+.skill-node-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skill-name {
+  font-size: 11px;
+  font-weight: bold;
+  color: #FFF;
+}
+
+.skill-cost {
+  font-size: 9.5px;
+  color: var(--lantern-gold);
+}
+
+.skill-desc {
+  font-size: 10px;
+  color: var(--mist-beige);
+  line-height: 1.25;
+}
+
+/* Tab: Inventory & Crafting */
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.inv-slot {
+  aspect-ratio: 1;
+  background: rgba(18, 14, 11, 0.7);
+  border: 1px solid var(--wood-brown);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 4px;
+}
+
+.inv-icon {
+  font-size: 22px;
+}
+
+.inv-count {
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--spirit-gold);
+}
+
+.inv-name {
+  font-size: 9px;
+  color: var(--mist-beige);
+  text-align: center;
+  margin-top: 2px;
+  line-height: 1.1;
+}
+
+/* Quests & Lore Lists */
+.quest-list, .lore-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quest-item, .lore-item {
+  background: rgba(18, 14, 11, 0.6);
+  border-left: 3px solid var(--spirit-gold);
+  border-radius: 0 4px 4px 0;
+  padding: 10px 14px;
+  font-size: 12px;
+}
+
+/* Welcome / Story Intro Overlay */
+#intro-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(26, 20, 16, 0.97) 0%, rgba(10, 8, 7, 0.99) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+  padding: 24px;
+  text-align: center;
+}
+
+.intro-emblem {
+  font-size: clamp(38px, 8vw, 54px);
+  color: var(--spirit-gold);
+  margin-bottom: 8px;
+  text-shadow: 0 0 25px var(--spirit-gold-glow);
+  animation: floatEmblem 3s infinite ease-in-out;
+}
+
+@keyframes floatEmblem {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.intro-title {
+  font-size: clamp(24px, 5vw, 38px);
+  letter-spacing: clamp(2px, 1vw, 6px);
+  color: var(--spirit-gold);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+}
+
+.intro-subtitle {
+  font-size: clamp(12px, 2.5vw, 15px);
+  letter-spacing: 2px;
+  color: var(--mist-beige);
+  margin-bottom: 18px;
+}
+
+.intro-quote {
+  max-width: 580px;
+  font-size: clamp(12px, 2.5vw, 14px);
+  line-height: 1.7;
+  color: var(--ink-paper);
+  font-style: italic;
+  margin-bottom: 25px;
+  border-top: 1px solid var(--wood-brown);
+  border-bottom: 1px solid var(--wood-brown);
+  padding: 12px 8px;
+}
+
+.btn-start-game {
+  background: linear-gradient(135deg, var(--monk-red) 0%, var(--crimson-accent) 100%);
+  color: #FFF;
+  border: 2px solid var(--spirit-gold);
+  padding: 12px 36px;
+  font-size: clamp(14px, 3vw, 16px);
+  font-weight: bold;
+  letter-spacing: 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6), 0 0 15px var(--spirit-gold-glow);
+}
+
+.btn-start-game:hover, .btn-start-game:active {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8), 0 0 25px var(--spirit-gold);
+  background: var(--crimson-accent);
+}
+
+.controls-hint {
+  margin-top: 20px;
+  font-size: clamp(10px, 2vw, 11.5px);
+  color: var(--mist-beige);
+  letter-spacing: 0.5px;
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+/* ==========================================================================
+   MOBILE & RESPONSIVE LAYOUT BREAKPOINTS
+   ========================================================================= */
+@media (pointer: coarse), (max-width: 820px) {
+  #touch-controls {
+    display: flex !important;
+  }
+  .hud-bottom {
+    display: none !important; /* Hide redundant bottom bar on touch */
+  }
+  #notification-area {
+    bottom: 140px; /* Float above mobile touch controls */
+  }
+}
+
+@media (max-width: 680px) {
+  #hud {
+    padding: 10px;
+  }
+  .player-card {
+    padding: 6px 10px;
+    gap: 8px;
+  }
+  .portrait-wrapper {
+    width: 42px;
+    height: 42px;
+  }
+  .portrait-wrapper svg {
+    width: 28px;
+    height: 28px;
+  }
+  .vitals {
+    min-width: 120px;
+  }
+  .char-title {
+    font-size: 11px;
+  }
+  .region-label {
+    display: none; /* Conserve space */
+  }
+  .stat-bar {
+    height: 9px;
+  }
+  .bar-text {
+    font-size: 7.5px;
+  }
+  .minimap-container {
+    width: 85px;
+    height: 85px;
+  }
+  .btn-hud-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  .quest-tracker {
+    top: 75px;
+    left: 10px;
+    max-width: 190px;
+    padding: 6px 10px;
+  }
+  .quest-title {
+    font-size: 10.5px;
+  }
+  .quest-desc {
+    font-size: 9.5px;
+  }
+  .quest-progress {
+    font-size: 9.5px;
+  }
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+  .skill-branches {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .inventory-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  #dialogue-modal {
+    flex-direction: column;
+    text-align: center;
+    padding: 12px;
+  }
+  .dialogue-footer {
+    justify-content: center;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  #hud {
+    padding: 6px 12px;
+  }
+  .minimap-container {
+    width: 75px;
+    height: 75px;
+  }
+  .quest-tracker {
+    display: none; /* Hide quest on short landscape to maximize view */
+  }
+  .touch-joystick {
+    width: 90px;
+    height: 90px;
+  }
+  .touch-stick {
+    width: 38px;
+    height: 38px;
+  }
+  .touch-actions {
+    grid-template-columns: repeat(3, 40px);
+    gap: 6px;
+  }
+  .touch-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+  #notification-area {
+    bottom: 90px;
+  }
+}
+  </style>
+</head>
+<body>
+
+  <!-- 3D WebGL Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- Cinematic Vignette & Sepia Memory Echo Layer -->
+  <div id="cinematic-overlay"></div>
+
+  <!-- ========================================================================
+       HEADS-UP DISPLAY (HUD)
+       ======================================================================== -->
+  <div id="hud">
+    <!-- Top Bar: Master Ren Status & Minimap -->
+    <div class="hud-top">
+      <div class="player-card">
+        <div class="portrait-wrapper">
+          <svg viewBox="0 0 100 100">
+            <!-- Stylized Monk Profile Icon -->
+            <circle cx="50" cy="42" r="24" fill="#CEAA88"/>
+            <path d="M 26 42 Q 22 55 24 64 Q 38 68 50 68 Q 62 68 76 64 Q 78 55 74 42" fill="#EAE6E0"/>
+            <path d="M 38 62 L 50 82 L 62 62 Z" fill="#EAE6E0"/>
+            <path d="M 20 85 Q 50 72 80 85 L 88 100 L 12 100 Z" fill="#A64F35"/>
+          </svg>
+          <div class="level-badge" id="player-level">Lv. 1</div>
+        </div>
+
+        <div class="vitals">
+          <div class="char-title">
+            <span>MASTER REN</span>
+            <span class="region-label" id="region-display">Outer Courtyard</span>
+          </div>
+
+          <!-- Health Bar -->
+          <div class="bar-container">
+            <div class="stat-bar">
+              <div class="stat-fill hp" id="hp-fill"></div>
+              <div class="bar-text" id="hp-text">85 / 100</div>
+            </div>
+          </div>
+
+          <!-- Chi Energy Bar -->
+          <div class="bar-container">
+            <div class="stat-bar">
+              <div class="stat-fill chi" id="chi-fill"></div>
+              <div class="bar-text" id="chi-text">60 / 100</div>
+            </div>
+          </div>
+
+          <!-- Experience Bar -->
+          <div class="bar-container">
+            <div class="stat-bar" style="height: 3px;">
+              <div class="stat-fill xp" id="xp-fill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Minimap & Quick Menu -->
+      <div class="hud-top-right">
+        <div class="minimap-container">
+          <canvas id="minimap-canvas"></canvas>
+          <div class="compass-n">N</div>
+        </div>
+
+        <div class="quick-menu-buttons">
+          <button class="btn-hud-icon" id="btn-journal" title="Open Palace Journal [Tab / P]">📜</button>
+          <button class="btn-hud-icon" id="btn-sound" title="Toggle Sound [M]">🎵</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Quest Tracker (Left) -->
+    <div class="quest-tracker">
+      <div class="quest-title">
+        <span>⛩️</span> <span id="tracker-chapter">Chapter 1: The Outer Courtyard</span>
+      </div>
+      <div class="quest-desc" id="tracker-desc">
+        Restore the courtyard incense burner and face the gate sentries.
+      </div>
+      <div class="quest-progress" id="tracker-progress">
+        Progress: 0 / 3
+      </div>
+    </div>
+
+    <!-- Boss Health Bar (Top Center) -->
+    <div id="boss-bar-container">
+      <div class="boss-name" id="boss-name">The Gatekeeper</div>
+      <div class="boss-bar-frame">
+        <div class="boss-fill" id="boss-fill"></div>
+      </div>
+      <div class="boss-phase" id="boss-phase">Protector of Tianlong Palace</div>
+    </div>
+
+    <!-- Center Interaction Prompt -->
+    <div id="interaction-prompt">
+      <div class="key-pill">E</div>
+      <div class="prompt-text" id="prompt-text">Rest & Restore Spirit</div>
+    </div>
+
+    <!-- Floating Notification Center -->
+    <div id="notification-area"></div>
+
+    <!-- Desktop Bottom Action Dock: Abilities & Cooldowns -->
+    <div class="hud-bottom">
+      <div class="ability-dock">
+        <!-- Staff Sweep -->
+        <div class="ability-slot active" id="slot-staff" title="Staff Sweep [L-Click / Space]">
+          <span class="ability-key">L-CLICK</span>
+          <span class="ability-icon">🥢</span>
+          <div class="cooldown-overlay" id="cooldown-staff"></div>
+        </div>
+
+        <!-- Chi Pulse -->
+        <div class="ability-slot active" id="slot-chi" title="Chi Pulse [R-Click / K]">
+          <span class="ability-key">R-CLICK</span>
+          <span class="ability-icon">✨</span>
+          <span class="ability-cost">25 Chi</span>
+          <div class="cooldown-overlay" id="cooldown-chi"></div>
+        </div>
+
+        <!-- Bead Shield -->
+        <div class="ability-slot active" id="slot-shield" title="Bead Shield [Q]">
+          <span class="ability-key">Q</span>
+          <span class="ability-icon">📿</span>
+          <span class="ability-cost">20 Chi</span>
+          <div class="cooldown-overlay" id="cooldown-shield"></div>
+        </div>
+
+        <!-- Wind Step -->
+        <div class="ability-slot active" id="slot-dash" title="Wind Step Dash [Shift / L]">
+          <span class="ability-key">SHIFT</span>
+          <span class="ability-icon">💨</span>
+          <span class="ability-cost">15 Chi</span>
+          <div class="cooldown-overlay" id="cooldown-dash"></div>
+        </div>
+
+        <!-- Meditation -->
+        <div class="ability-slot active" id="slot-meditate" title="Lotus Meditation [C / M]">
+          <span class="ability-key">C</span>
+          <span class="ability-icon">🧘</span>
+          <span class="ability-cost">+Heal</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile / Touch On-Screen Controls -->
+    <div id="touch-controls">
+      <div class="touch-joystick" id="touch-joystick">
+        <div class="touch-stick" id="touch-stick"></div>
+      </div>
+      <div class="touch-actions">
+        <button class="touch-btn touch-btn-heal" id="tbtn-heal" title="Lotus Meditate (Heal)">🧘</button>
+        <button class="touch-btn" id="tbtn-shield" title="Bead Shield">📿</button>
+        <button class="touch-btn" id="tbtn-interact" title="Interact">⛩️</button>
+        <button class="touch-btn" id="tbtn-dash" title="Wind Step">💨</button>
+        <button class="touch-btn" id="tbtn-chi" title="Chi Pulse">✨</button>
+        <button class="touch-btn touch-btn-attack" id="tbtn-attack" title="Staff Sweep">🥢</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       DIALOGUE & MEMORY ECHO CUTSCENE MODAL
+       ======================================================================== -->
+  <div id="dialogue-modal">
+    <div class="dialogue-portrait" id="dialogue-avatar">🧘</div>
+    <div class="dialogue-content">
+      <div class="dialogue-speaker" id="dialogue-speaker">Master Ren</div>
+      <div class="dialogue-text" id="dialogue-text">
+        The palace is silent now... but the stones remember what was lost.
+      </div>
+      <div class="dialogue-footer">
+        <button class="btn-dialogue-next" id="btn-dialogue-next">CONTINUE ▸</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       PALACE JOURNAL / MODAL MENU (Tab, P, I)
+       ======================================================================== -->
+  <div id="journal-modal">
+    <div class="journal-header">
+      <div class="journal-title">
+        <span>📖</span> PALACE JOURNAL & CHRONICLES
+      </div>
+      <button class="btn-close" id="btn-close-journal">✕</button>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="journal-nav">
+      <button class="nav-tab active" data-tab="status">CHARACTER</button>
+      <button class="nav-tab" data-tab="skills">SKILL TREE</button>
+      <button class="nav-tab" data-tab="inventory">INVENTORY</button>
+      <button class="nav-tab" data-tab="quests">QUEST LOG</button>
+      <button class="nav-tab" data-tab="lore">LORE & ECHOES</button>
+    </div>
+
+    <div class="journal-body">
+      <!-- 1. Character Status Tab -->
+      <div class="tab-pane active" id="tab-status">
+        <div class="status-grid">
+          <div class="char-preview">
+            <div class="char-big-avatar">🧘‍♂️</div>
+            <div class="char-summary">
+              <h3>Master Ren</h3>
+              <p>Former Elder of Tianlong Palace</p>
+            </div>
+            <p style="font-size: 11px; line-height: 1.5; color: var(--mist-beige); text-align: center;">
+              "True mastery lies not in heavy iron or sharpened steel, but in the harmony of spirit, breath, and wooden staff."
+            </p>
+          </div>
+
+          <div class="stats-list">
+            <div class="stat-row">
+              <span class="stat-label">Monk Level:</span>
+              <span class="stat-val" id="stat-level">1</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Maximum Health:</span>
+              <span class="stat-val" id="stat-hp">85 / 100</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Chi Energy:</span>
+              <span class="stat-val" id="stat-chi">60 / 100</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Staff Attack Power:</span>
+              <span class="stat-val" id="stat-atk">20</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Chi Wave Potency:</span>
+              <span class="stat-val" id="stat-chi-atk">35</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Available Skill Points:</span>
+              <span class="stat-val" id="stat-sp">1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Skill Tree Tab -->
+      <div class="tab-pane" id="tab-skills">
+        <div class="skills-container">
+          <div class="sp-banner">
+            <span>Spiritual Insight Points Available:</span>
+            <strong id="sp-count">1</strong>
+          </div>
+
+          <div class="skill-branches">
+            <!-- Staff Mastery -->
+            <div class="branch-column">
+              <div class="branch-title">Staff Mastery</div>
+              <div class="skill-node" data-skill="whirlingSweep">
+                <div class="skill-node-header">
+                  <span class="skill-name">Whirling Sweep</span>
+                  <span class="skill-cost">1 SP</span>
+                </div>
+                <div class="skill-desc">Increases Staff Sweep attack reach and adds +8 damage.</div>
+              </div>
+              <div class="skill-node" data-skill="crushingStrike">
+                <div class="skill-node-header">
+                  <span class="skill-name">Crushing Strike</span>
+                  <span class="skill-cost">1 SP</span>
+                </div>
+                <div class="skill-desc">Staff combo finishers knock enemies down.</div>
+              </div>
+            </div>
+
+            <!-- Chi Mastery -->
+            <div class="branch-column">
+              <div class="branch-title">Chi Mastery</div>
+              <div class="skill-node" data-skill="innerFlow">
+                <div class="skill-node-header">
+                  <span class="skill-name">Inner Flow</span>
+                  <span class="skill-cost">1 SP</span>
+                </div>
+                <div class="skill-desc">Increases Maximum Chi by +25 and accelerates recovery.</div>
+              </div>
+              <div class="skill-node" data-skill="chiBurst">
+                <div class="skill-node-header">
+                  <span class="skill-name">Chi Burst</span>
+                  <span class="skill-cost">1 SP</span>
+                </div>
+                <div class="skill-desc">Expands Chi Pulse radius and stuns enemies longer.</div>
+              </div>
+            </div>
+
+            <!-- Vitality -->
+            <div class="branch-column">
+              <div class="branch-title">Vitality</div>
+              <div class="skill-node" data-skill="mountainStance">
+                <div class="skill-node-header">
+                  <span class="skill-name">Mountain Stance</span>
+                  <span class="skill-cost">1 SP</span>
+                </div>
+                <div class="skill-desc">Increases Maximum Health by +30 points.</div>
+              </div>
+              <div class="skill-node" data-skill="ironRobe">
+                <div class="skill-node-header">
+                  <span class="skill-name">Iron Robe</span>
+                  <span class="skill-cost">1 SP</span>
+                </div>
+                <div class="skill-desc">Reduces all incoming physical damage by 15%.</div>
+              </div>
+            </div>
+
+            <!-- Spirit & Movement -->
+            <div class="branch-column">
+              <div class="branch-title">Spirit & Wind</div>
+              <div class="skill-node" data-skill="swiftGale">
+                <div class="skill-node-header">
+                  <span class="skill-name">Swift Gale</span>
+                  <span class="skill-cost">1 SP</span>
+                </div>
+                <div class="skill-desc">Increases base movement speed by 25%.</div>
+              </div>
+              <div class="skill-node" data-skill="voidDash">
+                <div class="skill-node-header">
+                  <span class="skill-name">Void Dash</span>
+                  <span class="skill-cost">1 SP</span>
+                </div>
+                <div class="skill-desc">Wind Step dashes farther and reduces Chi cost.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Inventory & Materials Tab -->
+      <div class="tab-pane" id="tab-inventory">
+        <h4 style="color: var(--spirit-gold); margin-bottom: 10px; font-size: 13px;">Crafting & Restoration Resources</h4>
+        <div class="inventory-grid">
+          <div class="inv-slot">
+            <span class="inv-icon">🪵</span>
+            <span class="inv-count" id="count-wood">2</span>
+            <span class="inv-name">Ancient Wood</span>
+          </div>
+          <div class="inv-slot">
+            <span class="inv-icon">🔮</span>
+            <span class="inv-count" id="count-stone">1</span>
+            <span class="inv-name">Spirit Stone</span>
+          </div>
+          <div class="inv-slot">
+            <span class="inv-icon">🧵</span>
+            <span class="inv-count" id="count-thread">0</span>
+            <span class="inv-name">Golden Thread</span>
+          </div>
+          <div class="inv-slot">
+            <span class="inv-icon">⚙️</span>
+            <span class="inv-count" id="count-iron">1</span>
+            <span class="inv-name">Iron Fragments</span>
+          </div>
+          <div class="inv-slot">
+            <span class="inv-icon">💎</span>
+            <span class="inv-count" id="count-jade">0</span>
+            <span class="inv-name">Jade Pieces</span>
+          </div>
+          <div class="inv-slot">
+            <span class="inv-icon">🪷</span>
+            <span class="inv-count" id="count-flower">1</span>
+            <span class="inv-name">Sacred Lotus</span>
+          </div>
+        </div>
+
+        <h4 style="color: var(--spirit-gold); margin-bottom: 10px; font-size: 13px;">Palace Restoration Tasks</h4>
+        <div class="quest-list">
+          <div class="quest-item">
+            <strong>Repair the Moon Bridge</strong> - Requires 5 Ancient Wood (Restores path across the Koi Pond).
+          </div>
+          <div class="quest-item">
+            <strong>Cleanse the Ancestral Urns</strong> - Requires 3 Spirit Stones (Grants permanent +10 Max Chi).
+          </div>
+          <div class="quest-item">
+            <strong>Restore the Sacred Dragon Statue</strong> - Requires 2 Jade Pieces (Unlocks Dragon Heart chamber).
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Quest Log Tab -->
+      <div class="tab-pane" id="tab-quests">
+        <div class="quest-list">
+          <div class="quest-item">
+            <strong style="color: var(--spirit-gold);">Chapter 1: The Outer Courtyard</strong>
+            <p>Restore the main incense burner and face The Gatekeeper to open the garden doors.</p>
+          </div>
+          <div class="quest-item">
+            <strong style="color: var(--spirit-gold);">Chapter 2: The Whispering Gardens</strong>
+            <p>Toll the ancient bell of harmony and gather Sacred Lotuses to cleanse dark miasma.</p>
+          </div>
+          <div class="quest-item">
+            <strong style="color: var(--spirit-gold);">Chapter 3: Hall of Ancestors</strong>
+            <p>Evoke the Wall Fresco Memory Echo and defeat the Iron Guardians.</p>
+          </div>
+          <div class="quest-item">
+            <strong style="color: var(--spirit-gold);">Chapter 4: Archive Towers</strong>
+            <p>Solve the Four Celestial Trigram floor puzzle to align the ancient mechanisms.</p>
+          </div>
+          <div class="quest-item">
+            <strong style="color: var(--spirit-gold);">Chapter 5: Inner Sanctum</strong>
+            <p>Ascend to the rooftop pagoda, defeat General Kaizen, and restore the Dragon Heart.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Lore & Echoes Tab -->
+      <div class="tab-pane" id="tab-lore">
+        <div class="lore-list">
+          <div class="lore-item">
+            <strong style="color: var(--spirit-gold);">The Dragon Heart of Tianlong</strong>
+            <p>A sacred relic carved from celestial jade, said to anchor the spiritual veil between mortals and dragons. For centuries, it protected the valley from famine and malice.</p>
+          </div>
+          <div class="lore-item">
+            <strong style="color: var(--spirit-gold);">The Tragic Ambition of Kaizen</strong>
+            <p>Master Ren's most gifted pupil. Driven by fear of invading armies, he believed only raw militaristic dominion and the unleashed fury of the Dragon Heart could guarantee safety.</p>
+          </div>
+          <div class="lore-item">
+            <strong style="color: var(--spirit-gold);">The Five Ancient Seals</strong>
+            <p>Five talismanic keys forged by the founding monks to prevent the unready from disturbing the cosmic balance inside the Inner Sanctum.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       INTRO / WELCOME SCREEN
+       ======================================================================== -->
+  <div id="intro-screen">
+    <div class="intro-emblem">⛩️</div>
+    <h1 class="intro-title">Echoes of the Iron Palace</h1>
+    <h3 class="intro-subtitle">Ancient Mystery • Spiritual Adventure • Action RPG</h3>
+
+    <div class="intro-quote">
+      "You are not a young warrior clad in heavy armor. You are Master Ren—an elderly monk whose greatest strengths are wisdom, agility, patience, and the boundless harmony of Chi."
+    </div>
+
+    <button class="btn-start-game" id="btn-start">ENTER TIANLONG PALACE</button>
+
+    <div class="controls-hint">
+      <strong>DESKTOP:</strong> WASD / Arrows to Move • Left Click / J: Staff Sweep • Right Click / K: Chi Pulse<br>
+      Q: Bead Shield • Shift / L: Wind Step • C / M: Lotus Meditate • E: Interact • Tab / P / I: Journal<br>
+      <strong>MOBILE:</strong> Virtual Joystick to Move • Tap Buttons: 🥢 Attack • ✨ Chi Pulse • 💨 Dash • ⛩️ Interact
+    </div>
+  </div>
+
+  <!-- Three.js (Loads locally or seamlessly from CDN if offline/standalone) -->
+  <script src="js/three.min.js"></script>
+  <script>
+    if (typeof THREE === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+    }
+  </script>
+
+  <!-- ========================================================================
+       ALL GAME CODE COMBINED IN ONE ENGINE
+       ======================================================================== -->
+  <script>
+/* ==========================================================================
+   PART 1: AUDIO SYNTHESIZER ENGINE (Web Audio API)
+   ========================================================================== */
+class SoundEngine {
+  constructor() {
+    this.ctx = null;
+    this.masterGain = null;
+    this.musicGain = null;
+    this.sfxGain = null;
+    this.isMuted = false;
+    this.musicInterval = null;
+    this.initialized = false;
+    this.scale = [146.83, 174.61, 196.00, 220.00, 261.63, 293.66, 349.23, 392.00, 440.00, 523.25, 587.33];
+    this.combatState = false;
+  }
+
+  init() {
+    if (this.initialized) return;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      this.ctx = new AudioCtx();
+      this.masterGain = this.ctx.createGain();
+      this.masterGain.gain.setValueAtTime(0.7, this.ctx.currentTime);
+      this.masterGain.connect(this.ctx.destination);
+
+      this.musicGain = this.ctx.createGain();
+      this.musicGain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+      this.musicGain.connect(this.masterGain);
+
+      this.sfxGain = this.ctx.createGain();
+      this.sfxGain.gain.setValueAtTime(0.6, this.ctx.currentTime);
+      this.sfxGain.connect(this.masterGain);
+
+      this.initialized = true;
+      this.startAmbientMusic();
+    } catch (e) {
+      console.warn("Web Audio API not supported", e);
+    }
+  }
+
+  resume() {
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  }
+
+  toggleMute() {
+    this.isMuted = !this.isMuted;
+    if (this.masterGain && this.ctx) {
+      this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.7, this.ctx.currentTime);
+    }
+    return this.isMuted;
+  }
+
+  playPluckedNote(freq, time = 0, duration = 1.8, velocity = 0.5) {
+    if (!this.ctx || this.isMuted) return;
+    const now = (time || this.ctx.currentTime);
+    const osc1 = this.ctx.createOscillator();
+    osc1.type = 'triangle';
+    osc1.frequency.setValueAtTime(freq, now);
+
+    const osc2 = this.ctx.createOscillator();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(freq * 2, now);
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(freq * 4, now);
+    filter.frequency.exponentialRampToValueAtTime(freq * 0.8, now + duration);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(velocity * 0.6, now + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+    osc1.connect(filter);
+    osc2.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.musicGain);
+
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + duration);
+    osc2.stop(now + duration);
+  }
+
+  playFluteNote(freq, time = 0, duration = 2.5) {
+    if (!this.ctx || this.isMuted) return;
+    const now = (time || this.ctx.currentTime);
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, now);
+
+    const lfo = this.ctx.createOscillator();
+    lfo.frequency.setValueAtTime(5, now);
+    const lfoGain = this.ctx.createGain();
+    lfoGain.gain.setValueAtTime(3.5, now);
+    lfo.connect(osc.frequency);
+
+    const fluteGain = this.ctx.createGain();
+    fluteGain.gain.setValueAtTime(0, now);
+    fluteGain.gain.linearRampToValueAtTime(0.18, now + 0.4);
+    fluteGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+    osc.connect(fluteGain);
+    fluteGain.connect(this.musicGain);
+    lfo.start(now);
+    osc.start(now);
+    lfo.stop(now + duration);
+    osc.stop(now + duration);
+  }
+
+  playTempleBell(pitchMultiplier = 1.0) {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    const baseFreq = 220 * pitchMultiplier;
+    const partials = [1, 2.02, 3.01, 4.25];
+    const decays = [4.5, 3.8, 3.0, 2.2];
+
+    partials.forEach((p, idx) => {
+      const osc = this.ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(baseFreq * p, now);
+
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.3 / (idx + 1), now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + decays[idx]);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(now);
+      osc.stop(now + decays[idx]);
+    });
+  }
+
+  playDrumStrike(isHeavy = false) {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(isHeavy ? 120 : 160, now);
+    osc.frequency.exponentialRampToValueAtTime(isHeavy ? 35 : 50, now + 0.15);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(isHeavy ? 0.7 : 0.4, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+    osc.connect(gain);
+    gain.connect(this.musicGain);
+    osc.start(now);
+    osc.stop(now + 0.4);
+  }
+
+  startAmbientMusic() {
+    if (this.musicInterval) clearInterval(this.musicInterval);
+    let step = 0;
+    this.musicInterval = setInterval(() => {
+      if (!this.ctx || this.isMuted) return;
+      step++;
+
+      if (step % 2 === 0) {
+        const noteIdx = Math.floor(Math.random() * this.scale.length);
+        this.playPluckedNote(this.scale[noteIdx], this.ctx.currentTime, 2.0, 0.4);
+      }
+      if (step % 7 === 0) {
+        const fluteIdx = 4 + Math.floor(Math.random() * 5);
+        this.playFluteNote(this.scale[fluteIdx], this.ctx.currentTime, 3.0);
+      }
+      if (this.combatState && step % 2 === 0) {
+        this.playDrumStrike(step % 4 === 0);
+      }
+      if (!this.combatState && step % 16 === 0) {
+        this.playTempleBell(0.8);
+      }
+    }, 700);
+  }
+
+  setCombatMode(active) {
+    if (this.combatState === active) return;
+    this.combatState = active;
+    if (active) this.playDrumStrike(true);
+  }
+
+  playStaffSweep() {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(280, now);
+    osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.4, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(now);
+    osc.stop(now + 0.2);
+  }
+
+  playStaffHit() {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(240, now);
+    osc.frequency.exponentialRampToValueAtTime(80, now + 0.1);
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.7, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(now);
+    osc.stop(now + 0.12);
+  }
+
+  playChiPulse() {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    const sub = this.ctx.createOscillator();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(80, now);
+    sub.frequency.exponentialRampToValueAtTime(35, now + 0.6);
+    const subGain = this.ctx.createGain();
+    subGain.gain.setValueAtTime(0.8, now);
+    subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+    sub.connect(subGain);
+    subGain.connect(this.sfxGain);
+    sub.start(now);
+    sub.stop(now + 0.6);
+  }
+
+  playWindStep() {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, now);
+    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.15);
+    osc.frequency.exponentialRampToValueAtTime(300, now + 0.3);
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(now);
+    osc.stop(now + 0.3);
+  }
+
+  playBeadShield() {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    for (let i = 0; i < 4; i++) {
+      const clickTime = now + i * 0.04;
+      const osc = this.ctx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(600 + Math.random() * 300, clickTime);
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.2, clickTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, clickTime + 0.05);
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(clickTime);
+      osc.stop(clickTime + 0.05);
+    }
+  }
+
+  playMeditationChime() {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    [320, 640].forEach((f, idx) => {
+      const osc = this.ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(f, now);
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.2 / (idx + 1), now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(now);
+      osc.stop(now + 2.5);
+    });
+  }
+
+  playPickup() {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, now);
+    osc.frequency.setValueAtTime(659.25, now + 0.08);
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(now);
+    osc.stop(now + 0.35);
+  }
+
+  playLevelUp() {
+    if (!this.ctx || this.isMuted) return;
+    this.playTempleBell(1.2);
+    setTimeout(() => this.playTempleBell(1.5), 180);
+    setTimeout(() => this.playTempleBell(2.0), 360);
+  }
+
+  playMemoryEchoSound() {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, now);
+    osc.frequency.exponentialRampToValueAtTime(880, now + 0.8);
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(now);
+    osc.stop(now + 1.2);
+  }
+}
+window.soundEngine = new SoundEngine();
+
+/* ==========================================================================
+   PART 2: PROCEDURAL 3D MODEL FACTORY
+   ========================================================================== */
+const PALETTE = {
+  woodBrown: 0x49372C,
+  woodDark: 0x2E2018,
+  woodLight: 0x7A5B47,
+  stoneGrey: 0x77736C,
+  stoneDark: 0x4A4743,
+  stoneLight: 0x9E9A93,
+  lanternGold: 0xC89B4E,
+  forestGreen: 0x425D43,
+  bambooGreen: 0x5C8052,
+  monkRed: 0xA64F35,
+  robeMaroon: 0x7A2E20,
+  nightBlue: 0x273D52,
+  mistBeige: 0xC5B9A3,
+  spiritGold: 0xD5AA55,
+  crimson: 0xB23A22,
+  jadeGreen: 0x2E8B57,
+  goldMetal: 0xE5C158,
+  waterCyan: 0x2C5E6E,
+  fleshOld: 0xCEAA88,
+  hairWhite: 0xEAE6E0,
+  darkArmor: 0x1E1A22,
+  dragonCyan: 0x3CAEA3
+};
+
+class ModelFactory {
+  constructor() {
+    this.materials = this.createMaterials();
+  }
+
+  createMaterials() {
+    return {
+      wood: new THREE.MeshLambertMaterial({ color: PALETTE.woodBrown }),
+      woodDark: new THREE.MeshLambertMaterial({ color: PALETTE.woodDark }),
+      woodLight: new THREE.MeshLambertMaterial({ color: PALETTE.woodLight }),
+      stone: new THREE.MeshLambertMaterial({ color: PALETTE.stoneGrey }),
+      stoneDark: new THREE.MeshLambertMaterial({ color: PALETTE.stoneDark }),
+      stoneLight: new THREE.MeshLambertMaterial({ color: PALETTE.stoneLight }),
+      monkRobe: new THREE.MeshLambertMaterial({ color: PALETTE.monkRed }),
+      robeMaroon: new THREE.MeshLambertMaterial({ color: PALETTE.robeMaroon }),
+      flesh: new THREE.MeshLambertMaterial({ color: PALETTE.fleshOld }),
+      whiteHair: new THREE.MeshLambertMaterial({ color: PALETTE.hairWhite }),
+      beadWood: new THREE.MeshLambertMaterial({ color: PALETTE.woodDark }),
+      gold: new THREE.MeshStandardMaterial({ color: PALETTE.spiritGold, metalness: 0.7, roughness: 0.3 }),
+      lanternGlow: new THREE.MeshBasicMaterial({ color: 0xFAD02C }),
+      spiritGlow: new THREE.MeshBasicMaterial({ color: 0xFFE680, transparent: true, opacity: 0.85 }),
+      crimsonGlow: new THREE.MeshBasicMaterial({ color: 0xFF3333, transparent: true, opacity: 0.85 }),
+      crimsonCloth: new THREE.MeshLambertMaterial({ color: PALETTE.crimson }),
+      bamboo: new THREE.MeshLambertMaterial({ color: PALETTE.bambooGreen }),
+      leafGreen: new THREE.MeshLambertMaterial({ color: PALETTE.forestGreen }),
+      blossomPink: new THREE.MeshLambertMaterial({ color: 0xE8A0BF }),
+      darkArmor: new THREE.MeshStandardMaterial({ color: PALETTE.darkArmor, metalness: 0.6, roughness: 0.4 }),
+      water: new THREE.MeshStandardMaterial({ color: PALETTE.waterCyan, transparent: true, opacity: 0.75, roughness: 0.1, metalness: 0.2 }),
+      corruptedRed: new THREE.MeshStandardMaterial({ color: 0x881111, roughness: 0.3, metalness: 0.5 })
+    };
+  }
+
+  createMasterRen() {
+    const root = new THREE.Group();
+    root.name = "MasterRen";
+    const bodyGroup = new THREE.Group();
+    root.add(bodyGroup);
+
+    const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.46, 0.75, 10), this.materials.robeMaroon);
+    skirt.position.y = 0.45;
+    skirt.castShadow = true;
+    bodyGroup.add(skirt);
+
+    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.32, 0.65, 8), this.materials.monkRobe);
+    torso.position.y = 0.95;
+    torso.castShadow = true;
+    bodyGroup.add(torso);
+
+    const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.12, 10), this.materials.gold);
+    belt.position.y = 0.75;
+    bodyGroup.add(belt);
+
+    const drape = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.7, 0.4), this.materials.robeMaroon);
+    drape.position.set(-0.12, 0.95, 0.05);
+    drape.rotation.z = -0.25;
+    bodyGroup.add(drape);
+
+    const headGroup = new THREE.Group();
+    headGroup.position.y = 1.45;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 10), this.materials.flesh);
+    head.scale.set(0.9, 1.05, 0.95);
+    head.castShadow = true;
+    headGroup.add(head);
+
+    const hair = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.06, 6, 12, Math.PI), this.materials.whiteHair);
+    hair.rotation.x = Math.PI * 0.45;
+    hair.position.set(0, -0.04, -0.04);
+    headGroup.add(hair);
+
+    const beard = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.32, 6), this.materials.whiteHair);
+    beard.position.set(0, -0.24, 0.16);
+    beard.rotation.x = 0.3;
+    headGroup.add(beard);
+    bodyGroup.add(headGroup);
+
+    const beadsGroup = new THREE.Group();
+    for (let i = 0; i < 14; i++) {
+      const angle = (i / 14) * Math.PI * 2;
+      const bead = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), this.materials.beadWood);
+      bead.position.set(Math.cos(angle) * 0.25, 1.25 + Math.sin(angle) * 0.08, Math.sin(angle) * 0.22 + 0.08);
+      beadsGroup.add(bead);
+    }
+    bodyGroup.add(beadsGroup);
+
+    const leftArmGroup = new THREE.Group();
+    leftArmGroup.position.set(0.38, 1.15, 0);
+    const lSleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 0.45, 8), this.materials.monkRobe);
+    lSleeve.position.y = -0.2;
+    const lHand = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 6), this.materials.flesh);
+    lHand.position.y = -0.45;
+    leftArmGroup.add(lSleeve, lHand);
+    bodyGroup.add(leftArmGroup);
+
+    const rightArmGroup = new THREE.Group();
+    rightArmGroup.position.set(-0.38, 1.15, 0);
+    const rSleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 0.45, 8), this.materials.monkRobe);
+    rSleeve.position.y = -0.2;
+    const rHand = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 6), this.materials.flesh);
+    rHand.position.y = -0.45;
+    rightArmGroup.add(rSleeve, rHand);
+
+    const staffGroup = new THREE.Group();
+    staffGroup.position.set(0, -0.45, 0.15);
+    const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.04, 1.9, 8), this.materials.woodLight);
+    staff.position.y = 0.35;
+    staff.castShadow = true;
+    const capTop = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.045, 0.16, 8), this.materials.gold);
+    capTop.position.y = 1.25;
+    const capBot = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.14, 8), this.materials.gold);
+    capBot.position.y = -0.55;
+    const tassel = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.18, 6), this.materials.crimsonCloth);
+    tassel.position.set(0.06, 1.15, 0);
+    staffGroup.add(staff, capTop, capBot, tassel);
+    rightArmGroup.add(staffGroup);
+    bodyGroup.add(rightArmGroup);
+
+    const shoeL = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.1, 0.26), this.materials.woodDark);
+    shoeL.position.set(0.16, 0.06, 0.04);
+    const shoeR = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.1, 0.26), this.materials.woodDark);
+    shoeR.position.set(-0.16, 0.06, 0.04);
+    bodyGroup.add(shoeL, shoeR);
+
+    const aura = new THREE.Mesh(new THREE.RingGeometry(0.8, 1.1, 24), this.materials.spiritGlow);
+    aura.rotation.x = -Math.PI / 2;
+    aura.position.y = 0.03;
+    aura.visible = false;
+    root.add(aura);
+
+    const shieldRing = new THREE.Group();
+    for (let i = 0; i < 8; i++) {
+      const ang = (i / 8) * Math.PI * 2;
+      const beadS = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), this.materials.spiritGlow);
+      beadS.position.set(Math.cos(ang) * 1.0, 0.9, Math.sin(ang) * 1.0);
+      shieldRing.add(beadS);
+    }
+    shieldRing.visible = false;
+    root.add(shieldRing);
+
+    root.userData = { bodyGroup, headGroup, beadsGroup, leftArmGroup, rightArmGroup, staffGroup, aura, shieldRing, shoeL, shoeR };
+    return root;
+  }
+
+  createEnemy(type = 'sentry') {
+    const root = new THREE.Group();
+    const bodyGroup = new THREE.Group();
+    root.add(bodyGroup);
+
+    if (type === 'sentry') {
+      const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.32, 0.8, 8), this.materials.stoneDark);
+      torso.position.y = 0.9;
+      const plate = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.5, 0.4), this.materials.monkRed);
+      plate.position.y = 0.95;
+      const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.42, 0.65, 8), this.materials.woodBrown);
+      skirt.position.y = 0.45;
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), this.materials.flesh);
+      head.position.y = 1.45;
+      const hat = new THREE.Mesh(new THREE.ConeGeometry(0.55, 0.22, 10), this.materials.woodDark);
+      hat.position.y = 1.62;
+      bodyGroup.add(torso, plate, skirt, head, hat);
+
+      const spearGroup = new THREE.Group();
+      spearGroup.position.set(-0.35, 0.9, 0.2);
+      const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 2.2, 6), this.materials.woodBrown);
+      const blade = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.4, 4), this.materials.stoneLight);
+      blade.position.y = 1.25;
+      spearGroup.add(shaft, blade);
+      bodyGroup.add(spearGroup);
+      root.userData.weapon = spearGroup;
+    } else if (type === 'scout') {
+      const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.26, 0.75, 8), this.materials.darkArmor);
+      torso.position.y = 0.85;
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), this.materials.darkArmor);
+      head.position.y = 1.35;
+      const eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.02, 0.04), this.materials.crimsonGlow);
+      eyeL.position.set(-0.06, 1.37, 0.18);
+      const eyeR = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.02, 0.04), this.materials.crimsonGlow);
+      eyeR.position.set(0.06, 1.37, 0.18);
+      bodyGroup.add(torso, head, eyeL, eyeR);
+    } else if (type === 'archer') {
+      const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.28, 0.8, 8), this.materials.bamboo);
+      torso.position.y = 0.9;
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), this.materials.flesh);
+      head.position.y = 1.4;
+      const bowArch = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.03, 6, 12, Math.PI * 0.9), this.materials.woodDark);
+      bowArch.position.set(-0.3, 1.0, 0.25);
+      bodyGroup.add(torso, head, bowArch);
+    } else if (type === 'guardian') {
+      root.scale.set(1.3, 1.3, 1.3);
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.85, 0.6), this.materials.stoneDark);
+      torso.position.y = 0.95;
+      const helm = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 0.4, 6), this.materials.stoneGrey);
+      helm.position.y = 1.55;
+      const hammerGroup = new THREE.Group();
+      hammerGroup.position.set(-0.55, 1.0, 0.3);
+      const hHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.6, 6), this.materials.woodBrown);
+      const hHead = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.45, 0.7), this.materials.stoneGrey);
+      hHead.position.y = 0.75;
+      hammerGroup.add(hHandle, hHead);
+      bodyGroup.add(torso, helm, hammerGroup);
+      root.userData.weapon = hammerGroup;
+    }
+
+    const alertIcon = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.3, 4), this.materials.crimsonGlow);
+    alertIcon.position.y = 2.2;
+    alertIcon.rotation.x = Math.PI;
+    alertIcon.visible = false;
+    root.add(alertIcon);
+
+    root.userData.bodyGroup = bodyGroup;
+    root.userData.alertIcon = alertIcon;
+    return root;
+  }
+
+  createBoss(type = 'gatekeeper') {
+    const root = new THREE.Group();
+    if (type === 'gatekeeper') {
+      root.scale.set(1.5, 1.5, 1.5);
+      const bodyGroup = new THREE.Group();
+      root.add(bodyGroup);
+      const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.4, 0.9, 8), this.materials.monkRed);
+      torso.position.y = 1.0;
+      const armor = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.7, 0.55), this.materials.darkArmor);
+      armor.position.y = 1.05;
+      const helm = new THREE.Mesh(new THREE.ConeGeometry(0.32, 0.5, 8), this.materials.gold);
+      helm.position.y = 1.8;
+      const guanDao = new THREE.Group();
+      guanDao.position.set(-0.5, 1.1, 0.2);
+      const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.6, 8), this.materials.woodDark);
+      const blade = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.9, 0.3), this.materials.gold);
+      blade.position.set(0, 1.4, 0.1);
+      guanDao.add(shaft, blade);
+      bodyGroup.add(torso, armor, helm, guanDao);
+      root.userData.bodyGroup = bodyGroup;
+    } else {
+      root.scale.set(1.25, 1.25, 1.25);
+      const bodyGroup = new THREE.Group();
+      root.add(bodyGroup);
+      const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.35, 0.85, 8), this.materials.darkArmor);
+      torso.position.y = 0.95;
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 10, 10), this.materials.flesh);
+      head.position.y = 1.5;
+      const hair = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.24, 0.7, 8), this.materials.darkArmor);
+      hair.position.set(0, 1.4, -0.15);
+      const cape = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.2, 0.06), this.materials.corruptedRed);
+      cape.position.set(0, 0.8, -0.25);
+      const sword = new THREE.Group();
+      sword.position.set(-0.4, 1.0, 0.3);
+      const blade = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.4, 0.16), this.materials.crimsonGlow);
+      const hilt = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.4, 6), this.materials.gold);
+      hilt.position.y = -0.8;
+      sword.add(blade, hilt);
+      bodyGroup.add(torso, head, hair, cape, sword);
+      root.userData.bodyGroup = bodyGroup;
+    }
+    return root;
+  }
+
+  createPagodaBuilding(width = 8, depth = 6, height = 7, tiers = 2) {
+    const root = new THREE.Group();
+    const base = new THREE.Mesh(new THREE.BoxGeometry(width + 1.2, 0.8, depth + 1.2), this.materials.stoneDark);
+    base.position.y = 0.4;
+    base.receiveShadow = true;
+    root.add(base);
+
+    let currentY = 0.8;
+    const tierHeight = (height - 1.0) / tiers;
+    for (let t = 0; t < tiers; t++) {
+      const tW = width * (1.0 - t * 0.18);
+      const tD = depth * (1.0 - t * 0.18);
+      const wall = new THREE.Mesh(new THREE.BoxGeometry(tW, tierHeight * 0.7, tD), this.materials.monkRed);
+      wall.position.y = currentY + (tierHeight * 0.7) * 0.5;
+      root.add(wall);
+      currentY += tierHeight * 0.7;
+
+      const roofOverhangW = tW + 1.8;
+      const roofOverhangD = tD + 1.8;
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(Math.max(roofOverhangW, roofOverhangD) * 0.7, tierHeight * 0.45, 4), this.materials.woodDark);
+      roof.position.y = currentY + (tierHeight * 0.45) * 0.5;
+      roof.rotation.y = Math.PI / 4;
+      roof.scale.set(roofOverhangW / Math.max(roofOverhangW, roofOverhangD), 1.0, roofOverhangD / Math.max(roofOverhangW, roofOverhangD));
+      root.add(roof);
+      currentY += tierHeight * 0.45;
+    }
+    return root;
+  }
+
+  createStoneLantern(hasLight = true) {
+    const root = new THREE.Group();
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 0.3, 6), this.materials.stoneDark);
+    base.position.y = 0.15;
+    const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.8, 6), this.materials.stoneGrey);
+    pillar.position.y = 0.7;
+    const core = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.35), this.materials.lanternGlow);
+    core.position.y = 1.4;
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(0.6, 0.3, 6), this.materials.stoneGrey);
+    roof.position.y = 1.7;
+    root.add(base, pillar, core, roof);
+
+    if (hasLight) {
+      const light = new THREE.PointLight(0xFFA500, 1.2, 8);
+      light.position.y = 1.4;
+      root.add(light);
+    }
+    return root;
+  }
+
+  createIncenseBurner() {
+    const root = new THREE.Group();
+    for (let i = 0; i < 3; i++) {
+      const ang = (i / 3) * Math.PI * 2;
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.05, 0.5, 6), this.materials.darkArmor);
+      leg.position.set(Math.cos(ang) * 0.35, 0.25, Math.sin(ang) * 0.35);
+      root.add(leg);
+    }
+    const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.45, 0.55, 12), this.materials.darkArmor);
+    bowl.position.y = 0.65;
+    const embers = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.05, 12), this.materials.crimsonGlow);
+    embers.position.y = 0.9;
+    const fireLight = new THREE.PointLight(0xFF5500, 0.8, 6);
+    fireLight.position.y = 1.0;
+    root.add(bowl, embers, fireLight);
+    return root;
+  }
+
+  createTempleBell() {
+    const root = new THREE.Group();
+    const bellGroup = new THREE.Group();
+    bellGroup.position.set(0, 2.2, 0);
+    const chain = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.6, 6), this.materials.darkArmor);
+    chain.position.y = 0.5;
+    const bellBody = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.55, 0.9, 12), this.materials.gold);
+    bellGroup.add(chain, bellBody);
+    root.add(bellGroup);
+    root.userData.bell = bellGroup;
+    return root;
+  }
+
+  createMoonBridge(length = 8, width = 3) {
+    const root = new THREE.Group();
+    const archCurve = new THREE.QuadraticBezierCurve3(
+      new THREE.Vector3(-length / 2, 0, 0),
+      new THREE.Vector3(0, 1.4, 0),
+      new THREE.Vector3(length / 2, 0, 0)
+    );
+    const points = archCurve.getPoints(12);
+    for (let i = 0; i < points.length - 1; i++) {
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const mid = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
+      const plank = new THREE.Mesh(new THREE.BoxGeometry(p1.distanceTo(p2) + 0.05, 0.15, width), this.materials.woodBrown);
+      plank.position.copy(mid);
+      plank.lookAt(p2.x, p2.y, mid.z);
+      root.add(plank);
+    }
+    return root;
+  }
+
+  createBambooCluster(count = 5) {
+    const root = new THREE.Group();
+    for (let i = 0; i < count; i++) {
+      const bHeight = 4.0 + Math.random() * 2.5;
+      const stalk = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, bHeight, 8), this.materials.bamboo);
+      stalk.position.set((Math.random() - 0.5) * 1.5, bHeight * 0.5, (Math.random() - 0.5) * 1.5);
+      root.add(stalk);
+    }
+    return root;
+  }
+
+  createBlossomTree() {
+    const root = new THREE.Group();
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.4, 2.5, 8), this.materials.woodDark);
+    trunk.position.y = 1.25;
+    const foliage = new THREE.Mesh(new THREE.DodecahedronGeometry(1.4, 1), this.materials.blossomPink);
+    foliage.position.set(0, 2.8, 0);
+    root.add(trunk, foliage);
+    return root;
+  }
+
+  createTreasureChest() {
+    const root = new THREE.Group();
+    const box = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.5, 0.6), this.materials.woodBrown);
+    box.position.y = 0.25;
+    const lidGroup = new THREE.Group();
+    lidGroup.position.set(0, 0.5, -0.3);
+    const lidMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.9, 8, 1, false, 0, Math.PI), this.materials.woodBrown);
+    lidMesh.rotation.z = Math.PI / 2;
+    lidMesh.position.set(0, 0, 0.3);
+    lidGroup.add(lidMesh);
+    root.add(box, lidGroup);
+    root.userData.lid = lidGroup;
+    return root;
+  }
+
+  createDragonHeartRelic() {
+    const root = new THREE.Group();
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.5, 1.0, 8), this.materials.stoneDark);
+    base.position.y = 0.5;
+    const crystal = new THREE.Mesh(new THREE.OctahedronGeometry(0.6, 2), this.materials.spiritGlow);
+    crystal.position.y = 2.4;
+    const ringGroup = new THREE.Group();
+    ringGroup.position.y = 2.4;
+    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(1.0, 0.04, 8, 24), this.materials.gold);
+    ringGroup.add(ring1);
+    const relicLight = new THREE.PointLight(0xFFD700, 2.0, 15);
+    relicLight.position.y = 2.4;
+    root.add(base, crystal, ringGroup, relicLight);
+    root.userData.crystal = crystal;
+    root.userData.rings = ringGroup;
+    return root;
+  }
+}
+window.modelFactory = new ModelFactory();
+
+/* ==========================================================================
+   PART 3: WORLD & 5 PALACE REGIONS
+   ========================================================================== */
+class WorldEngine {
+  constructor(scene) {
+    this.scene = scene;
+    this.interactables = [];
+    this.colliders = [];
+    this.particles = [];
+    this.koiFish = [];
+    this.regionGates = {};
+  }
+
+  buildWorld() {
+    this.scene.fog = new THREE.FogExp2(0x273D52, 0.015);
+    const hemiLight = new THREE.HemisphereLight(0xF5E6CC, 0x49372C, 0.65);
+    this.scene.add(hemiLight);
+
+    const dirLight = new THREE.DirectionalLight(0xFFE8B3, 0.85);
+    dirLight.position.set(45, 60, 30);
+    dirLight.castShadow = true;
+    this.scene.add(dirLight);
+
+    // Ground
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(240, 240), new THREE.MeshStandardMaterial({ color: 0x332820, roughness: 0.9 }));
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    this.scene.add(ground);
+
+    // Pathways
+    this.createPavedPath(0, 0, 8, 40);
+    this.createPavedPath(0, 30, 40, 8);
+    this.createPavedPath(-30, 60, 8, 50);
+    this.createPavedPath(30, 60, 8, 50);
+    this.createPavedPath(0, 95, 10, 40);
+
+    const factory = window.modelFactory;
+
+    // Region 1: Outer Courtyard
+    const gatePavilion = factory.createPagodaBuilding(10, 6, 8, 2);
+    gatePavilion.position.set(0, 0, -18);
+    this.scene.add(gatePavilion);
+    this.addCollider(0, -18, 5);
+
+    const mainIncense = factory.createIncenseBurner();
+    mainIncense.position.set(0, 0, 5);
+    this.scene.add(mainIncense);
+    this.registerInteractable({
+      id: "incense_courtyard",
+      name: "Courtyard Incense Burner",
+      position: new THREE.Vector3(0, 0, 5),
+      radius: 3.0,
+      prompt: "Rest & Restore Spirit",
+      onInteract: (game) => game.restAtIncense("Outer Courtyard")
+    });
+
+    [[-6, -10], [6, -10], [-6, 0], [6, 0], [-6, 12], [6, 12]].forEach(c => {
+      const lantern = factory.createStoneLantern(true);
+      lantern.position.set(c[0], 0, c[1]);
+      this.scene.add(lantern);
+      this.addCollider(c[0], c[1], 0.6);
+    });
+
+    const chest1 = factory.createTreasureChest();
+    chest1.position.set(-16, 0, 8);
+    this.scene.add(chest1);
+    this.registerInteractable({
+      id: "chest_courtyard_1",
+      name: "Ancient Sentry Chest",
+      position: new THREE.Vector3(-16, 0, 8),
+      radius: 2.8,
+      prompt: "Open Chest",
+      onInteract: (game) => game.openChest("chest_courtyard_1", chest1, { wood: 3, iron: 2, xp: 150 })
+    });
+
+    const gardenGate = new THREE.Mesh(new THREE.BoxGeometry(6, 4, 0.5), factory.materials.woodDark);
+    gardenGate.position.set(0, 2, 22);
+    this.scene.add(gardenGate);
+    this.regionGates["gardens"] = gardenGate;
+    this.addCollider(0, 22, 3.2);
+
+    this.registerInteractable({
+      id: "gate_gardens",
+      name: "Gate to Lantern Gardens",
+      position: new THREE.Vector3(0, 0, 20),
+      radius: 3.5,
+      prompt: "Examine Sealed Gate",
+      onInteract: (game) => game.inspectGate("gardens", "Defeat the Courtyard Gatekeeper to obtain the First Seal.")
+    });
+
+    // Region 2: Lantern Gardens
+    const pondWater = new THREE.Mesh(new THREE.CylinderGeometry(9, 9, 0.4, 24), factory.materials.water);
+    pondWater.position.set(-25, 0.1, 40);
+    this.scene.add(pondWater);
+    this.addCollider(-25, 40, 8.5);
+
+    const bridge = factory.createMoonBridge(7, 2.5);
+    bridge.position.set(-25, 0.1, 40);
+    this.scene.add(bridge);
+
+    [[-15, 32], [-35, 32], [-40, 45], [-35, 55]].forEach(pos => {
+      const cluster = factory.createBambooCluster(5);
+      cluster.position.set(pos[0], 0, pos[1]);
+      this.scene.add(cluster);
+      this.addCollider(pos[0], pos[1], 1.2);
+    });
+
+    const tree = factory.createBlossomTree();
+    tree.position.set(-12, 0, 28);
+    this.scene.add(tree);
+
+    const bell = factory.createTempleBell();
+    bell.position.set(-38, 0, 48);
+    this.scene.add(bell);
+    this.addCollider(-38, 48, 1.8);
+    this.registerInteractable({
+      id: "bell_garden",
+      name: "Bell of Serenity",
+      position: new THREE.Vector3(-38, 0, 48),
+      radius: 3.2,
+      prompt: "Ring Temple Bell",
+      onInteract: (game) => game.ringBell("bell_garden", bell)
+    });
+
+    for (let f = 0; f < 5; f++) {
+      const flower = new THREE.Mesh(new THREE.DodecahedronGeometry(0.25, 0), new THREE.MeshBasicMaterial({ color: 0x3CAEA3 }));
+      const fx = -35 + Math.random() * 18;
+      const fz = 35 + Math.random() * 15;
+      flower.position.set(fx, 0.25, fz);
+      this.scene.add(flower);
+      this.registerInteractable({
+        id: `flower_${f}`,
+        name: "Sacred Spirit Lotus",
+        position: new THREE.Vector3(fx, 0, fz),
+        radius: 2.2,
+        prompt: "Harvest Sacred Flower",
+        onInteract: (game) => { flower.visible = false; game.harvestFlower(`flower_${f}`); }
+      });
+    }
+
+    // Region 3: Hall of Ancestors
+    const ancestorHall = factory.createPagodaBuilding(18, 14, 12, 3);
+    ancestorHall.position.set(-25, 0, 78);
+    this.scene.add(ancestorHall);
+    this.addCollider(-25, 78, 8.5);
+
+    const fresco = new THREE.Mesh(new THREE.BoxGeometry(3.5, 2.5, 0.2), factory.materials.gold);
+    fresco.position.set(-25, 2.2, 69.8);
+    this.scene.add(fresco);
+    this.registerInteractable({
+      id: "memory_echo_1",
+      name: "Ancestral Fresco of the Two Dragons",
+      position: new THREE.Vector3(-25, 0, 68),
+      radius: 3.5,
+      prompt: "Evoke Memory Echo",
+      onInteract: (game) => game.triggerMemoryEcho(1)
+    });
+
+    // Region 4: Archive Towers
+    const archivePagoda = factory.createPagodaBuilding(14, 12, 14, 4);
+    archivePagoda.position.set(28, 0, 50);
+    this.scene.add(archivePagoda);
+    this.addCollider(28, 50, 7.5);
+
+    const trigrams = [
+      { name: "Heaven (乾)", x: 22, z: 38 },
+      { name: "Earth (坤)", x: 34, z: 38 },
+      { name: "Water (坎)", x: 22, z: 62 },
+      { name: "Fire (离)", x: 34, z: 62 }
+    ];
+    trigrams.forEach((t, idx) => {
+      const plate = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.4, 0.15, 8), factory.materials.stoneDark);
+      plate.position.set(t.x, 0.08, t.z);
+      const rune = new THREE.Mesh(new THREE.RingGeometry(0.4, 0.8, 8), factory.materials.gold);
+      rune.rotation.x = -Math.PI / 2;
+      rune.position.set(t.x, 0.16, t.z);
+      this.scene.add(plate, rune);
+      this.registerInteractable({
+        id: `trigram_${idx}`,
+        name: `Trigram: ${t.name}`,
+        position: new THREE.Vector3(t.x, 0, t.z),
+        radius: 2.5,
+        prompt: `Align ${t.name}`,
+        onInteract: (game) => game.activateTrigram(idx, rune)
+      });
+    });
+
+    // Region 5: Inner Sanctum
+    const sanctumPlaza = new THREE.Mesh(new THREE.CylinderGeometry(20, 22, 1.5, 16), factory.materials.stoneDark);
+    sanctumPlaza.position.set(0, 0.75, 110);
+    this.scene.add(sanctumPlaza);
+
+    const dragonHeart = factory.createDragonHeartRelic();
+    dragonHeart.position.set(0, 1.5, 110);
+    this.scene.add(dragonHeart);
+    this.dragonHeartRef = dragonHeart;
+    this.addCollider(0, 110, 2.5);
+
+    this.registerInteractable({
+      id: "dragon_heart",
+      name: "The Sealed Dragon Heart",
+      position: new THREE.Vector3(0, 1.5, 110),
+      radius: 4.0,
+      prompt: "Examine Dragon Heart",
+      onInteract: (game) => game.interactDragonHeart()
+    });
+
+    this.setupParticles();
+  }
+
+  createPavedPath(x, z, width, length) {
+    const path = new THREE.Mesh(new THREE.PlaneGeometry(width, length), new THREE.MeshStandardMaterial({ color: 0x6E6A63, roughness: 0.8 }));
+    path.rotation.x = -Math.PI / 2;
+    path.position.set(x, 0.02, z);
+    this.scene.add(path);
+  }
+
+  setupParticles() {
+    const count = 90;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+    const vels = [];
+    for (let i = 0; i < count; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 90;
+      pos[i * 3 + 1] = Math.random() * 12 + 1;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 110 + 40;
+      vels.push({ vy: -0.015 - Math.random() * 0.02 });
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const points = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xE8A0BF, size: 0.35, transparent: true, opacity: 0.85 }));
+    this.scene.add(points);
+    this.particles.push({ points, vels });
+  }
+
+  update(delta, elapsed) {
+    this.particles.forEach(p => {
+      const arr = p.points.geometry.attributes.position.array;
+      for (let i = 0; i < arr.length / 3; i++) {
+        arr[i * 3 + 1] += p.vels[i].vy;
+        if (arr[i * 3 + 1] < 0.1) arr[i * 3 + 1] = 12;
+      }
+      p.points.geometry.attributes.position.needsUpdate = true;
+    });
+
+    if (this.dragonHeartRef && this.dragonHeartRef.userData.rings) {
+      this.dragonHeartRef.userData.rings.rotation.y += delta * 0.5;
+      this.dragonHeartRef.userData.crystal.position.y = 2.4 + Math.sin(elapsed * 2) * 0.15;
+    }
+  }
+
+  addCollider(x, z, radius) {
+    this.colliders.push({ x, z, radius });
+  }
+
+  checkCollision(x, z, playerRadius = 0.5) {
+    for (let c of this.colliders) {
+      const dx = x - c.x;
+      const dz = z - c.z;
+      if (dx * dx + dz * dz < (c.radius + playerRadius) * (c.radius + playerRadius)) return true;
+    }
+    return false;
+  }
+
+  registerInteractable(obj) {
+    this.interactables.push(obj);
+  }
+
+  getNearestInteractable(playerPos) {
+    let nearest = null;
+    let minDist = Infinity;
+    for (let item of this.interactables) {
+      if (item.opened || item.activated) continue;
+      const dist = Math.hypot(playerPos.x - item.position.x, playerPos.z - item.position.z);
+      if (dist <= item.radius && dist < minDist) {
+        minDist = dist;
+        nearest = item;
+      }
+    }
+    return nearest;
+  }
+
+  unlockGate(gateId) {
+    if (this.regionGates[gateId]) {
+      this.scene.remove(this.regionGates[gateId]);
+      this.colliders = this.colliders.filter(c => !(c.x === 0 && Math.abs(c.z - 22) < 2));
+    }
+  }
+}
+
+/* ==========================================================================
+   PART 4: ENTITIES, COMBAT & AI (Master Ren, Enemies, Bosses)
+   ========================================================================== */
+class Player {
+  constructor(scene, modelFactory) {
+    this.scene = scene;
+    this.level = 1;
+    this.xp = 0;
+    this.xpNeeded = 250;
+    this.maxHp = 100;
+    this.hp = 85;
+    this.maxChi = 100;
+    this.chi = 60;
+    this.skillPoints = 1;
+    this.attackPower = 20;
+    this.chiPower = 35;
+    this.speed = 7.5;
+    this.invulnerable = false;
+    this.invulnerableTimer = 0;
+    this.isDead = false;
+    this.isMoving = false;
+    this.isMeditating = false;
+    this.isAttacking = false;
+    this.isWindStepping = false;
+    this.isBeadShieldActive = false;
+    this.shieldTimer = 0;
+    this.attackCombo = 0;
+    this.attackTimer = 0;
+    this.cooldowns = { staffSweep: 0, chiPulse: 0, windStep: 0, beadShield: 0 };
+    this.mesh = modelFactory.createMasterRen();
+    this.mesh.position.set(0, 0, -5);
+    this.scene.add(this.mesh);
+    this.walkCycle = 0;
+  }
+
+  update(delta, keys, camera, world) {
+    if (this.isDead) return;
+
+    for (let k in this.cooldowns) {
+      if (this.cooldowns[k] > 0) this.cooldowns[k] = Math.max(0, this.cooldowns[k] - delta);
+    }
+    if (this.invulnerableTimer > 0) {
+      this.invulnerableTimer -= delta;
+      if (this.invulnerableTimer <= 0) this.invulnerable = false;
+    }
+    if (this.isBeadShieldActive) {
+      this.shieldTimer -= delta;
+      this.mesh.userData.shieldRing.rotation.y += delta * 6;
+      if (this.shieldTimer <= 0) {
+        this.isBeadShieldActive = false;
+        this.mesh.userData.shieldRing.visible = false;
+      }
+    }
+    if (this.isMeditating) {
+      this.hp = Math.min(this.maxHp, this.hp + delta * 8);
+      this.chi = Math.min(this.maxChi, this.chi + delta * 15);
+      if (keys.forward || keys.backward || keys.left || keys.right) this.stopMeditation();
+      return;
+    }
+    if (this.isAttacking) {
+      this.attackTimer -= delta;
+      if (this.attackTimer <= 0) {
+        this.isAttacking = false;
+        this.resetArmPositions();
+      }
+    }
+
+    let moveX = 0, moveZ = 0;
+    if (keys.forward) moveZ += 1;
+    if (keys.backward) moveZ -= 1;
+    if (keys.left) moveX -= 1;
+    if (keys.right) moveX += 1;
+
+    if (this.isWindStepping) {
+      const dashSpeed = this.speed * 2.8;
+      const targetX = this.mesh.position.x + Math.sin(this.mesh.rotation.y) * dashSpeed * delta;
+      const targetZ = this.mesh.position.z + Math.cos(this.mesh.rotation.y) * dashSpeed * delta;
+      if (!world.checkCollision(targetX, targetZ, 0.5)) {
+        this.mesh.position.x = targetX;
+        this.mesh.position.z = targetZ;
+      }
+      return;
+    }
+
+    const hasInput = (moveX !== 0 || moveZ !== 0);
+    this.isMoving = hasInput;
+
+    if (hasInput && !this.isAttacking) {
+      const len = Math.hypot(moveX, moveZ);
+      const normX = moveX / len; // -1 for Left, +1 for Right
+      const normZ = moveZ / len; // +1 for Forward/Up, -1 for Backward/Down
+
+      // Extract exact camera basis vectors for true screen-relative movement
+      const right = new THREE.Vector3();
+      const up = new THREE.Vector3();
+      const backward = new THREE.Vector3();
+      camera.matrixWorld.extractBasis(right, up, backward);
+
+      const screenRight = new THREE.Vector3(right.x, 0, right.z).normalize();
+      const screenForward = new THREE.Vector3(-backward.x, 0, -backward.z).normalize();
+
+      // Combine screen directions directly (Right moves right, Left moves left)
+      const worldMove = new THREE.Vector3()
+        .addScaledVector(screenRight, normX)
+        .addScaledVector(screenForward, normZ)
+        .normalize();
+
+      const targetX = this.mesh.position.x + worldMove.x * this.speed * delta;
+      const targetZ = this.mesh.position.z + worldMove.z * this.speed * delta;
+
+      if (!world.checkCollision(targetX, this.mesh.position.z, 0.5)) this.mesh.position.x = targetX;
+      if (!world.checkCollision(this.mesh.position.x, targetZ, 0.5)) this.mesh.position.z = targetZ;
+
+      const targetAngle = Math.atan2(worldMove.x, worldMove.z);
+      this.mesh.rotation.y = THREE.MathUtils.lerp(this.mesh.rotation.y, targetAngle, 0.25);
+
+      this.walkCycle += delta * 12;
+      const swing = Math.sin(this.walkCycle) * 0.35;
+      this.mesh.userData.bodyGroup.position.y = Math.abs(Math.sin(this.walkCycle)) * 0.08;
+      this.mesh.userData.leftArmGroup.rotation.x = -swing;
+      this.mesh.userData.rightArmGroup.rotation.x = swing * 0.6;
+    } else if (!this.isAttacking) {
+      this.mesh.userData.bodyGroup.position.y = THREE.MathUtils.lerp(this.mesh.userData.bodyGroup.position.y, 0, 0.1);
+      this.resetArmPositions();
+    }
+  }
+
+  resetArmPositions() {
+    this.mesh.userData.leftArmGroup.rotation.set(0, 0, 0);
+    this.mesh.userData.rightArmGroup.rotation.set(0, 0, 0);
+    this.mesh.userData.staffGroup.rotation.set(0, 0, 0);
+  }
+
+  performStaffSweep(enemies) {
+    if (this.cooldowns.staffSweep > 0 || this.isMeditating) return;
+    this.isAttacking = true;
+    this.attackTimer = 0.35;
+    this.cooldowns.staffSweep = 0.45;
+    this.attackCombo = (this.attackCombo + 1) % 3;
+    window.soundEngine.playStaffSweep();
+
+    const rArm = this.mesh.userData.rightArmGroup;
+    const staff = this.mesh.userData.staffGroup;
+    if (this.attackCombo === 1) {
+      rArm.rotation.x = -1.2;
+      staff.rotation.z = -1.4;
+    } else if (this.attackCombo === 2) {
+      rArm.rotation.x = 1.0;
+      staff.rotation.z = 1.2;
+    } else {
+      staff.rotation.y = Math.PI * 1.5;
+    }
+
+    const range = this.attackCombo === 0 ? 3.5 : 2.6;
+    const sweepDamage = this.attackPower * (this.attackCombo === 0 ? 1.6 : 1.0);
+    let hitAny = false;
+
+    enemies.forEach(e => {
+      if (e.isDead) return;
+      if (this.mesh.position.distanceTo(e.mesh.position) <= range) {
+        const forward = new THREE.Vector3(Math.sin(this.mesh.rotation.y), 0, Math.cos(this.mesh.rotation.y));
+        e.takeDamage(sweepDamage, forward);
+        hitAny = true;
+      }
+    });
+
+    if (hitAny) {
+      window.soundEngine.playStaffHit();
+      this.chi = Math.min(this.maxChi, this.chi + 4);
+    }
+  }
+
+  performChiPulse(enemies) {
+    if (this.cooldowns.chiPulse > 0 || this.chi < 25 || this.isMeditating) return;
+    this.chi -= 25;
+    this.cooldowns.chiPulse = 4.0;
+    this.isAttacking = true;
+    this.attackTimer = 0.5;
+    window.soundEngine.playChiPulse();
+
+    enemies.forEach(e => {
+      if (e.isDead) return;
+      if (this.mesh.position.distanceTo(e.mesh.position) <= 6.5) {
+        const push = new THREE.Vector3().subVectors(e.mesh.position, this.mesh.position).normalize();
+        e.takeDamage(this.chiPower, push.multiplyScalar(2.0));
+      }
+    });
+  }
+
+  performBeadShield() {
+    if (this.cooldowns.beadShield > 0 || this.chi < 20 || this.isMeditating) return;
+    this.chi -= 20;
+    this.cooldowns.beadShield = 9.0;
+    this.isBeadShieldActive = true;
+    this.shieldTimer = 4.0;
+    this.mesh.userData.shieldRing.visible = true;
+    window.soundEngine.playBeadShield();
+  }
+
+  performWindStep() {
+    if (this.cooldowns.windStep > 0 || this.chi < 15 || this.isMeditating) return;
+    this.chi -= 15;
+    this.cooldowns.windStep = 2.5;
+    this.isWindStepping = true;
+    this.invulnerable = true;
+    this.invulnerableTimer = 0.4;
+    window.soundEngine.playWindStep();
+    setTimeout(() => this.isWindStepping = false, 200);
+  }
+
+  toggleMeditation() {
+    if (this.isMeditating) this.stopMeditation();
+    else this.startMeditation();
+  }
+
+  startMeditation() {
+    this.isMeditating = true;
+    this.mesh.userData.bodyGroup.position.y = -0.3;
+    this.mesh.userData.aura.visible = true;
+    window.soundEngine.playMeditationChime();
+  }
+
+  stopMeditation() {
+    this.isMeditating = false;
+    this.mesh.userData.bodyGroup.position.y = 0;
+    this.mesh.userData.aura.visible = false;
+  }
+
+  takeDamage(amount) {
+    if (this.invulnerable || this.isDead) return;
+    if (this.isMeditating) this.stopMeditation();
+    if (this.isBeadShieldActive) {
+      amount *= 0.3;
+      window.soundEngine.playBeadShield();
+    }
+    this.hp -= amount;
+    this.invulnerable = true;
+    this.invulnerableTimer = 0.5;
+    if (this.hp <= 0) {
+      this.hp = 0;
+      this.die();
+    }
+  }
+
+  die() {
+    this.isDead = true;
+    this.mesh.rotation.x = Math.PI / 2;
+    if (window.gameInstance) window.gameInstance.onPlayerDeath();
+  }
+
+  gainXp(amount) {
+    this.xp += amount;
+    if (this.xp >= this.xpNeeded) {
+      this.xp -= this.xpNeeded;
+      this.levelUp();
+    }
+  }
+
+  levelUp() {
+    this.level++;
+    this.xpNeeded = Math.floor(this.xpNeeded * 1.5);
+    this.maxHp += 15;
+    this.hp = this.maxHp;
+    this.maxChi += 15;
+    this.chi = this.maxChi;
+    this.attackPower += 5;
+    this.chiPower += 6;
+    this.skillPoints++;
+    window.soundEngine.playLevelUp();
+    if (window.gameInstance) window.gameInstance.notify(`Level Up! Reached Monk Level ${this.level}`);
+  }
+}
+
+class Enemy {
+  constructor(scene, modelFactory, type, x, z) {
+    this.scene = scene;
+    this.type = type;
+    const configs = {
+      sentry: { hp: 55, damage: 12, speed: 3.2, attackRange: 2.2, xp: 60, name: "Palace Sentry" },
+      scout: { hp: 40, damage: 15, speed: 4.8, attackRange: 1.8, xp: 75, name: "Shadow Scout" },
+      archer: { hp: 45, damage: 14, speed: 3.5, attackRange: 12.0, xp: 80, name: "Garden Archer" },
+      guardian: { hp: 130, damage: 24, speed: 2.2, attackRange: 2.8, xp: 160, name: "Iron Guardian" }
+    };
+    const cfg = configs[type] || configs.sentry;
+    this.name = cfg.name;
+    this.maxHp = cfg.hp;
+    this.hp = cfg.hp;
+    this.damage = cfg.damage;
+    this.speed = cfg.speed;
+    this.attackRange = cfg.attackRange;
+    this.xpReward = cfg.xp;
+    this.isDead = false;
+    this.attackCooldown = 0;
+    this.mesh = modelFactory.createEnemy(type);
+    this.mesh.position.set(x, 0, z);
+    this.scene.add(this.mesh);
+  }
+
+  update(delta, player, world) {
+    if (this.isDead) return;
+    if (this.attackCooldown > 0) this.attackCooldown -= delta;
+    const dist = this.mesh.position.distanceTo(player.mesh.position);
+
+    if (dist < 9.0 && !player.isDead) {
+      this.mesh.userData.alertIcon.visible = true;
+      const dx = player.mesh.position.x - this.mesh.position.x;
+      const dz = player.mesh.position.z - this.mesh.position.z;
+      this.mesh.rotation.y = Math.atan2(dx, dz);
+
+      if (dist <= this.attackRange) {
+        if (this.attackCooldown <= 0) {
+          this.attackCooldown = 1.4;
+          setTimeout(() => {
+            if (!this.isDead && this.mesh.position.distanceTo(player.mesh.position) <= this.attackRange + 0.5) {
+              player.takeDamage(this.damage);
+            }
+          }, 250);
+        }
+      } else {
+        const norm = Math.hypot(dx, dz);
+        const nextX = this.mesh.position.x + (dx / norm) * this.speed * delta;
+        const nextZ = this.mesh.position.z + (dz / norm) * this.speed * delta;
+        if (!world.checkCollision(nextX, nextZ, 0.5)) {
+          this.mesh.position.x = nextX;
+          this.mesh.position.z = nextZ;
+        }
+      }
+    } else {
+      this.mesh.userData.alertIcon.visible = false;
+    }
+  }
+
+  takeDamage(amount, pushVector) {
+    if (this.isDead) return;
+    this.hp -= amount;
+    if (pushVector) this.mesh.position.addScaledVector(pushVector, 0.4);
+    if (this.hp <= 0) {
+      this.isDead = true;
+      this.mesh.rotation.x = Math.PI / 2;
+      if (window.gameInstance) {
+        window.gameInstance.player.gainXp(this.xpReward);
+        window.gameInstance.spawnLoot(this.mesh.position.clone(), this.type);
+      }
+      setTimeout(() => this.scene.remove(this.mesh), 2500);
+    }
+  }
+}
+
+class Boss {
+  constructor(scene, modelFactory, type, x, z) {
+    this.scene = scene;
+    this.type = type;
+    if (type === 'gatekeeper') {
+      this.name = "The Gatekeeper";
+      this.title = "Protector of the Outer Gate";
+      this.maxHp = 350;
+      this.hp = 350;
+      this.damage = 22;
+      this.speed = 3.6;
+    } else {
+      this.name = "General Kaizen";
+      this.title = "The Fallen Disciple";
+      this.maxHp = 600;
+      this.hp = 600;
+      this.damage = 30;
+      this.speed = 5.2;
+    }
+    this.isDead = false;
+    this.phase = 1;
+    this.attackCooldown = 0;
+    this.specialCooldown = 5.0;
+    this.isShown = false;
+    this.mesh = modelFactory.createBoss(type);
+    this.mesh.position.set(x, 0, z);
+    this.scene.add(this.mesh);
+  }
+
+  update(delta, player, world) {
+    if (this.isDead) return;
+    if (this.attackCooldown > 0) this.attackCooldown -= delta;
+    if (this.specialCooldown > 0) this.specialCooldown -= delta;
+
+    const dist = this.mesh.position.distanceTo(player.mesh.position);
+    if (dist <= 15.0 && !this.isShown) {
+      this.isShown = true;
+      if (window.gameInstance) window.gameInstance.showBossBar(`${this.name} - ${this.title}`, this);
+    }
+
+    const dx = player.mesh.position.x - this.mesh.position.x;
+    const dz = player.mesh.position.z - this.mesh.position.z;
+    this.mesh.rotation.y = Math.atan2(dx, dz);
+
+    if (dist <= 3.4) {
+      if (this.attackCooldown <= 0) {
+        this.attackCooldown = 1.6;
+        setTimeout(() => {
+          if (!this.isDead && this.mesh.position.distanceTo(player.mesh.position) <= 3.8) {
+            player.takeDamage(this.damage);
+            window.soundEngine.playStaffHit();
+          }
+        }, 350);
+      }
+    } else {
+      const norm = Math.hypot(dx, dz);
+      const nextX = this.mesh.position.x + (dx / norm) * this.speed * delta;
+      const nextZ = this.mesh.position.z + (dz / norm) * this.speed * delta;
+      if (!world.checkCollision(nextX, nextZ, 1.2)) {
+        this.mesh.position.x = nextX;
+        this.mesh.position.z = nextZ;
+      }
+    }
+  }
+
+  takeDamage(amount) {
+    if (this.isDead) return;
+    this.hp -= amount;
+    if (this.hp <= 0) {
+      this.isDead = true;
+      this.mesh.rotation.x = Math.PI / 2;
+      if (window.gameInstance) window.gameInstance.onBossDefeated(this.type);
+    }
+  }
+}
+
+/* ==========================================================================
+   PART 5: GAME ENGINE & LOOP
+   ========================================================================== */
+class Game {
+  constructor() {
+    this.container = document.getElementById('canvas-container');
+    this.clock = new THREE.Clock();
+    this.scene = new THREE.Scene();
+    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.shadowMap.enabled = true;
+    this.container.appendChild(this.renderer.domElement);
+
+    const aspect = window.innerWidth / window.innerHeight;
+    this.camera = new THREE.PerspectiveCamera(45, aspect, 0.5, 300);
+    this.cameraOffset = new THREE.Vector3(14, 22, -18);
+
+    this.keys = { forward: false, backward: false, left: false, right: false };
+    this.world = new WorldEngine(this.scene);
+    this.world.buildWorld();
+
+    this.player = new Player(this.scene, window.modelFactory);
+    this.enemies = [];
+    this.boss = null;
+    this.activeBoss = null;
+
+    this.inventory = { wood: 2, spiritStone: 1, goldenThread: 0, iron: 1, jade: 0, flower: 1 };
+    this.skills = { whirlingSweep: false, crushingStrike: false, innerFlow: false, mountainStance: false, swiftGale: false };
+    this.quests = [
+      { id: "ch1", chapter: "Chapter 1: The Outer Courtyard", title: "Restore the Outer Courtyard", desc: "Examine the Courtyard Incense Burner and defeat the sentries to face The Gatekeeper.", current: 0, target: 3, completed: false },
+      { id: "ch2", chapter: "Chapter 2: Lantern Gardens", title: "The Whispering Gardens", desc: "Ring the Bell of Serenity and gather 3 Sacred Spirit Lotuses in the Lantern Gardens.", current: 0, target: 3, completed: false },
+      { id: "ch3", chapter: "Chapter 3: Hall of Ancestors", title: "Echoes of the Past", desc: "Evoke the Ancestral Fresco Memory Echo to uncover Kaizen's past.", current: 0, target: 1, completed: false },
+      { id: "ch4", chapter: "Chapter 4: Archive Towers", title: "The Four Trigrams", desc: "Align all 4 Celestial Trigram Plates in the Archive Towers.", current: 0, target: 4, completed: false },
+      { id: "ch5", chapter: "Chapter 5: Inner Sanctum", title: "Confront General Kaizen", desc: "Ascend to the highest pavilion of Tianlong Palace and restore the ancient Dragon Heart.", current: 0, target: 1, completed: false }
+    ];
+    this.activeQuestIndex = 0;
+    this.trigramsActivated = [false, false, false, false];
+
+    this.spawnWorldEnemies();
+    this.spawnGatekeeper();
+    this.setupInputs();
+    this.setupUI();
+    this.setupMinimap();
+
+    window.addEventListener('resize', () => this.onWindowResize());
+    this.animate = this.animate.bind(this);
+    requestAnimationFrame(this.animate);
+  }
+
+  spawnWorldEnemies() {
+    const mf = window.modelFactory;
+    this.enemies.push(new Enemy(this.scene, mf, 'sentry', -6, 8));
+    this.enemies.push(new Enemy(this.scene, mf, 'sentry', 6, 8));
+    this.enemies.push(new Enemy(this.scene, mf, 'sentry', -10, -2));
+    this.enemies.push(new Enemy(this.scene, mf, 'scout', -20, 36));
+    this.enemies.push(new Enemy(this.scene, mf, 'archer', -15, 48));
+    this.enemies.push(new Enemy(this.scene, mf, 'guardian', -20, 68));
+    this.enemies.push(new Enemy(this.scene, mf, 'scout', 25, 42));
+  }
+
+  spawnGatekeeper() {
+    this.boss = new Boss(this.scene, window.modelFactory, 'gatekeeper', 0, 18);
+    this.activeBoss = this.boss;
+  }
+
+  spawnKaizen() {
+    this.boss = new Boss(this.scene, window.modelFactory, 'kaizen', 0, 110);
+    this.activeBoss = this.boss;
+    this.showBossBar("General Kaizen - The Fallen Disciple", this.boss);
+  }
+
+  setupInputs() {
+    this.raycaster = new THREE.Raycaster();
+    this.mouse = new THREE.Vector2();
+    this.groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    this.hitPoint = new THREE.Vector3();
+
+    window.addEventListener('keydown', (e) => {
+      window.soundEngine.init();
+      window.soundEngine.resume();
+      const k = e.key.toLowerCase();
+
+      const dialogueModal = document.getElementById('dialogue-modal');
+      if (dialogueModal && dialogueModal.style.display === 'flex') {
+        if (k === ' ' || k === 'enter' || k === 'e') {
+          e.preventDefault();
+          const btnNext = document.getElementById('btn-dialogue-next');
+          if (btnNext) btnNext.click();
+          return;
+        }
+      }
+
+      if (k === 'escape') {
+        const jm = document.getElementById('journal-modal');
+        if (jm && jm.style.display === 'flex') {
+          this.toggleJournal();
+          return;
+        }
+      }
+
+      const introScreen = document.getElementById('intro-screen');
+      const journalModal = document.getElementById('journal-modal');
+      if ((introScreen && introScreen.style.display !== 'none') || (journalModal && journalModal.style.display === 'flex')) {
+        if (k === 'tab' || k === 'p' || k === 'escape') {
+          e.preventDefault();
+          this.toggleJournal();
+        }
+        return;
+      }
+
+      if (k === 'w' || k === 'arrowup') this.keys.forward = true;
+      if (k === 's' || k === 'arrowdown') this.keys.backward = true;
+      if (k === 'a' || k === 'arrowleft') this.keys.left = true;
+      if (k === 'd' || k === 'arrowright') this.keys.right = true;
+
+      if (k === ' ' || k === 'j') {
+        e.preventDefault();
+        this.player.performStaffSweep(this.getAllTargets());
+      }
+      if (k === 'k') this.player.performChiPulse(this.getAllTargets());
+      if (k === 'q') this.player.performBeadShield();
+      if (k === 'shift' || k === 'l') this.player.performWindStep();
+      if (k === 'c' || k === 'm') this.player.toggleMeditation();
+      if (k === 'e' || k === 'f') this.handleInteraction();
+      if (k === 'tab' || k === 'p') {
+        e.preventDefault();
+        this.toggleJournal();
+      }
+      if (k === 'i') {
+        e.preventDefault();
+        this.openJournalTab('inventory');
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      const k = e.key.toLowerCase();
+      if (k === 'w' || k === 'arrowup') this.keys.forward = false;
+      if (k === 's' || k === 'arrowdown') this.keys.backward = false;
+      if (k === 'a' || k === 'arrowleft') this.keys.left = false;
+      if (k === 'd' || k === 'arrowright') this.keys.right = false;
+    });
+
+    window.addEventListener('mousedown', (e) => {
+      window.soundEngine.init();
+      window.soundEngine.resume();
+      if (e.target.closest('#hud') || e.target.closest('#journal-modal') || e.target.closest('#dialogue-modal')) return;
+      const introScreen = document.getElementById('intro-screen');
+      if (introScreen && introScreen.style.display !== 'none') return;
+
+      const rect = this.renderer.domElement.getBoundingClientRect();
+      this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      this.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+      if (this.raycaster.ray.intersectPlane(this.groundPlane, this.hitPoint)) {
+        const dx = this.hitPoint.x - this.player.mesh.position.x;
+        const dz = this.hitPoint.z - this.player.mesh.position.z;
+        this.player.mesh.rotation.y = Math.atan2(dx, dz);
+      }
+
+      if (e.button === 0) this.player.performStaffSweep(this.getAllTargets());
+      else if (e.button === 2) {
+        e.preventDefault();
+        this.player.performChiPulse(this.getAllTargets());
+      }
+    });
+
+    window.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    const promptEl = document.getElementById('interaction-prompt');
+    if (promptEl) {
+      promptEl.onclick = () => this.handleInteraction();
+    }
+
+    // Touch Virtual Joystick
+    const joystick = document.getElementById('touch-joystick');
+    const stick = document.getElementById('touch-stick');
+    if (joystick && stick) {
+      const handleTouch = (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = joystick.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        let dx = touch.clientX - centerX;
+        let dy = touch.clientY - centerY;
+        const dist = Math.hypot(dx, dy);
+        const maxDist = rect.width / 2 - 10;
+        if (dist > maxDist) {
+          dx = (dx / dist) * maxDist;
+          dy = (dy / dist) * maxDist;
+        }
+        stick.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+        this.keys.forward = dy < -12;
+        this.keys.backward = dy > 12;
+        this.keys.left = dx < -12;
+        this.keys.right = dx > 12;
+      };
+
+      const endTouch = () => {
+        stick.style.transform = `translate(-50%, -50%)`;
+        this.keys.forward = false;
+        this.keys.backward = false;
+        this.keys.left = false;
+        this.keys.right = false;
+      };
+
+      joystick.addEventListener('touchstart', handleTouch, { passive: false });
+      joystick.addEventListener('touchmove', handleTouch, { passive: false });
+      joystick.addEventListener('touchend', endTouch);
+      joystick.addEventListener('touchcancel', endTouch);
+    }
+
+    // Touch Buttons
+    const btnAtk = document.getElementById('tbtn-attack');
+    const btnChi = document.getElementById('tbtn-chi');
+    const btnDash = document.getElementById('tbtn-dash');
+    const btnInteract = document.getElementById('tbtn-interact');
+    const btnHeal = document.getElementById('tbtn-heal');
+    const btnShield = document.getElementById('tbtn-shield');
+
+    if (btnAtk) btnAtk.onclick = (e) => { e.preventDefault(); this.player.performStaffSweep(this.getAllTargets()); };
+    if (btnChi) btnChi.onclick = (e) => { e.preventDefault(); this.player.performChiPulse(this.getAllTargets()); };
+    if (btnDash) btnDash.onclick = (e) => { e.preventDefault(); this.player.performWindStep(); };
+    if (btnInteract) btnInteract.onclick = (e) => { e.preventDefault(); this.handleInteraction(); };
+    if (btnHeal) btnHeal.onclick = (e) => { e.preventDefault(); this.player.toggleMeditation(); };
+    if (btnShield) btnShield.onclick = (e) => { e.preventDefault(); this.player.performBeadShield(); };
+  }
+
+  getAllTargets() {
+    const list = [...this.enemies];
+    if (this.activeBoss && !this.activeBoss.isDead) list.push(this.activeBoss);
+    return list;
+  }
+
+  handleInteraction() {
+    const nearest = this.world.getNearestInteractable(this.player.mesh.position);
+    if (nearest && nearest.onInteract) nearest.onInteract(this);
+  }
+
+  restAtIncense(regionName) {
+    this.player.hp = this.player.maxHp;
+    this.player.chi = this.player.maxChi;
+    window.soundEngine.playMeditationChime();
+    this.notify(`Sanctuary reached at ${regionName}. Chi restored.`);
+    if (this.activeQuestIndex === 0 && this.quests[0].current === 0) this.advanceQuest(0);
+  }
+
+  openChest(chestId, chestMesh, contents) {
+    window.soundEngine.playPickup();
+    if (chestMesh && chestMesh.userData.lid) chestMesh.userData.lid.rotation.x = -Math.PI * 0.6;
+    const item = this.world.interactables.find(i => i.id === chestId);
+    if (item) item.opened = true;
+    for (let k in contents) {
+      if (k === 'xp') this.player.gainXp(contents[k]);
+      else if (this.inventory[k] !== undefined) this.inventory[k] += contents[k];
+    }
+    this.notify(`Opened Chest! Found materials & ${contents.xp || 100} XP.`);
+    this.updateHUD();
+  }
+
+  ringBell(bellId, bellMesh) {
+    window.soundEngine.playTempleBell(1.0);
+    this.notify("The Temple Bell echoes across the bamboo grove...");
+    if (this.activeQuestIndex === 1) this.advanceQuest(1);
+  }
+
+  harvestFlower(flowerId) {
+    window.soundEngine.playPickup();
+    const item = this.world.interactables.find(i => i.id === flowerId);
+    if (item) item.activated = true;
+    this.inventory.flower += 1;
+    this.player.chi = Math.min(this.player.maxChi, this.player.chi + 30);
+    this.notify("Harvested Sacred Lotus (+1 Flower, +30 Chi)");
+    if (this.activeQuestIndex === 1) this.advanceQuest(1);
+  }
+
+  inspectGate(gateId, msg) {
+    this.notify(msg);
+  }
+
+  activateTrigram(index, runeMesh) {
+    if (this.trigramsActivated[index]) return;
+    this.trigramsActivated[index] = true;
+    runeMesh.material.color.setHex(0x3CAEA3);
+    window.soundEngine.playTempleBell(1.2 + index * 0.2);
+    this.notify(`Trigram Plate ${index + 1} activated.`);
+    if (this.activeQuestIndex === 3) this.advanceQuest(3);
+    if (this.trigramsActivated.every(t => t)) {
+      this.notify("All 4 Trigrams aligned! The Inner Sanctum Seal has dissipated!");
+      this.world.unlockGate("sanctum");
+    }
+  }
+
+  interactDragonHeart() {
+    if (this.activeQuestIndex < 4) {
+      this.notify("The Dragon Heart is surrounded by dark Chi barriers. Confront Kaizen first!");
+      if (!this.activeBoss) this.spawnKaizen();
+    } else {
+      this.triggerDragonHeartRestoration();
+    }
+  }
+
+  triggerDragonHeartRestoration() {
+    window.soundEngine.playTempleBell(0.8);
+    this.showDialogue(
+      "Master Ren",
+      "The Dragon Heart beats once more with the pulse of heaven and earth. Rest now, Kaizen... your spirit is at peace. The palace echoes with tranquility.",
+      () => this.showVictoryScreen()
+    );
+  }
+
+  triggerMemoryEcho(echoId) {
+    const overlay = document.getElementById('cinematic-overlay');
+    overlay.classList.add('memory-echo');
+    window.soundEngine.playMemoryEchoSound();
+
+    if (echoId === 1) {
+      this.showDialogue(
+        "Memory Echo: Disciple Kaizen (30 Years Ago)",
+        "Master Ren... when warlords gather at our valley gates, can prayer beads shield our families? The Dragon Heart has power... why do the elders keep it locked away?!",
+        () => {
+          this.showDialogue(
+            "Master Ren (Memory)",
+            "Power without tranquility is a raging fire, Kaizen. It warms neither the hearth nor the heart—it only devours until ash remains.",
+            () => {
+              overlay.classList.remove('memory-echo');
+              this.advanceQuest(2);
+              this.notify("Memory Echo perceived. Understood Kaizen's doubt.");
+            }
+          );
+        }
+      );
+    }
+  }
+
+  advanceQuest(questIndex) {
+    const q = this.quests[questIndex];
+    if (q && !q.completed) {
+      q.current++;
+      if (q.current >= q.target) {
+        q.completed = true;
+        this.player.gainXp(350);
+        this.notify(`Quest Complete: ${q.title}!`);
+        window.soundEngine.playLevelUp();
+        if (questIndex === 0) {
+          this.world.unlockGate("gardens");
+          this.notify("The Gate to the Lantern Gardens is now open!");
+        }
+        if (this.activeQuestIndex < this.quests.length - 1) this.activeQuestIndex++;
+      }
+      this.updateHUD();
+    }
+  }
+
+  onBossDefeated(type) {
+    this.hideBossBar();
+    window.soundEngine.playLevelUp();
+    if (type === 'gatekeeper') {
+      this.notify("The Gatekeeper has been bested! First Seal recovered.");
+      this.advanceQuest(0);
+      this.activeBoss = null;
+    } else if (type === 'kaizen') {
+      this.notify("General Kaizen has been defeated!");
+      this.advanceQuest(4);
+      this.showDialogue(
+        "General Kaizen",
+        "Master... your staff was always faster than my ambition. The Dragon Heart... take it. Mend what I have broken.",
+        () => this.interactDragonHeart()
+      );
+    }
+  }
+
+  setupUI() {
+    document.getElementById('slot-staff').onclick = () => this.player.performStaffSweep(this.getAllTargets());
+    document.getElementById('slot-chi').onclick = () => this.player.performChiPulse(this.getAllTargets());
+    document.getElementById('slot-shield').onclick = () => this.player.performBeadShield();
+    document.getElementById('slot-dash').onclick = () => this.player.performWindStep();
+    document.getElementById('slot-meditate').onclick = () => this.player.toggleMeditation();
+
+    document.getElementById('btn-journal').onclick = () => this.toggleJournal();
+    document.getElementById('btn-sound').onclick = () => {
+      const isMuted = window.soundEngine.toggleMute();
+      document.getElementById('btn-sound').innerHTML = isMuted ? '🔇' : '🎵';
+      this.notify(isMuted ? "Sound Muted" : "Sound Enabled");
+    };
+
+    const tabs = document.querySelectorAll('.nav-tab');
+    tabs.forEach(t => {
+      t.onclick = () => {
+        tabs.forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        t.classList.add('active');
+        document.getElementById(`tab-${t.dataset.tab}`).classList.add('active');
+      };
+    });
+
+    document.getElementById('btn-close-journal').onclick = () => this.toggleJournal();
+    document.getElementById('btn-start').onclick = () => {
+      document.getElementById('intro-screen').style.display = 'none';
+      window.soundEngine.init();
+      window.soundEngine.resume();
+      this.notify("Entered the Outer Courtyard of Tianlong Palace.");
+    };
+
+    const nodes = document.querySelectorAll('.skill-node');
+    nodes.forEach(node => {
+      node.onclick = () => {
+        const skillKey = node.dataset.skill;
+        if (this.skills[skillKey]) return;
+        if (this.player.skillPoints <= 0) {
+          this.notify("Not enough Skill Points! Level up to earn points.");
+          return;
+        }
+        this.player.skillPoints--;
+        this.skills[skillKey] = true;
+        node.classList.add('unlocked');
+        window.soundEngine.playLevelUp();
+        if (skillKey === 'whirlingSweep') this.player.attackPower += 8;
+        if (skillKey === 'innerFlow') this.player.maxChi += 25;
+        if (skillKey === 'mountainStance') {
+          this.player.maxHp += 30;
+          this.player.hp = this.player.maxHp;
+        }
+        if (skillKey === 'swiftGale') this.player.speed += 2.0;
+        this.notify(`Mastered skill: ${node.querySelector('.skill-name').innerText}!`);
+        this.updateHUD();
+        this.updateJournal();
+      };
+    });
+  }
+
+  updateHUD() {
+    const hpPct = Math.max(0, (this.player.hp / this.player.maxHp) * 100);
+    const chiPct = Math.max(0, (this.player.chi / this.player.maxChi) * 100);
+    const xpPct = Math.min(100, (this.player.xp / this.player.xpNeeded) * 100);
+
+    document.getElementById('hp-fill').style.width = `${hpPct}%`;
+    document.getElementById('chi-fill').style.width = `${chiPct}%`;
+    document.getElementById('xp-fill').style.width = `${xpPct}%`;
+    document.getElementById('hp-text').innerText = `${Math.ceil(this.player.hp)} / ${this.player.maxHp}`;
+    document.getElementById('chi-text').innerText = `${Math.ceil(this.player.chi)} / ${this.player.maxChi}`;
+    document.getElementById('player-level').innerText = `Lv. ${this.player.level}`;
+
+    const pX = this.player.mesh.position.x;
+    const pZ = this.player.mesh.position.z;
+    let rName = "Outer Courtyard";
+    if (pZ >= 85) rName = "Inner Sanctum";
+    else if (pX >= 10 && pZ >= 25) rName = "Archive Towers";
+    else if (pX < 0 && pZ >= 65) rName = "Hall of Ancestors";
+    else if (pX < 0 && pZ >= 22) rName = "Lantern Gardens";
+
+    const regEl = document.getElementById('region-display');
+    if (regEl && regEl.innerText !== rName) regEl.innerText = rName;
+
+    this.updateCooldownOverlay('cooldown-staff', this.player.cooldowns.staffSweep, 0.45);
+    this.updateCooldownOverlay('cooldown-chi', this.player.cooldowns.chiPulse, 4.0);
+    this.updateCooldownOverlay('cooldown-shield', this.player.cooldowns.beadShield, 9.0);
+    this.updateCooldownOverlay('cooldown-dash', this.player.cooldowns.windStep, 2.5);
+
+    // Mobile Heal Button active pulse when meditating
+    const touchHealBtn = document.getElementById('tbtn-heal');
+    if (touchHealBtn) {
+      if (this.player.isMeditating) touchHealBtn.classList.add('active-heal');
+      else touchHealBtn.classList.remove('active-heal');
+    }
+
+    const q = this.quests[this.activeQuestIndex];
+    if (q) {
+      document.getElementById('tracker-chapter').innerText = q.chapter;
+      document.getElementById('tracker-desc').innerText = q.desc;
+      document.getElementById('tracker-progress').innerText = `Progress: ${q.current} / ${q.target}`;
+    }
+
+    const nearest = this.world.getNearestInteractable(this.player.mesh.position);
+    const promptEl = document.getElementById('interaction-prompt');
+    if (nearest) {
+      promptEl.style.display = 'flex';
+      document.getElementById('prompt-text').innerText = `${nearest.prompt} (${nearest.name})`;
+    } else {
+      promptEl.style.display = 'none';
+    }
+
+    if (this.activeBoss && !this.activeBoss.isDead) {
+      const bossFill = document.getElementById('boss-fill');
+      const bossPct = (this.activeBoss.hp / this.activeBoss.maxHp) * 100;
+      bossFill.style.width = `${Math.max(0, bossPct)}%`;
+    }
+  }
+
+  updateCooldownOverlay(elemId, current, max) {
+    const el = document.getElementById(elemId);
+    if (el) el.style.height = `${(current / max) * 100}%`;
+  }
+
+  showBossBar(name, bossRef) {
+    document.getElementById('boss-name').innerText = name;
+    document.getElementById('boss-bar-container').style.display = 'flex';
+    window.soundEngine.setCombatMode(true);
+  }
+
+  hideBossBar() {
+    document.getElementById('boss-bar-container').style.display = 'none';
+    window.soundEngine.setCombatMode(false);
+  }
+
+  notify(text) {
+    const area = document.getElementById('notification-area');
+    const pill = document.createElement('div');
+    pill.className = 'notification-pill';
+    pill.innerText = text;
+    area.appendChild(pill);
+    setTimeout(() => { if (pill.parentNode) pill.parentNode.removeChild(pill); }, 3000);
+  }
+
+  showDialogue(speaker, text, onNext) {
+    const modal = document.getElementById('dialogue-modal');
+    document.getElementById('dialogue-speaker').innerText = speaker;
+    document.getElementById('dialogue-text').innerText = text;
+    modal.style.display = 'flex';
+    const btnNext = document.getElementById('btn-dialogue-next');
+    btnNext.onclick = () => {
+      modal.style.display = 'none';
+      if (onNext) onNext();
+    };
+  }
+
+  toggleJournal() {
+    const modal = document.getElementById('journal-modal');
+    const isVisible = modal.style.display === 'flex';
+    modal.style.display = isVisible ? 'none' : 'flex';
+    if (!isVisible) this.updateJournal();
+  }
+
+  openJournalTab(tabName) {
+    const modal = document.getElementById('journal-modal');
+    modal.style.display = 'flex';
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    const targetTab = document.querySelector(`.nav-tab[data-tab="${tabName}"]`);
+    const targetPane = document.getElementById(`tab-${tabName}`);
+    if (targetTab && targetPane) {
+      targetTab.classList.add('active');
+      targetPane.classList.add('active');
+    }
+    this.updateJournal();
+  }
+
+  updateJournal() {
+    document.getElementById('stat-level').innerText = this.player.level;
+    document.getElementById('stat-hp').innerText = `${Math.ceil(this.player.hp)} / ${this.player.maxHp}`;
+    document.getElementById('stat-chi').innerText = `${Math.ceil(this.player.chi)} / ${this.player.maxChi}`;
+    document.getElementById('stat-atk').innerText = this.player.attackPower;
+    document.getElementById('stat-chi-atk').innerText = this.player.chiPower;
+    document.getElementById('stat-sp').innerText = this.player.skillPoints;
+    document.getElementById('sp-count').innerText = this.player.skillPoints;
+
+    document.getElementById('count-wood').innerText = this.inventory.wood;
+    document.getElementById('count-stone').innerText = this.inventory.spiritStone;
+    document.getElementById('count-thread').innerText = this.inventory.goldenThread;
+    document.getElementById('count-iron').innerText = this.inventory.iron;
+    document.getElementById('count-jade').innerText = this.inventory.jade;
+    document.getElementById('count-flower').innerText = this.inventory.flower;
+  }
+
+  setupMinimap() {
+    this.minimapCanvas = document.getElementById('minimap-canvas');
+    this.minimapCtx = this.minimapCanvas.getContext('2d');
+    this.minimapCanvas.width = 115;
+    this.minimapCanvas.height = 115;
+  }
+
+  renderMinimap() {
+    const ctx = this.minimapCtx;
+    const w = this.minimapCanvas.width;
+    const h = this.minimapCanvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const px = this.player.mesh.position.x;
+    const pz = this.player.mesh.position.z;
+    const scale = 0.75;
+
+    ctx.save();
+    ctx.translate(w / 2, h / 2);
+
+    ctx.fillStyle = '#49372C';
+    this.world.colliders.forEach(c => {
+      ctx.beginPath();
+      ctx.arc((c.x - px) * scale, (c.z - pz) * scale, c.radius * scale, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.fillStyle = '#C23B22';
+    this.enemies.forEach(e => {
+      if (e.isDead) return;
+      ctx.beginPath();
+      ctx.arc((e.mesh.position.x - px) * scale, (e.mesh.position.z - pz) * scale, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    if (this.activeBoss && !this.activeBoss.isDead) {
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc((this.activeBoss.mesh.position.x - px) * scale, (this.activeBoss.mesh.position.z - pz) * scale, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = '#3CAEA3';
+    ctx.beginPath();
+    ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    const dirX = Math.sin(this.player.mesh.rotation.y) * 8;
+    const dirZ = Math.cos(this.player.mesh.rotation.y) * 8;
+    ctx.strokeStyle = '#3CAEA3';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(dirX, dirZ);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  spawnLoot(position, enemyType) {
+    const materials = ['wood', 'iron', 'spiritStone', 'flower'];
+    const drop = materials[Math.floor(Math.random() * materials.length)];
+    this.inventory[drop] += 1;
+    this.notify(`Loot: +1 ${drop}`);
+    this.updateJournal();
+  }
+
+  onPlayerDeath() {
+    this.notify("Master Ren's spirit falters. Meditating to restore presence...");
+    setTimeout(() => {
+      this.player.hp = this.player.maxHp;
+      this.player.chi = this.player.maxChi;
+      this.player.isDead = false;
+      this.player.mesh.rotation.x = 0;
+      this.player.mesh.position.set(0, 0, 5);
+      this.notify("Restored at Courtyard Incense Burner.");
+    }, 2500);
+  }
+
+  showVictoryScreen() {
+    const intro = document.getElementById('intro-screen');
+    intro.style.display = 'flex';
+    document.querySelector('.intro-title').innerText = "THE DRAGON RESTORED";
+    document.querySelector('.intro-subtitle').innerText = "PEACE RETURNS TO TIANLONG PALACE";
+    document.querySelector('.intro-quote').innerText = "Master Ren sits beneath the flowering plum branches. The corridors are calm once more. A true master conquers not by force, but through wisdom, patience, and the boundless harmony of Chi.";
+    document.getElementById('btn-start').innerText = "PLAY AGAIN";
+    document.getElementById('btn-start').onclick = () => location.reload();
+  }
+
+  onWindowResize() {
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  animate() {
+    requestAnimationFrame(this.animate);
+    const delta = Math.min(this.clock.getDelta(), 0.1);
+    const elapsed = this.clock.getElapsedTime();
+
+    // Smooth isometric screen-relative movement
+    this.player.update(delta, this.keys, this.camera, this.world);
+
+    const targetCamX = this.player.mesh.position.x + this.cameraOffset.x;
+    const targetCamY = this.player.mesh.position.y + this.cameraOffset.y;
+    const targetCamZ = this.player.mesh.position.z + this.cameraOffset.z;
+
+    this.camera.position.x = THREE.MathUtils.lerp(this.camera.position.x, targetCamX, 0.08);
+    this.camera.position.y = THREE.MathUtils.lerp(this.camera.position.y, targetCamY, 0.08);
+    this.camera.position.z = THREE.MathUtils.lerp(this.camera.position.z, targetCamZ, 0.08);
+    this.camera.lookAt(this.player.mesh.position.x, this.player.mesh.position.y + 1.2, this.player.mesh.position.z);
+
+    this.world.update(delta, elapsed);
+
+    let inCombat = false;
+    this.enemies.forEach(e => {
+      e.update(delta, this.player, this.world);
+      if (e.state === 'alert' && !e.isDead) inCombat = true;
+    });
+
+    if (this.activeBoss && !this.activeBoss.isDead) {
+      this.activeBoss.update(delta, this.player, this.world);
+      inCombat = true;
+    }
+
+    window.soundEngine.setCombatMode(inCombat);
+    this.updateHUD();
+    this.renderMinimap();
+    this.renderer.render(this.scene, this.camera);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  window.gameInstance = new Game();
+});
+  </script>
+</body>
+</html>

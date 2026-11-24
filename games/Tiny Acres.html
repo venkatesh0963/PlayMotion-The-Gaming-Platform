@@ -1,0 +1,807 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Tiny Acres</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: full-bleed 3D diorama; crop cards float on top, one control panel docks at the bottom. */
+:root{
+  --bg:#dfe8d2; --panel:#f2f4ec; --ink:#24301f; --muted:#667360; --line:#d3dac8;
+  --accent:#5c8a3a; --accent-ink:#ffffff; --coin:#a8701f; --chip:#e4e9da; --sel:#24301f; --sel-ink:#f2f4ec;
+  --bad:#b4472f; --good:#3f7d34;
+  --serif:'Fraunces',Georgia,'Times New Roman',serif; --sans:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#162018; --panel:#222b20; --ink:#e7eddb; --muted:#9aa793; --line:#323d2f;
+  --accent:#8fbf62; --accent-ink:#14200d; --coin:#e0aa52; --chip:#2c372a; --sel:#e7eddb; --sel-ink:#222b20;
+  --bad:#e5846c; --good:#8fcf7f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#162018; --panel:#222b20; --ink:#e7eddb; --muted:#9aa793; --line:#323d2f;
+  --accent:#8fbf62; --accent-ink:#14200d; --coin:#e0aa52; --chip:#2c372a; --sel:#e7eddb; --sel-ink:#222b20;
+  --bad:#e5846c; --good:#8fcf7f; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 14px/1.3 var(--sans);overflow:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+#app{position:relative;height:100%}
+#cv{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#ui{position:relative;height:100%;display:flex;flex-direction:column;pointer-events:none}
+#ui>*{pointer-events:auto}
+h1{font:600 28px/1.1 var(--serif);margin:8px 0 8px;letter-spacing:-.01em;pointer-events:none}
+#cropbar{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.crop{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 12px;border:1px solid var(--line);
+  background:var(--panel);color:var(--ink);border-radius:10px;font:inherit;text-align:left;cursor:pointer;min-width:0}
+.crop b{font-weight:600}
+.crop small{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.crop .px{font-variant-numeric:tabular-nums;font-size:12px;white-space:nowrap}
+.crop.on{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.crop.on small{color:inherit;opacity:.75}
+.up{color:var(--good)}.dn{color:var(--bad)}.crop.on .up,.crop.on .dn{color:inherit}
+#side{position:absolute;right:0;top:42%;display:flex;flex-direction:column;gap:8px;pointer-events:auto}
+.sq{width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:500 22px var(--sans);cursor:pointer}
+.sq.off{opacity:.45;text-decoration:line-through}
+#toast{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--panelh,200px) + 14px);background:var(--sel);color:var(--sel-ink);
+  padding:7px 14px;border-radius:99px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;white-space:normal;text-align:center;width:max-content;max-width:min(92%,420px)}
+#toast.show{opacity:1}
+#panel{margin-top:auto;margin-bottom:max(10px,env(safe-area-inset-bottom,0px));background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:grid;gap:12px}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+#money{font:600 34px/1.05 var(--serif);color:var(--ink);font-variant-numeric:tabular-nums;margin-top:6px}
+.right{text-align:right;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+#speeds{display:flex;gap:6px;justify-content:flex-end;margin-bottom:6px}
+.sp{padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:13px;cursor:pointer}
+.sp.on{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.bar{height:8px;border-radius:99px;background:var(--chip);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.stockrow{display:grid;gap:6px}
+.stockrow .t{display:flex;justify-content:space-between;font-size:13px;font-variant-numeric:tabular-nums;gap:8px;flex-wrap:wrap}
+#chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:var(--chip);border-radius:99px;padding:3px 10px;font-size:12px;font-variant-numeric:tabular-nums}
+.acts{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:8px}
+.btn{padding:11px 10px;border-radius:12px;border:1px solid var(--line);background:var(--chip);color:var(--ink);font:600 14px var(--sans);cursor:pointer;min-width:0}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:default}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#drawer{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:10px}
+.upg{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.upg span{font-size:13px;min-width:0}.upg small{display:block;color:var(--muted)}
+.upg .btn{padding:8px 12px;white-space:nowrap}
+.hint{font-size:12px;color:var(--muted)}
+#vehbar{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px}
+.vb{padding:7px 4px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:600 12px var(--sans);cursor:pointer;min-width:0}
+.vb.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#joy{position:absolute;left:0;bottom:calc(var(--panelh,200px) + 14px);width:124px;height:124px;border-radius:50%;background:var(--panel);border:1px solid var(--line);opacity:.92;touch-action:none}
+#knob{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:var(--accent);border:2px solid var(--panel);pointer-events:none}
+#actbtn{position:absolute;right:0;bottom:calc(var(--panelh,200px) + 14px);padding:12px 16px;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+#app[data-drive] #toast{bottom:calc(var(--panelh,200px) + 150px)}
+@media(max-width:420px){h1{font-size:25px}.acts{grid-template-columns:1fr 1fr}.acts .pri{grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<div id="app">
+<canvas id="cv" aria-label="Rotatable 3D farm. Tap a plot to plant, harvest or buy land."></canvas>
+<div id="ui">
+  <h1>Tiny Acres</h1>
+  <div id="cropbar"></div>
+  <div id="vehbar" aria-label="Choose a vehicle to drive">
+    <button class="vb on" data-v="">Auto</button><button class="vb" data-v="farmer">Farmer</button><button class="vb" data-v="tractor">Tractor</button><button class="vb" data-v="harvester">Harvester</button><button class="vb" data-v="truck">Truck</button>
+  </div>
+  <div id="side">
+    <button class="sq" id="zin" aria-label="Zoom in">+</button>
+    <button class="sq" id="zout" aria-label="Zoom out">&minus;</button>
+    <button class="sq" id="zreset" aria-label="Reset view">&#10530;</button>
+    <button class="sq" id="snd" aria-label="Sound on" title="Sound">&#9834;</button>
+  </div>
+  <div id="toast" role="status"></div>
+  <div id="joy" hidden aria-label="Move stick"><div id="knob"></div></div>
+  <button class="btn pri" id="actbtn" hidden>Hop in</button>
+  <div id="panel">
+    <div class="row">
+      <div><div class="lbl">The Farmhand</div><div id="money">$0</div></div>
+      <div>
+        <div id="speeds"><button class="sp" data-s="0">Pause</button><button class="sp on" data-s="1">1&times;</button><button class="sp" data-s="2">2&times;</button><button class="sp" data-s="4">4&times;</button></div>
+        <div class="right" id="clock"></div><div class="right" id="pop"></div>
+      </div>
+    </div>
+    <div class="stockrow">
+      <div class="t"><span>Barn <b id="stocktxt"></b></span><span class="hint" id="hint"></span></div>
+      <div class="bar"><i id="stockbar"></i></div>
+      <div id="chips"></div>
+      <div class="hint" id="drivehint" hidden></div>
+    </div>
+    <div class="acts">
+      <button class="btn pri" id="truckbtn">Send truck</button>
+      <button class="btn" id="harvestbtn">Harvest all</button>
+      <button class="btn" id="upbtn">Upgrades</button>
+    </div>
+    <div id="drawer" hidden></div>
+  </div>
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const cv=$('cv'), app=$('app');
+const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0xbfe3f5);
+const camera=new THREE.PerspectiveCamera(38,1,0.5,120);
+const hemi=new THREE.HemisphereLight(0xffffff,0x6b7a55,0.6); scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfff2d6,1); sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-20,right:20,top:18,bottom:-18,near:1,far:80});
+sun.shadow.bias=-0.0006; scene.add(sun,sun.target);
+const M=(c)=>new THREE.MeshLambertMaterial({color:c});
+function box(w,h,d,mat,x,y,z,parent){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;(parent||scene).add(m);return m}
+
+// ---- cutaway block
+box(60,0.6,33,M(0x8fc06a),-8,-0.3,3.5).castShadow=false;
+box(60,0.5,33,M(0x8a6240),-8,-0.85,3.5);
+box(60,0.6,33,M(0x7b7f86),-8,-1.4,3.5);
+box(16.02,0.05,11.02,M(0x6a9a48),0,-0.02,0).visible=false;
+// pond
+const pond=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.1,0.05,28),new THREE.MeshLambertMaterial({color:0x6fb4d8}));
+pond.position.set(6.3,0.01,-3.9);pond.scale.z=0.75;pond.receiveShadow=true;scene.add(pond);
+// roads
+const roadMat=M(0xb59a74);
+box(60,0.05,1.3,roadMat,-8,0.02,4.3).castShadow=false;
+box(1,0.05,3.7,roadMat,5,0.02,2.5).castShadow=false;
+for(let x=-37.4;x<21.5;x+=1.2) box(0.5,0.06,0.07,M(0xe9ddc0),x,0.04,4.3).castShadow=false;
+
+// ---- plots (two player fields)
+const PITCH=1.7,G0COLS=5,PLOTPOS=[];
+[{x0:-5.6,cols:5,rows:8,z0:1.3,d:-1},{x0:9.9,cols:6,rows:8,z0:1.3,d:-1},{x0:-5.6,cols:5,rows:3,z0:7.2,d:1},{x0:9.9,cols:6,rows:3,z0:7.2,d:1}].forEach(f=>{for(let r=0;r<f.rows;r++)for(let c=0;c<f.cols;c++)PLOTPOS.push({x:f.x0+c*PITCH,z:f.z0+f.d*r*PITCH})});
+const NPLOTS=PLOTPOS.length,plotMeshes=[];
+PLOTPOS.forEach((q,i)=>{const m=box(1.5,0.1,1.5,new THREE.MeshLambertMaterial({color:0x9fcd78,emissive:0x000000}),q.x,0.05,q.z);m.userData.idx=i;m.castShadow=false;plotMeshes.push(m)});
+
+// ---- crops
+const CROPS={
+ wheat:{name:'Wheat',seed:2,grow:12,base:5,from:0x7cae4a,to:0xe3b94a},
+ corn:{name:'Corn',seed:4,grow:22,base:11,from:0x6aa83f,to:0xf0cf3c},
+ tomato:{name:'Tomato',seed:6,grow:32,base:18,from:0x5f9f3c,to:0xd9442f},
+ pumpkin:{name:'Pumpkin',seed:10,grow:50,base:36,from:0x6fa23c,to:0xe8872a},
+};
+const KEYS=Object.keys(CROPS);
+function makeCrop(k){
+  const g=new THREE.Group(), tint=[], cc=CROPS[k];
+  const add=(geo,x,y,z,col,ripe)=>{const mat=new THREE.MeshLambertMaterial({color:cc.from});
+    const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=true;g.add(m);
+    tint.push({mat,from:new THREE.Color(col),to:new THREE.Color(ripe)});return m};
+  const leaf=0x4f8f35;
+  if(k==='wheat'){for(let i=0;i<9;i++){const x=(i%3-1)*0.34+(Math.random()-.5)*.1,z=(Math.floor(i/3)-1)*0.34+(Math.random()-.5)*.1;
+      add(new THREE.BoxGeometry(0.07,0.55,0.07),x,0.3,z,0x6fa244,0xd9aa3c);
+      add(new THREE.BoxGeometry(0.1,0.2,0.1),x,0.62,z,0x86b24f,0xf0c75a);}}
+  if(k==='corn'){for(let i=0;i<4;i++){const x=(i%2-.5)*0.6,z=(Math.floor(i/2)-.5)*0.6;
+      add(new THREE.CylinderGeometry(0.06,0.08,0.9,6),x,0.5,z,0x5f9b3a,0x9aa650);
+      add(new THREE.BoxGeometry(0.16,0.3,0.16),x+0.1,0.6,z,0x9cc15a,0xf0cf3c);}}
+  if(k==='tomato'){for(let i=0;i<4;i++){const x=(i%2-.5)*0.65,z=(Math.floor(i/2)-.5)*0.65;
+      add(new THREE.SphereGeometry(0.28,8,6),x,0.3,z,leaf,0x4a8a33);
+      add(new THREE.SphereGeometry(0.11,8,6),x+0.12,0.42,z+0.18,0x8cbc4f,0xd9442f);
+      add(new THREE.SphereGeometry(0.1,8,6),x-0.15,0.3,z+0.2,0x8cbc4f,0xd9442f);}}
+  if(k==='pumpkin'){for(let i=0;i<3;i++){const x=(i-1)*0.5,z=(i%2?.2:-.2);
+      const p=add(new THREE.SphereGeometry(0.3,10,8),x,0.22,z,0x8fb04a,0xe8872a);p.scale.y=0.72;
+      add(new THREE.BoxGeometry(0.06,0.14,0.06),x,0.5,z,0x4f7f2f,0x5b6f2a);}}
+  g.userData.tint=tint; g.userData.p=-1; return g;
+}
+function setGrowth(g,p){
+  g.scale.set(0.35+0.65*p,0.15+0.85*p,0.35+0.65*p);
+  const q=Math.round(p*20)/20; if(g.userData.p===q) return; g.userData.p=q;
+  const t=Math.max(0,(p-0.55)/0.45);
+  for(const o of g.userData.tint) o.mat.color.copy(o.from).lerp(o.to,t);
+}
+
+// ---- barn
+const barn=new THREE.Group(); barn.position.set(5,0,-0.3); scene.add(barn);
+box(2.0,1.1,1.9,M(0xc2503a),0,0.55,0,barn);
+{const sh=new THREE.Shape();sh.moveTo(-1.15,0);sh.lineTo(1.15,0);sh.lineTo(0,0.8);sh.closePath();
+ const r=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:2.1,bevelEnabled:false}),M(0x7d5a44));
+ r.position.set(0,1.1,-1.05);r.castShadow=true;barn.add(r);}
+box(0.7,0.8,0.05,M(0x5b3a2b),0,0.4,0.96,barn);
+box(0.08,0.8,0.06,M(0xf1e6cf),0,0.4,0.99,barn);
+const silo=new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.4,1.8,14),M(0xd9d6cc));silo.position.set(-1.5,0.9,-0.3);silo.castShadow=true;barn.add(silo);
+const dome=new THREE.Mesh(new THREE.SphereGeometry(0.4,14,8,0,Math.PI*2,0,Math.PI/2),M(0x9aa0a8));dome.position.set(-1.5,1.8,-0.3);barn.add(dome);
+
+// ---- market stall
+const mk=new THREE.Group(); mk.position.set(-34.5,0,2.7); scene.add(mk);
+box(1.4,0.5,0.6,M(0xb98a5a),0,0.25,0.2,mk);
+for(const sx of[-0.65,0.65]) box(0.07,1.1,0.07,M(0x6b4a33),sx,0.55,-0.3,mk), box(0.07,1.1,0.07,M(0x6b4a33),sx,0.55,0.5,mk);
+for(let i=0;i<6;i++) box(0.27,0.05,1.0,M(i%2?0xf2efe4:0xd25f4a),-0.67+i*0.268,1.12,0.1,mk).rotation.x=-0.12;
+for(let i=0;i<4;i++) box(0.22,0.18,0.22,M(i%2?0xe3a63d:0xd9442f),-0.45+i*0.3,0.6,0.2,mk);
+
+// ---- trees (fixed seed) kept clear of fields, buildings, road and village
+let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+function tree(x,z,s){const t=new THREE.Group();t.position.set(x,0,z);t.scale.setScalar(s);
+  box(0.16,0.5,0.16,M(0x7a5a3d),0,0.25,0,t);
+  const c=new THREE.Mesh(new THREE.IcosahedronGeometry(0.5,0),M(0x5c9a45));c.position.y=0.85;c.castShadow=true;t.add(c);scene.add(t)}
+const KEEPOUT=[[-6.9,2.6,-12.5,2.5],[8.7,19.8,-12.5,2.5],[2.4,7.6,-2.8,4.2],[5,7.6,-5,-2.8],[-18,-11.3,-5,2.9],[-28.6,-21.7,-5,2.9],[-38,-29.5,-13,5.5],[-38,22,3.3,5.2],[-6.9,2.6,5.4,12],[8.7,19.8,5.4,12],[-20.5,-10.5,5.4,15.5],[3.8,6.2,4.9,7],[-12,-7,-9.3,-0.7],[6.4,9.2,-2.2,1.6]];
+for(let i=0;i<230;i++){const x=-37.6+rnd()*59,z=-12.6+rnd()*32,s=0.8+rnd()*0.6;
+  if(KEEPOUT.some(r=>x>r[0]&&x<r[1]&&z>r[2]&&z<r[3]))continue;tree(x,z,s)}
+for(let x=-37.2;x<21.5;x+=1.7){tree(x,-12.6,0.85+rnd()*0.2);tree(x,19.4,0.85+rnd()*0.2)}
+
+// ---- truck
+const truck=new THREE.Group(); scene.add(truck);
+box(0.55,0.32,0.4,M(0x3f6fa6),0.3,0.3,0,truck);
+box(0.3,0.26,0.36,M(0xcfe6f3),0.42,0.5,0,truck);
+box(0.9,0.12,0.44,M(0x8b6a4a),-0.35,0.2,0,truck);
+for(const[x,z]of[[0.35,0.22],[0.35,-0.22],[-0.55,0.22],[-0.55,-0.22]]){const w=new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.11,0.08,10),M(0x222222));w.rotation.x=Math.PI/2;w.position.set(x,0.11,z);truck.add(w)}
+const crates=[];const crateCols=[0xd9aa3c,0xe3a63d,0xd9442f,0xe8872a];
+for(let i=0;i<8;i++){const c=box(0.2,0.2,0.2,M(crateCols[i%4]),-0.6+(i%4)*0.22,0.36+(i>3?0.2:0),(i%2?0.1:-0.1),truck);c.visible=false;crates.push(c)}
+const ROUTE=[[5,1.4],[5,4.3],[-34.5,4.3]];
+const SEG=[];let ROUTE_LEN=0;
+for(let i=0;i<ROUTE.length-1;i++){const dx=ROUTE[i+1][0]-ROUTE[i][0],dz=ROUTE[i+1][1]-ROUTE[i][1],l=Math.hypot(dx,dz);SEG.push({l,s0:ROUTE_LEN,dx,dz,a:ROUTE[i]});ROUTE_LEN+=l}
+function placeTruck(s,back){
+  s=Math.max(0,Math.min(ROUTE_LEN,s));let sg=SEG.find(q=>s<=q.s0+q.l)||SEG[SEG.length-1];
+  const t=(s-sg.s0)/sg.l;truck.position.set(sg.a[0]+sg.dx*t,0,sg.a[1]+sg.dz*t);
+  const dx=back?-sg.dx:sg.dx,dz=back?-sg.dz:sg.dz;truck.rotation.y=-Math.atan2(dz,dx);
+}
+placeTruck(0,false);
+
+// ---- orbit camera
+const cam={az:-0.5,el:0.78,dist:38,tx:4,tz:-1};
+const CAM0={...cam};
+function updateCam(){
+  cam.el=Math.max(0.22,Math.min(1.4,cam.el));cam.dist=Math.max(9,Math.min(64,cam.dist));
+  const ce=Math.cos(cam.el);
+  camera.position.set(cam.tx+cam.dist*Math.sin(cam.az)*ce,cam.dist*Math.sin(cam.el),cam.tz+cam.dist*Math.cos(cam.az)*ce);
+  camera.lookAt(cam.tx,0,cam.tz);
+}
+function resize(){const w=app.clientWidth||innerWidth,h=app.clientHeight||innerHeight;
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.setSize(w,h,false);
+  camera.aspect=w/h;
+  // keep the whole block in view on narrow screens
+  camera.fov=w<h?52:38;camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(app);addEventListener('resize',resize);resize();
+// ---- farm vehicles (front of each model is local +x)
+function cyl(r,l,mat,x,y,z,parent,rotX){const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,l,14),mat);if(rotX!==false)m.rotation.x=Math.PI/2;m.position.set(x,y,z);m.castShadow=true;(parent||scene).add(m);return m}
+const tractorObj=new THREE.Group();scene.add(tractorObj);
+{const T=tractorObj,green=M(0x4f9a45),dark=M(0x2b2b2b),glass=M(0xcfe6f3);
+ box(0.9,0.3,0.5,green,0,0.42,0,T);box(0.5,0.3,0.4,M(0x3b7d36),0.5,0.5,0,T);
+ box(0.4,0.42,0.46,glass,-0.2,0.8,0,T);box(0.5,0.05,0.52,green,-0.2,1.03,0,T);
+ cyl(0.04,0.4,dark,0.62,0.85,0.1,T,false);
+ for(const z of[-0.36,0.36]){cyl(0.3,0.16,dark,-0.3,0.3,z,T);cyl(0.18,0.12,dark,0.55,0.18,z*0.85,T)}
+ box(0.12,0.1,1.3,M(0xe3b94a),-0.75,0.28,0,T);
+ for(const z of[-0.5,-0.17,0.17,0.5]) box(0.1,0.2,0.05,M(0x8b6a4a),-0.82,0.18,z,T)}
+const harvObj=new THREE.Group();scene.add(harvObj);
+{const H=harvObj,yel=M(0xe0a526),dark=M(0x2b2b2b);
+ box(1.0,0.55,0.7,yel,0,0.6,0,H);box(0.4,0.4,0.5,M(0xcfe6f3),0.25,1.05,0,H);box(0.5,0.05,0.54,yel,0.25,1.27,0,H);
+ box(0.55,0.3,0.6,M(0xc8921c),-0.3,1.0,0,H);box(0.7,0.08,0.1,yel,-0.35,1.25,0.35,H).rotation.y=0.4;
+ box(0.35,0.35,1.5,M(0xc2503a),0.85,0.35,0,H);cyl(0.18,1.5,M(0x8f3a2b),0.95,0.62,0,H);
+ for(const z of[-0.42,0.42]){cyl(0.3,0.16,dark,0.3,0.3,z,H);cyl(0.2,0.12,dark,-0.38,0.2,z*0.9,H)}}
+// ---- helpers for neighbours and village
+function gable(w,h,d,mat,x,y,z,parent){const sh=new THREE.Shape();sh.moveTo(-w/2,0);sh.lineTo(w/2,0);sh.lineTo(0,h);sh.closePath();
+  const m=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:d,bevelEnabled:false}),mat);m.position.set(x,y,z-d/2);m.castShadow=true;(parent||scene).add(m);return m}
+function house(x,z,w,h,d,wall,roof,rot){const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot||0;scene.add(g);
+  box(w,h,d,M(wall),0,h/2,0,g);gable(w+0.25,0.55,d+0.2,M(roof),0,h,0,g);box(0.26,0.42,0.05,M(0x5b3a2b),0,0.21,d/2+0.01,g);
+  box(0.22,0.22,0.05,M(0xcfe6f3),w*0.3,h*0.6,d/2+0.01,g);box(0.22,0.22,0.05,M(0xcfe6f3),-w*0.3,h*0.6,d/2+0.01,g);return g}
+function label(txt,x,y,z,k){const c=document.createElement('canvas');c.width=320;c.height=72;const g=c.getContext('2d');
+  g.fillStyle='rgba(30,40,25,.8)';if(g.roundRect){g.beginPath();g.roundRect(4,8,312,56,16);g.fill()}else g.fillRect(4,8,312,56);
+  g.fillStyle='#fff';g.font='600 28px Georgia,serif';g.textAlign='center';g.textBaseline='middle';g.fillText(txt,160,37);
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false}));
+  s.position.set(x,y,z);s.scale.set(3*(k||1),0.675*(k||1),1);scene.add(s);return s}
+const npcHit=[];
+function person(shirt,pants,hat){const g=new THREE.Group();
+  const part=(geo,col,y)=>{const m=new THREE.Mesh(geo,M(col));m.position.y=y;m.castShadow=true;g.add(m);return m};
+  part(new THREE.CylinderGeometry(0.1,0.12,0.36,8),shirt,0.4);part(new THREE.CylinderGeometry(0.09,0.09,0.22,8),pants,0.11);part(new THREE.SphereGeometry(0.1,10,8),0xe8bf9a,0.69);
+  if(hat){part(new THREE.CylinderGeometry(0.2,0.2,0.025,12),0xe0c070,0.77);part(new THREE.CylinderGeometry(0.09,0.1,0.08,10),0xe0c070,0.8)}
+  const proxy=new THREE.Mesh(new THREE.CylinderGeometry(0.38,0.38,1.1,8),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));
+  proxy.position.y=0.5;g.add(proxy);npcHit.push(proxy);g.scale.setScalar(1.15);scene.add(g);return{g,proxy}}
+function van(col){const g=new THREE.Group();scene.add(g);
+  box(0.5,0.34,0.42,M(col),0.32,0.3,0,g);box(0.28,0.26,0.38,M(0xcfe6f3),0.46,0.52,0,g);box(0.85,0.12,0.44,M(0x8b6a4a),-0.35,0.2,0,g);
+  box(0.2,0.2,0.2,M(0xd9aa3c),-0.5,0.36,0,g);box(0.2,0.2,0.2,M(0xd9442f),-0.25,0.36,0,g);
+  for(const[x,z]of[[0.35,0.22],[0.35,-0.22],[-0.55,0.22],[-0.55,-0.22]]){const w=new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.11,0.08,10),M(0x222222));w.rotation.x=Math.PI/2;w.position.set(x,0.11,z);g.add(w)}
+  return g}
+function makePath(pts){const seg=[];let L=0;for(let i=0;i<pts.length-1;i++){const dx=pts[i+1][0]-pts[i][0],dz=pts[i+1][1]-pts[i][1],l=Math.hypot(dx,dz);seg.push({l,s0:L,dx,dz,a:pts[i]});L+=l}
+  return{L,seg,at(o,s){s=Math.max(0,Math.min(L,s));const q=seg.find(z=>s<=z.s0+z.l)||seg[seg.length-1],t=(s-q.s0)/q.l;o.position.set(q.a[0]+q.dx*t,0,q.a[1]+q.dz*t);o.rotation.y=-Math.atan2(q.dz,q.dx)}}}
+function lamp(x,z){box(0.06,0.9,0.06,M(0x3a3a3a),x,0.45,z);const b=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,6),new THREE.MeshBasicMaterial({color:0xffe9a8}));b.position.set(x,0.95,z);scene.add(b)}
+
+// ---- neighbour farms (two north of the road, one south)
+const NEIGH=[
+  {name:'Hollis',farmer:'Marta Hollis',x0:-16.5,z0:-3.8,house:[-15.5,1.7],barn:[-12,1.7],fz:0.55,wall:0xe8d9b5,roof:0x8a4f3a,van:0x3f8f7a},
+  {name:'Okafor',farmer:'Tunde Okafor',x0:-27,z0:-3.8,house:[-26.5,1.7],barn:[-23,1.7],fz:0.55,wall:0xd7e0c8,roof:0x4f6f8a,van:0xc98a2f},
+  {name:'Brooks',farmer:'Lena Brooks',x0:-16.5,z0:7.2,house:[-18.8,13.4],barn:[-11.5,13.4],fz:11.65,south:true,wall:0xe3d2c4,roof:0x6b5a8a,van:0x9a5ea6},
+];
+const NPL=[];
+NEIGH.forEach((n,ni)=>{
+  for(let r=0;r<3;r++)for(let c=0;c<3;c++){const x=n.x0+c*1.7,z=n.z0+r*1.7;
+    const t=box(1.5,0.1,1.5,M(0x7a5638),x,0.05,z);t.castShadow=false;NPL.push({x,z,owner:ni,k:null,t:0,mesh:null})}
+  const rot=n.south?Math.PI:0;
+  house(n.house[0],n.house[1],1.3,0.8,1.0,n.wall,n.roof,rot);
+  house(n.barn[0],n.barn[1],1.7,0.9,1.2,0xb5503c,0x6b4a33,rot);
+  const hz=n.house[1],doorZ=n.south?hz-0.5:hz+0.5,roadZ=n.south?4.95:3.65,pc=(doorZ+roadZ)/2,pl=Math.abs(doorZ-roadZ);
+  for(const x of[n.house[0],n.barn[0]])box(0.6,0.04,pl,roadMat,x,0.02,pc).castShadow=false;
+  for(let i=0;i<9;i++)box(0.06,0.3,0.06,M(0xc9b58f),n.x0-0.8+i*0.64,0.15,n.fz);
+  box(5.2,0.05,0.05,M(0xc9b58f),n.x0+1.7,0.22,n.fz);
+  label(n.name+' Farm',n.house[0]+1.8,2.5,n.house[1]);
+});
+
+// ---- village
+box(5.4,0.04,4.4,M(0xc9c1b0),-33.9,0.02,0.1).castShadow=false;
+house(-36.6,-3.9,1.3,0.8,1.0,0xe6c9a8,0x9a4a3a,0);house(-33.8,-4.1,1.5,0.9,1.1,0xd9d4c2,0x5a6e8a,0);house(-31.2,-3.8,1.3,0.8,1.0,0xe8d9b5,0x7a4a3a,0);
+house(-37,0.3,1.3,0.8,1.0,0xcfd8c0,0x8a4f3a,Math.PI/2);house(-30.8,0.2,1.3,0.8,1.0,0xe6c9a8,0x4f6f8a,-Math.PI/2);
+{const w=new THREE.Group();w.position.set(-34,0,-1);scene.add(w);const st=new THREE.Mesh(new THREE.CylinderGeometry(0.34,0.38,0.4,14),M(0x9a9a9a));st.position.y=0.2;st.castShadow=true;w.add(st);
+ box(0.05,0.7,0.05,M(0x6b4a33),-0.3,0.7,0,w);box(0.05,0.7,0.05,M(0x6b4a33),0.3,0.7,0,w);gable(0.9,0.3,0.7,M(0x7d5a44),0,1.05,0,w).rotation.y=Math.PI/2}
+for(const[x,z]of[[-36,-1.9],[-31.8,-1.9],[-36,2.0],[-31.8,2.0]])lamp(x,z);
+for(let x=-36;x<21;x+=7)lamp(x,3.45);
+label('Village Market',-34.5,2.6,2.7,1.1);label('Meadowbrook Farm',5,3.1,-0.3,1.1);
+
+// ---- your fields across the road
+box(1,0.05,1.7,roadMat,5,0.02,5.8).castShadow=false;
+label('South Field',-1.5,1.6,6.0,0.9);label('East Field',14.5,1.6,-6,0.9);
+// ---- village life: cottage, pasture, windmill, church, animals' models
+function hitProxy(g,r,h){const p=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,8),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));p.position.y=h/2;g.add(p);npcHit.push(p);return p}
+function fenceRect(x0,x1,z0,z1){const pm=M(0xc9b58f),post=(x,z)=>box(0.06,0.34,0.06,pm,x,0.17,z);
+  for(let x=x0;x<=x1+0.01;x+=0.8){post(x,z0);post(x,z1)}for(let z=z0;z<=z1+0.01;z+=0.8){post(x0,z);post(x1,z)}
+  box(x1-x0,0.04,0.04,pm,(x0+x1)/2,0.26,z0);box(x1-x0,0.04,0.04,pm,(x0+x1)/2,0.26,z1);box(0.04,0.04,z1-z0,pm,x0,0.26,(z0+z1)/2);box(0.04,0.04,z1-z0,pm,x1,0.26,(z0+z1)/2)}
+function stall(x,z,c){const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);box(1.4,0.5,0.6,M(0xb98a5a),0,0.25,0.2,g);
+  for(const sx of[-0.65,0.65]){box(0.07,1.1,0.07,M(0x6b4a33),sx,0.55,-0.3,g);box(0.07,1.1,0.07,M(0x6b4a33),sx,0.55,0.5,g)}
+  for(let i=0;i<6;i++)box(0.27,0.05,1.0,M(i%2?0xf2efe4:c),-0.67+i*0.268,1.12,0.1,g).rotation.x=-0.12;
+  for(let i=0;i<4;i++)box(0.22,0.18,0.22,M(0xd9a85a),-0.45+i*0.3,0.6,0.2,g);return g}
+function bale(x,z,y){return cyl(0.25,0.5,M(0xd9b85a),x,0.25+(y||0),z)}
+function scarecrow(x,z){box(0.06,0.9,0.06,M(0x7a5a3d),x,0.45,z);box(0.7,0.06,0.06,M(0x7a5a3d),x,0.75,z);box(0.3,0.3,0.1,M(0x4f7fb0),x,0.6,z);
+  box(0.24,0.24,0.24,M(0xe0c070),x,1.0,z);box(0.36,0.04,0.36,M(0x6b4a33),x,1.16,z);box(0.2,0.12,0.2,M(0x6b4a33),x,1.24,z)}
+function flowers(x,z,n){const cols=[0xe85d75,0xf2c14e,0xffffff,0xb07ae0];for(let i=0;i<n;i++){const f=new THREE.Mesh(new THREE.SphereGeometry(0.06,6,5),M(cols[i%4]));f.position.set(x+(Math.random()-.5)*0.9,0.1,z+(Math.random()-.5)*0.5);scene.add(f)}}
+function mailbox(x,z){box(0.05,0.4,0.05,M(0x6b4a33),x,0.2,z);box(0.24,0.14,0.15,M(0xc2503a),x,0.46,z)}
+// your cottage
+house(7.9,0.6,1.3,0.8,1.0,0xf0e2c5,0xa04f3a,0);box(0.6,0.04,2.55,roadMat,7.9,0.02,2.375).castShadow=false;
+label('Your Cottage',7.9,2.2,0.6,0.9);flowers(7.2,1.5,6);flowers(8.6,1.5,6);mailbox(8.5,3.35);
+bale(6.9,-1.5);bale(7.45,-1.5);bale(7.15,-1.5,0.5);
+// pasture
+{const cx=-9.5,cz=-5,w=4.6,d=8;const gr=box(w,0.03,d,M(0x86bb62),cx,0.015,cz);gr.castShadow=false;
+ fenceRect(cx-w/2,cx+w/2,cz-d/2,cz+d/2);box(0.9,0.15,0.3,M(0x8b6a4a),-9.5,0.08,-8.4);bale(-8.2,-8.4);label('Pasture',cx,1.3,-0.6,0.8)}
+// scarecrows at field corners
+[[-6.6,2.5],[3.1,2.5],[8.7,2.5],[19.9,2.5],[-6.6,-11.9],[3.1,-11.9],[8.7,-11.9],[19.9,-11.9],[-6.6,11.9],[3.1,11.9],[8.7,11.9],[19.9,11.9]].forEach(p=>scarecrow(p[0],p[1]));
+NEIGH.forEach(n=>mailbox(n.house[0]+0.7,n.south?5.3:3.4));
+bale(-10.3,0.5);bale(-10.8,0.5);bale(-21.5,0.5);bale(-22,0.5);bale(-10.5,13.2);bale(-10,13.2);
+// village extras
+house(-37,-7.2,1.3,0.8,1.0,0xe6c9a8,0x7a4a3a,Math.PI/2);house(-30.9,-6.5,1.3,0.8,1.0,0xd9d4c2,0x8a4f3a,-Math.PI/2);
+house(-36.6,-11.3,1.3,0.8,1.0,0xe8d9b5,0x5a6e8a,0);house(-30.5,-11.5,1.3,0.8,1.0,0xcfd8c0,0x9a4a3a,0);
+house(-31.8,-9.5,1.4,1.0,1.8,0xeee6d4,0x6b4a33,0);box(0.55,1.7,0.55,M(0xeee6d4),-31.8,0.85,-8.3);
+{const sp=new THREE.Mesh(new THREE.ConeGeometry(0.42,0.75,4),M(0x6b4a33));sp.position.set(-31.8,2.05,-8.3);sp.rotation.y=Math.PI/4;sp.castShadow=true;scene.add(sp)}
+label('Chapel',-31.8,3.0,-8.3,0.7);
+const wm=new THREE.Group();wm.position.set(-34.5,0,-9.5);scene.add(wm);
+{const tw=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.85,2.2,10),M(0xe9dfc8));tw.position.y=1.1;tw.castShadow=true;wm.add(tw);
+ const cap=new THREE.Mesh(new THREE.ConeGeometry(0.7,0.7,10),M(0x8a4f3a));cap.position.y=2.55;cap.castShadow=true;wm.add(cap);box(0.3,0.5,0.05,M(0x5b3a2b),0,0.25,0.8,wm)}
+const wind=new THREE.Group();wind.position.set(0,2.2,0.7);wm.add(wind);
+for(let i=0;i<4;i++){const b=box(0.16,1.5,0.04,M(0xf2efe4),0,0,0,wind);b.geometry.translate(0,0.8,0);b.rotation.z=i*Math.PI/2}
+label('Windmill',-34.5,3.5,-9.5,0.7);bale(-36.8,-9.6);bale(-36.3,-9.9);
+stall(-31.2,2.7,0x6aa84f);label('Bakery',-31.2,1.9,2.7,0.7);
+label('Meadowbrook Village',-34,3.4,-6.4,1.2);flowers(-34,-1.9,10);
+// animal models (front is +x)
+function cowModel(){const g=new THREE.Group(),w=M(0xf1efe8),k=M(0x2b2b2b);
+  box(0.7,0.4,0.34,w,0,0.5,0,g);box(0.22,0.22,0.26,w,0.42,0.62,0,g);box(0.2,0.12,0.2,M(0xe7b9a3),0.56,0.58,0,g);
+  box(0.2,0.2,0.1,k,-0.1,0.6,0.18,g);box(0.18,0.16,0.1,k,0.15,0.45,-0.18,g);
+  for(const[x,z]of[[0.25,0.12],[0.25,-0.12],[-0.25,0.12],[-0.25,-0.12]])box(0.08,0.3,0.08,w,x,0.15,z,g);
+  g.scale.setScalar(1.1);scene.add(g);return g}
+function sheepModel(){const g=new THREE.Group(),b=new THREE.Mesh(new THREE.SphereGeometry(0.24,10,8),M(0xf3f0e6));b.scale.set(1.3,1,1);b.position.y=0.38;b.castShadow=true;g.add(b);
+  box(0.14,0.14,0.14,M(0x3a3a3a),0.34,0.42,0,g);for(const[x,z]of[[0.15,0.1],[0.15,-0.1],[-0.15,0.1],[-0.15,-0.1]])box(0.05,0.2,0.05,M(0x3a3a3a),x,0.1,z,g);scene.add(g);return g}
+function chickenModel(){const g=new THREE.Group();box(0.16,0.14,0.12,M(0xf6f3ea),0,0.18,0,g);box(0.07,0.09,0.07,M(0xf6f3ea),0.1,0.27,0,g);
+  box(0.05,0.04,0.03,M(0xd23b2e),0.1,0.33,0,g);box(0.05,0.025,0.04,M(0xe8a33a),0.16,0.26,0,g);box(0.02,0.1,0.02,M(0xe8a33a),0,0.05,0.03,g);box(0.02,0.1,0.02,M(0xe8a33a),0,0.05,-0.03,g);scene.add(g);return g}
+// ---- sound (all synthesized with Web Audio, starts after the first tap or key press)
+const SFX=(()=>{
+  let ctx=null,master=null,noiseBuf=null,eng=null,on=true,birdT=2,stepT=0,lastHour=-1;const gate={};
+  try{on=localStorage.getItem('tinyacres-sound')!=='off'}catch(e){}
+  const ok=()=>!!ctx&&on&&ctx.state==='running';
+  const gt=(n,ms)=>{const t=performance.now();if(gate[n]&&t-gate[n]<ms)return false;gate[n]=t;return true};
+  function init(){
+    if(ctx)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+    ctx=new AC();master=ctx.createGain();master.gain.value=on?0.9:0;master.connect(ctx.destination);
+    noiseBuf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+    const ns=ctx.createBufferSource();ns.buffer=noiseBuf;ns.loop=true;const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=420;
+    const wg=ctx.createGain();wg.gain.value=0.03;const lfo=ctx.createOscillator();lfo.frequency.value=0.12;const lg=ctx.createGain();lg.gain.value=0.012;
+    lfo.connect(lg);lg.connect(wg.gain);ns.connect(lp);lp.connect(wg);wg.connect(master);ns.start();lfo.start();
+    const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=50;const f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=260;
+    const eg=ctx.createGain();eg.gain.value=0;o.connect(f);f.connect(eg);eg.connect(master);o.start();eng={o,g:eg};
+  }
+  function resume(){init();if(ctx&&ctx.state==='suspended')ctx.resume()}
+  ['pointerdown','keydown'].forEach(ev=>addEventListener(ev,resume,{passive:true}));
+  document.addEventListener('visibilitychange',()=>{if(!ctx)return;if(document.hidden)ctx.suspend();else if(on)ctx.resume()});
+  function tone(f0,f1,dur,type,vol,delay,filt){
+    const t=ctx.currentTime+(delay||0),o=ctx.createOscillator(),gn=ctx.createGain();o.type=type||'sine';
+    o.frequency.setValueAtTime(f0,t);if(f1&&f1!==f0)o.frequency.exponentialRampToValueAtTime(f1,t+dur);
+    gn.gain.setValueAtTime(0.0001,t);gn.gain.exponentialRampToValueAtTime(vol,t+0.012);gn.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    let node=o;if(filt){const bf=ctx.createBiquadFilter();bf.type=filt[0];bf.frequency.value=filt[1];o.connect(bf);node=bf}
+    node.connect(gn);gn.connect(master);o.start(t);o.stop(t+dur+0.05);
+  }
+  function burst(dur,type,freq,vol,delay){
+    const t=ctx.currentTime+(delay||0),s=ctx.createBufferSource(),bf=ctx.createBiquadFilter(),gn=ctx.createGain();
+    s.buffer=noiseBuf;bf.type=type;bf.frequency.value=freq;gn.gain.setValueAtTime(vol,t);gn.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    s.connect(bf);bf.connect(gn);gn.connect(master);s.start(t,Math.random()*1.5,dur+0.05);
+  }
+  const api={
+    plant(){if(!ok()||!gt('plant',90))return;burst(0.09,'lowpass',500,0.25);tone(190,110,0.12,'sine',0.14)},
+    harvest(){if(!ok()||!gt('harv',90))return;tone(520,780,0.1,'triangle',0.16);tone(780,1040,0.1,'triangle',0.14,0.07)},
+    sell(){if(!ok()||!gt('sell',300))return;[1318,1760,2093].forEach((f,i)=>tone(f,f,0.22,'triangle',0.12,i*0.07));tone(1568,1560,0.9,'sine',0.07,0.2)},
+    buy(){if(!ok()||!gt('buy',150))return;tone(330,440,0.1,'square',0.05);tone(440,660,0.14,'square',0.05,0.09)},
+    up(){if(!ok()||!gt('up',200))return;[392,523,659,784].forEach((f,i)=>tone(f,f,0.16,'triangle',0.12,i*0.08))},
+    hop(){if(!ok()||!gt('hop',200))return;burst(0.06,'lowpass',300,0.3);tone(120,70,0.14,'sine',0.2)},
+    crate(){if(!ok()||!gt('crate',150))return;burst(0.05,'bandpass',900,0.3);tone(240,180,0.06,'square',0.05)},
+    voice(n){if(!ok()||!gt('voice',250))return;const k=n&&n.name;
+      if(k==='Cow')tone(150,105,0.8,'sawtooth',0.1,0,['lowpass',700]);
+      else if(k==='Sheep'){tone(330,250,0.5,'sawtooth',0.08,0,['bandpass',900]);tone(310,240,0.35,'sawtooth',0.05,0.12,['bandpass',900])}
+      else if(k==='Hen')[0,0.09,0.2].forEach(d=>tone(700,420,0.08,'square',0.04,d,['bandpass',1200]));
+      else{tone(260,230,0.14,'triangle',0.1);tone(300,260,0.14,'triangle',0.08,0.17)}},
+    bell(){if(!ok())return;[0,0.9].forEach(d=>{tone(523,520,1.6,'sine',0.1,d);tone(1046,1040,1.0,'sine',0.04,d)})},
+    toggle(){on=!on;try{localStorage.setItem('tinyacres-sound',on?'on':'off')}catch(e){}
+      if(master)master.gain.value=on?0.9:0;if(on)resume();api.paint()},
+    paint(){const b=document.getElementById('snd');if(!b)return;b.classList.toggle('off',!on);b.setAttribute('aria-label',on?'Sound on':'Sound off')},
+    tick(dt,kind,v,max,h){
+      if(!ok()||!eng)return;
+      const day=h>=6&&h<18.5,veh=kind==='tractor'||kind==='harvester'||kind==='truck',fr=max?Math.min(1,v/max):0,base=({tractor:52,harvester:44,truck:66})[kind]||50,t=ctx.currentTime;
+      eng.o.frequency.setTargetAtTime(base+fr*base*1.4,t,0.1);eng.g.gain.setTargetAtTime(veh?0.035+0.05*fr:0,t,0.15);
+      if(kind==='farmer'&&v>0.3){stepT-=dt;if(stepT<=0){stepT=0.34;burst(0.05,'bandpass',700,0.12)}}
+      birdT-=dt;
+      if(birdT<=0){birdT=2+Math.random()*5;
+        if(day){const f=2400+Math.random()*1200,n=2+Math.floor(Math.random()*3);for(let i=0;i<n;i++)tone(f,f*1.3,0.07,'sine',0.03,i*0.1)}
+        else for(let i=0;i<3;i++)tone(4300,4300,0.04,'sine',0.012,i*0.07)}
+      const hi=Math.floor(h);if(hi!==lastHour){if(lastHour>=0&&(hi===7||hi===18))api.bell();lastHour=hi}
+    },
+  };
+  return api;
+})();
+// ---- game state
+const DAY=180, SAVEKEY='meadowbrook-farm-v2', YIELD=2, MAXUP=5;
+const fmt=n=>'$'+Math.round(n).toLocaleString('en-US');
+function fresh(){
+  const plots=Array.from({length:NPLOTS},(_,i)=>({u:(i<20&&Math.floor(i/G0COLS)<2&&i%G0COLS<3)?1:0,c:null,t:0}));
+  plots[0].c='wheat';plots[0].t=-5;plots[1].c='wheat';plots[1].t=-2;
+  const mult={},stock={};KEYS.forEach(k=>{mult[k]=1;stock[k]=0});
+  return{money:40,stock,plots,T:0,up:{barn:0,truck:0,speed:0},mult,sel:'wheat'};
+}
+let S=fresh();
+try{const raw=localStorage.getItem(SAVEKEY);if(raw){const o=JSON.parse(raw);if(o&&o.plots&&o.plots.length===NPLOTS){S=Object.assign(fresh(),o);KEYS.forEach(k=>{S.stock[k]=S.stock[k]||0;S.mult[k]=S.mult[k]||1})}}}catch(e){}
+const tr={st:'idle',s:0,load:{},wait:0};
+const trend={};KEYS.forEach(k=>trend[k]=0);
+let speed=1,nextDrift=8;
+const total=()=>KEYS.reduce((a,k)=>a+S.stock[k],0);
+const barnCap=()=>40+20*S.up.barn, truckCap=()=>12+6*S.up.truck, truckSpd=()=>2.4*(1+0.25*S.up.speed);
+const price=k=>Math.max(1,Math.round(CROPS[k].base*S.mult[k]));
+const owned=()=>S.plots.filter(p=>p.u).length;
+const landCost=()=>Math.min(320,20+8*(owned()-6));
+const UPS=[
+  {k:'barn',name:'Barn extension',desc:'+20 storage',cost:n=>90*(n+1)},
+  {k:'truck',name:'Bigger truck bed',desc:'+6 crates per trip',cost:n=>120*(n+1)},
+  {k:'speed',name:'Faster engine',desc:'+25% truck speed',cost:n=>100*(n+1)},
+];
+
+// ---- plots <-> meshes
+const cropMesh=new Array(NPLOTS).fill(null);
+const px=i=>PLOTPOS[i].x, pz=i=>PLOTPOS[i].z;
+function syncPlot(i){
+  const p=S.plots[i],m=plotMeshes[i];
+  m.material.color.setHex(p.u?0x7a5638:0x9fcd78);
+  m.scale.y=p.u?1:0.3;m.position.y=0.05*m.scale.y;
+  if(cropMesh[i]&&(!p.c||cropMesh[i].userData.k!==p.c)){scene.remove(cropMesh[i]);cropMesh[i]=null}
+  if(p.c&&!cropMesh[i]){const g=makeCrop(p.c);g.userData.k=p.c;g.position.set(px(i),0.1,pz(i));scene.add(g);cropMesh[i]=g}
+}
+const progress=p=>Math.max(0,Math.min(1,(S.T-p.t)/CROPS[p.c].grow));
+S.plots.forEach((_,i)=>syncPlot(i));
+
+// ---- toast
+let toastT=0;
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200)}
+
+// ---- actions
+function tapPlot(i){
+  const p=S.plots[i];
+  if(!p.u){const c=landCost();if(S.money<c)return toast('Need '+fmt(c)+' to buy this plot');
+    SFX.buy();S.money-=c;p.u=1;syncPlot(i);return toast('Plot bought for '+fmt(c))}
+  if(!p.c){const k=S.sel,c=CROPS[k].seed;if(S.money<c)return toast('Need '+fmt(c)+' for '+CROPS[k].name+' seed');
+    S.money-=c;p.c=k;p.t=S.T;syncPlot(i);SFX.plant();return}
+  const pr=progress(p);
+  if(pr<1)return toast(CROPS[p.c].name+' '+Math.floor(pr*100)+'% grown');
+  const room=barnCap()-total();if(room<=0)return toast('Barn full. Send a truck.');
+  const n=Math.min(YIELD,room);S.stock[p.c]+=n;const nm=CROPS[p.c].name;p.c=null;syncPlot(i);SFX.harvest();toast('+'+n+' '+nm);
+}
+function harvestAll(){
+  let n=0,full=false;
+  S.plots.forEach((p,i)=>{if(p.u&&p.c&&progress(p)>=1){const room=barnCap()-total();if(room<=0){full=true;return}
+    const g=Math.min(YIELD,room);S.stock[p.c]+=g;n+=g;p.c=null;syncPlot(i)}});
+  if(n)SFX.harvest();
+  toast(n?'Harvested '+n+' crates'+(full?'. Barn is full.':''):(full?'Barn full. Send a truck.':'Nothing is ready yet'));
+}
+const loadCount=()=>Object.values(tr.load).reduce((a,b)=>a+b,0);
+function showCrates(){const n=loadCount(),vis=n?Math.max(1,Math.ceil(n/truckCap()*8)):0;crates.forEach((c,i)=>c.visible=i<vis)}
+function takeLoad(){
+  let cap=truckCap()-loadCount();
+  for(const k of [...KEYS].sort((a,b)=>price(b)-price(a))){const t=Math.min(cap,S.stock[k]);if(t>0){tr.load[k]=(tr.load[k]||0)+t;S.stock[k]-=t;cap-=t}}
+  showCrates();return loadCount();
+}
+function sendTruck(){
+  if(tr.st!=='idle')return;
+  if(drive.kind==='truck')return toast('You are driving the truck');
+  if(tr.away)return toast('The truck is parked away from the barn');
+  if(!takeLoad())return toast('The barn is empty');
+  tr.st='out';tr.s=0;
+}
+function sellLoad(){
+  let rev=0,n=0;
+  for(const k in tr.load){const q=tr.load[k];rev+=price(k)*q;n+=q;S.mult[k]=Math.max(0.55,S.mult[k]-0.015*q)}
+  S.money+=rev;tr.load={};showCrates();if(n)SFX.sell();return{rev,n};
+}
+function arrive(){const r=sellLoad();tr.st='wait';tr.wait=1;toast('Sold '+r.n+' crates for '+fmt(r.rev))}
+function buyUp(k){
+  const u=UPS.find(x=>x.k===k),n=S.up[k];if(n>=MAXUP)return;const c=u.cost(n);
+  if(S.money<c)return toast('Need '+fmt(c));S.money-=c;S.up[k]++;SFX.up();toast(u.name+' upgraded');
+}
+
+// ---- time of day
+const cSky=[new THREE.Color(0xbfe3f5),new THREE.Color(0xf2b98a),new THREE.Color(0x121a33)];
+const cSun=new THREE.Color(0xfff2d6),cMoon=new THREE.Color(0x9fb4ff),tmp=new THREE.Color();
+function clamp01(x){return Math.max(0,Math.min(1,x))}
+function applyTime(){
+  const h=((S.T/DAY)*24+7)%24,a=(h-6)/12*Math.PI,s=Math.sin(a),sunI=clamp01(s*1.6);
+  if(s>0)scene.background.copy(cSky[1]).lerp(cSky[0],clamp01(s*2.5));else scene.background.copy(cSky[1]).lerp(cSky[2],clamp01(-s*3));
+  hemi.intensity=0.28+0.42*sunI;
+  sun.intensity=0.14+0.95*sunI;sun.color.copy(cMoon).lerp(cSun,sunI);
+  sun.target.position.set(cam.tx,0,cam.tz);sun.position.set(cam.tx+Math.cos(a)*14,Math.max(3,Math.abs(s)*14),cam.tz+6);
+  return h;
+}
+const clockText=h=>{const hh=Math.floor(h),mm=Math.floor((h-hh)*60);return 'Day '+(Math.floor((S.T/DAY*24+7)/24)+1)+' · '+String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')};
+// ---- player farmer and drivable vehicles
+const drive={kind:null};
+const farmerP=person(0xd24a3a,0x3f5f9a,true);npcHit.pop();farmerP.g.remove(farmerP.proxy);farmerP.g.scale.setScalar(1.3);
+const farmerObj=farmerP.g;{const y=label('You',0,1.15,0,0.3);farmerObj.add(y)}
+const VEHK=['tractor','harvester','truck'],NAMES={tractor:'Tractor',harvester:'Harvester',truck:'Truck'};
+const VEH={
+  farmer:{obj:farmerObj,x:4.0,z:2.2,h:Math.PI/2,v:0,max:1.7,turn:8},
+  tractor:{obj:tractorObj,x:3.3,z:1.3,h:Math.PI,v:0,max:2.2,turn:3.4},
+  harvester:{obj:harvObj,x:3.3,z:-2.0,h:Math.PI,v:0,max:1.9,turn:3},
+  truck:{obj:truck,x:5,z:1.4,h:Math.PI/2,v:0,max:3.4,turn:3.6},
+};
+const placeV=V=>{V.obj.position.set(V.x,0,V.z);V.obj.rotation.y=-V.h};
+placeV(VEH.farmer);placeV(VEH.tractor);placeV(VEH.harvester);
+const joyEl=$('joy'),knob=$('knob'),actbtn=$('actbtn'),joy={x:0,y:0,id:null},keys={};
+function joyReset(){joy.x=joy.y=0;joy.id=null;knob.style.transform=''}
+function joyMove(e){const r=joyEl.getBoundingClientRect(),R=r.width/2,lim=R*0.8;let dx=e.clientX-(r.left+R),dy=e.clientY-(r.top+R);
+  const m=Math.hypot(dx,dy);if(m>lim){dx*=lim/m;dy*=lim/m}joy.x=dx/lim;joy.y=dy/lim;knob.style.transform='translate('+dx+'px,'+dy+'px)'}
+joyEl.addEventListener('pointerdown',e=>{joyEl.setPointerCapture(e.pointerId);joy.id=e.pointerId;joyMove(e)});
+joyEl.addEventListener('pointermove',e=>{if(joy.id===e.pointerId)joyMove(e)});
+const joyEnd=e=>{if(joy.id===e.pointerId)joyReset()};
+joyEl.addEventListener('pointerup',joyEnd);joyEl.addEventListener('pointercancel',joyEnd);
+const KEYSET=['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d'];
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();
+  if(KEYSET.includes(k)){keys[k]=1;if(drive.kind&&k.startsWith('arrow'))e.preventDefault()}
+  else if(k==='e')actbtn.onclick&&actbtn.onclick();
+  else if(k==='v'){const o=[null,'farmer','tractor','harvester','truck'];setDrive(o[(o.indexOf(drive.kind)+1)%5])}});
+addEventListener('keyup',e=>{delete keys[e.key.toLowerCase()]});
+
+function dumpTruck(){const n=loadCount();for(const k in tr.load)S.stock[k]+=tr.load[k];tr.load={};showCrates();VEH.truck.v=0;placeTruck(0,false);return n}
+function setDrive(k){
+  const prev=drive.kind;
+  if(k===prev)k=null;
+  if(k==='truck'&&tr.st!=='idle'){toast('The auto truck is on the road. Wait for it to return.');return}
+  if(prev&&VEHK.includes(prev)&&(k===null||k==='farmer')){const V=VEH[prev],F=VEH.farmer;
+    F.x=V.x+Math.cos(V.h+Math.PI/2)*1.1;F.z=V.z+Math.sin(V.h+Math.PI/2)*1.1;F.h=V.h;F.v=0}
+  if(prev==='truck'){const V=VEH.truck;
+    if(Math.hypot(V.x-5,V.z-1.4)<3){if(dumpTruck())toast('Load returned to the barn');tr.away=false}else tr.away=true}
+  if(prev)VEH[prev].v=0;
+  drive.kind=k;if(prev!==k&&((k&&VEHK.includes(k))||(prev&&VEHK.includes(prev))))SFX.hop();
+  if(k==='truck'){if(!tr.away){const V=VEH.truck;V.x=5;V.z=1.4;V.h=Math.PI/2;V.v=0;placeV(V)}tr.away=false}
+  const inVeh=!!k&&VEHK.includes(k);VEH.farmer.obj.visible=!inVeh;if(!inVeh)placeV(VEH.farmer);
+  joyReset();vehUI();ui();
+}
+document.querySelectorAll('.vb').forEach(b=>b.onclick=()=>setDrive(b.dataset.v||null));
+let actKind=null;
+function nearVeh(){const F=VEH.farmer;let best=null,bd=1.7;
+  for(const k of VEHK){if(k==='truck'&&tr.st!=='idle')continue;const o=VEH[k].obj.position,d=Math.hypot(F.x-o.x,F.z-o.z);if(d<bd){bd=d;best=k}}return best}
+function updateAct(){
+  let txt='',on=false;
+  if(drive.kind==='farmer'){actKind=nearVeh();if(actKind){txt='Hop in '+NAMES[actKind];on=true}}
+  else if(drive.kind){txt='Hop out';on=true}
+  actbtn.hidden=!on;if(on&&actbtn.textContent!==txt)actbtn.textContent=txt;
+}
+actbtn.onclick=()=>{if(drive.kind==='farmer'){if(actKind)setDrive(actKind)}else if(drive.kind)setDrive('farmer')};
+function vehUI(){
+  document.querySelectorAll('.vb').forEach(b=>b.classList.toggle('on',(b.dataset.v||null)===drive.kind));
+  joyEl.hidden=!drive.kind;app.toggleAttribute('data-drive',!!drive.kind);
+  const h=$('drivehint'),k=drive.kind;h.hidden=!k;
+  if(k==='farmer')h.textContent='You: walk over empty plots to plant '+CROPS[S.sel].name+' and over ripe ones to harvest. Walk up to a vehicle to hop in.';
+  if(k==='tractor')h.textContent='Tractor: drive over empty plots to plant '+CROPS[S.sel].name+'.';
+  if(k==='harvester')h.textContent='Harvester: drive over ripe plots to cut them into the barn.';
+  if(k==='truck')h.textContent='Truck '+loadCount()+'/'+truckCap()+': load at the barn, then drive to the market stall.';
+  if(!k)actbtn.hidden=true;
+  syncPanel();
+}
+let softT=0;
+const soft=(msg,now)=>{if(now-softT>1800){softT=now;toast(msg)}};
+function doWork(now){
+  const k=drive.kind;if(!k||k==='truck')return;const V=VEH[k],R=k==='farmer'?0.75:0.9;
+  for(let i=0;i<S.plots.length;i++){const p=S.plots[i];if(!p.u||Math.hypot(V.x-px(i),V.z-pz(i))>R)continue;
+    if((k==='tractor'||k==='farmer')&&!p.c){const c=CROPS[S.sel].seed;if(S.money<c){soft('Out of money for seed',now);continue}S.money-=c;p.c=S.sel;p.t=S.T;syncPlot(i);SFX.plant()}
+    else if((k==='harvester'||k==='farmer')&&p.c&&progress(p)>=1){const room=barnCap()-total();if(room<=0){soft('Barn full. Drive the truck to market.',now);continue}
+      const n=Math.min(YIELD,room);S.stock[p.c]+=n;p.c=null;syncPlot(i);SFX.harvest()}}
+}
+function truckZones(){
+  if(drive.kind!=='truck')return;const V=VEH.truck;
+  if(Math.hypot(V.x-5,V.z-2.0)<1.6&&loadCount()<truckCap()&&total()>0){const b=loadCount();takeLoad();SFX.crate();toast('Loaded '+(loadCount()-b)+' crates')}
+  if(Math.hypot(V.x+34.5,V.z-3.9)<2.2&&loadCount()>0){const r=sellLoad();toast('Sold '+r.n+' crates for '+fmt(r.rev))}
+}
+function driveUpdate(dt,now){
+  const k=drive.kind;if(!k)return;const V=VEH[k];
+  const kx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),ky=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
+  let jx=joy.x,jy=joy.y;if(Math.abs(jx)+Math.abs(jy)<0.05){jx=kx;jy=ky}
+  const mag=Math.min(1,Math.hypot(jx,jy));
+  if(mag>0.12){
+    const fx=-Math.sin(cam.az),fz=-Math.cos(cam.az),rx=Math.cos(cam.az),rz=-Math.sin(cam.az);
+    const wx=fx*(-jy)+rx*jx,wz=fz*(-jy)+rz*jx;
+    let d=Math.atan2(wz,wx)-V.h;d=Math.atan2(Math.sin(d),Math.cos(d));
+    const st=V.turn*dt;V.h+=Math.max(-st,Math.min(st,d));
+    V.v+=(V.max*mag*Math.max(0.15,Math.cos(d))-V.v)*Math.min(1,dt*4);
+  }else V.v+=(0-V.v)*Math.min(1,dt*5);
+  V.x=Math.max(-37.6,Math.min(21.6,V.x+Math.cos(V.h)*V.v*dt));V.z=Math.max(-12.4,Math.min(19.4,V.z+Math.sin(V.h)*V.v*dt));
+  placeV(V);
+  if(k==='farmer')V.obj.position.y=V.v>0.15?Math.abs(Math.sin(now/110))*0.05:0;
+  doWork(now);truckZones();updateAct();
+}
+// ---- neighbours, NPCs and traffic
+const NB=NEIGH.map(()=>0);
+const NPCS=[];
+function addNPC(o){const p=person(o.shirt,o.pants,o.hat);p.g.position.set(o.x,0,o.z);
+  Object.assign(o,{g:p.g,wait:Math.random()*2,tx:o.x,tz:o.z,ph:Math.random()*6});p.proxy.userData.npc=o;NPCS.push(o)}
+NEIGH.forEach((n,ni)=>addNPC({name:n.farmer,kind:'farmer',owner:ni,x:n.x0+1.7,z:n.z0+3.6,shirt:ni?0x3f6fa6:0xb5503c,pants:0x4a4a5a,hat:true,speed:0.55}));
+const VR={x0:-36.6,x1:-31.4,z0:-2,z1:2.2};
+[['Ines',0xd9a63d],['Joss',0x7a5ea6],['Pavel',0x3f8f7a],['Wren',0xc2503a]].forEach(([nm,c],i)=>addNPC({name:nm,kind:'villager',rect:VR,x:-35+i*1.1,z:0.3,shirt:c,pants:0x3a3a4a,speed:0.5}));
+addNPC({name:'Dara',kind:'villager',rect:{x0:-36,x1:-14,z0:3.0,z1:3.3},x:-30,z:3.1,shirt:0x2f7f6f,pants:0x3a3a4a,speed:0.6});
+function npcLine(n){if(n.kind==='animal')return n.name+': "'+n.say+'"';if(n.lines)return n.name+': "'+n.lines[Math.floor(Math.random()*n.lines.length)]+'"';
+  const best=KEYS.slice().sort((a,b)=>price(b)-price(a))[0],p=CROPS[best].name+' is fetching '+fmt(price(best))+' at the market right now.';
+  const pool=n.kind==='farmer'?[p,'I send a van to the village once the crates pile up.','Every full truck pushes prices down a little. Spread your crops.']
+    :['The market stall is at the far end of town. Bring a full truck.','Prices dip when too many trucks arrive at once.',p];
+  return n.name+': "'+pool[Math.floor(Math.random()*pool.length)]+'"';
+}
+const growN=k=>CROPS[k].grow*1.4;
+function farmerPick(n){
+  const mine=NPL.filter(p=>p.owner===n.owner);
+  let c=mine.filter(p=>p.k&&S.T-p.t>=growN(p.k));if(!c.length)c=mine.filter(p=>!p.k);if(!c.length)c=mine;
+  const p=c[Math.floor(Math.random()*c.length)];n.plot=p;n.tx=p.x;n.tz=p.z+0.9;
+}
+function farmerAct(n){
+  const p=n.plot;if(!p)return;
+  if(!p.k){p.k=KEYS[Math.floor(Math.random()*KEYS.length)];p.t=S.T;const m=makeCrop(p.k);m.position.set(p.x,0.1,p.z);scene.add(m);p.mesh=m}
+  else if(S.T-p.t>=growN(p.k)){scene.remove(p.mesh);p.mesh=null;p.k=null;NB[p.owner]+=2}
+}
+// neighbour vans drive to the market when crates pile up
+const VANS=NEIGH.map((n,i)=>{const gx=n.house[0]+0.2,pz=n.south?6.3:3.1,path=makePath([[gx,pz],[gx,4.65],[-33.2,4.65],[-33.2,3.95],[gx,3.95],[gx,pz]]);
+  const v={obj:van(n.van),path,s:0,go:false,sold:false,far:path.seg[0].l+path.seg[1].l,owner:i};path.at(v.obj,0);return v});
+function worldUpdate(g,now){
+  for(const n of NPCS){
+    const dx=n.tx-n.g.position.x,dz=n.tz-n.g.position.z,d=Math.hypot(dx,dz);
+    if(d>0.06){const st=Math.min(d,n.speed*g);n.g.position.x+=dx/d*st;n.g.position.z+=dz/d*st;n.g.position.y=g>0?Math.abs(Math.sin(now/130+n.ph))*0.04:0}
+    else{n.g.position.y=0;
+      if(n.kind==='farmer'&&n.plot&&!n.did){farmerAct(n);n.did=1;n.wait=1.5+Math.random()*2}
+      n.wait-=g;
+      if(n.wait<=0){n.did=0;
+        if(n.kind==='farmer')farmerPick(n);
+        else{const r=n.rect;n.tx=r.x0+Math.random()*(r.x1-r.x0);n.tz=r.z0+Math.random()*(r.z1-r.z0);n.wait=1+Math.random()*3}}}
+  }
+  for(const p of NPL)if(p.mesh)setGrowth(p.mesh,Math.max(0,Math.min(1,(S.T-p.t)/growN(p.k))));
+  for(const v of VANS){
+    if(!v.go){if(NB[v.owner]>=6){NB[v.owner]-=6;v.go=true;v.sold=false;v.s=0}continue}
+    v.s+=1.7*g;if(!v.sold&&v.s>=v.far){v.sold=true;const k=KEYS[Math.floor(Math.random()*KEYS.length)];S.mult[k]=Math.max(0.55,S.mult[k]-0.03)}
+    if(v.s>=v.path.L){v.go=false;v.s=0}v.path.at(v.obj,v.s);
+  }
+}
+// ---- animals and extra villagers
+const ANIM=[];
+function addAnim(o){const g=o.make();g.position.set(o.x,0,o.z);const p=hitProxy(g,o.pr||0.4,o.ph||0.7);
+  Object.assign(o,{g,kind:'animal',wait:Math.random()*3,tx:o.x,tz:o.z,ph:Math.random()*6});p.userData.npc=o;ANIM.push(o)}
+const rr=(r)=>({x:r.x0+Math.random()*(r.x1-r.x0),z:r.z0+Math.random()*(r.z1-r.z0)});
+const PAST={x0:-11.4,x1:-7.6,z0:-8.6,z1:-1.4},YARD={x0:6.4,x1:8.6,z0:1.8,z1:3.2},YARD2={x0:-14.2,x1:-13.2,z0:2.2,z1:3.2};
+for(let i=0;i<3;i++){const p=rr(PAST);addAnim({name:'Cow',say:'Moo.',make:cowModel,rect:PAST,x:p.x,z:p.z,speed:0.25,pr:0.5,ph:0.8})}
+for(let i=0;i<4;i++){const p=rr(PAST);addAnim({name:'Sheep',say:'Baa.',make:sheepModel,rect:PAST,x:p.x,z:p.z,speed:0.3,pr:0.4,ph:0.6})}
+for(let i=0;i<5;i++){const p=rr(YARD);addAnim({name:'Hen',say:'Cluck.',make:chickenModel,rect:YARD,x:p.x,z:p.z,speed:0.45,hop:true,pr:0.3,ph:0.4})}
+for(let i=0;i<3;i++){const p=rr(YARD2);addAnim({name:'Hen',say:'Cluck cluck.',make:chickenModel,rect:YARD2,x:p.x,z:p.z,speed:0.45,hop:true,pr:0.3,ph:0.4})}
+addNPC({name:'Pete',kind:'villager',rect:{x0:6.2,x1:8.8,z0:1.9,z1:3.1},x:6.8,z:2.4,shirt:0x6a8f3f,pants:0x4a4a5a,hat:true,speed:0.5,lines:['I look after the barn yard. The hens are friendly enough.','Take the truck to the village once the barn is half full.']});
+addNPC({name:'Rosa',kind:'villager',rect:{x0:-32.5,x1:-29.8,z0:1.2,z1:2.0},x:-31.5,z:1.6,shirt:0xe8d9b5,pants:0x6b4a33,speed:0.4,lines:['Fresh bread at the bakery. Flour comes from the windmill.','Wheat sells slowly but it never lets you down.']});
+addNPC({name:'Abel',kind:'villager',rect:{x0:-37,x1:-32,z0:-8.2,z1:-6.4},x:-35,z:-7.4,shirt:0x7a5ea6,pants:0x3a3a4a,hat:true,speed:0.45,lines:['The windmill turns all day. We grind flour for the whole valley.']});
+addNPC({name:'Ilan',kind:'villager',rect:{x0:-33.2,x1:-29.8,z0:-7.6,z1:-6.2},x:-32,z:-7,shirt:0x333333,pants:0x333333,speed:0.35,lines:['Evening bells at dusk. Mind the road after dark.']});
+addNPC({name:'Mira',kind:'villager',rect:{x0:-37,x1:-31,z0:-5.4,z1:-2.2},x:-34.5,z:-3,shirt:0xc2503a,pants:0x3a3a4a,speed:0.5});
+function animUpdate(g,now){
+  for(const a of ANIM){
+    const dx=a.tx-a.g.position.x,dz=a.tz-a.g.position.z,d=Math.hypot(dx,dz);
+    if(d>0.05){const st=Math.min(d,a.speed*g);a.g.position.x+=dx/d*st;a.g.position.z+=dz/d*st;a.g.rotation.y=-Math.atan2(dz,dx);
+      a.g.position.y=a.hop&&g>0?Math.abs(Math.sin(now/90+a.ph))*0.04:0}
+    else{a.g.position.y=0;a.wait-=g;if(a.wait<=0){const p=rr(a.rect);a.tx=p.x;a.tz=p.z;a.wait=1+Math.random()*4}}
+  }
+  wind.rotation.z-=g*0.7;
+}
+// ---- UI
+const cropbar=$('cropbar'),cropBtns={};
+KEYS.forEach(k=>{
+  const b=document.createElement('button');b.className='crop';
+  b.innerHTML='<span><b>'+CROPS[k].name+'</b><br><small>seed $'+CROPS[k].seed+' · '+CROPS[k].grow+'s</small></span><span class="px"></span>';
+  b.onclick=()=>{S.sel=k;ui()};cropbar.appendChild(b);cropBtns[k]=b;
+});
+const drawer=$('drawer'),upEls={};
+UPS.forEach(u=>{
+  const row=document.createElement('div');row.className='upg';
+  row.innerHTML='<span><b>'+u.name+'</b><small></small></span>';
+  const b=document.createElement('button');b.className='btn';b.onclick=()=>{buyUp(u.k);ui()};row.appendChild(b);drawer.appendChild(row);upEls[u.k]={small:row.querySelector('small'),b};
+});
+const nb=document.createElement('button');nb.className='btn';nb.textContent='New game';let nbArm=0;
+nb.onclick=()=>{
+  if(!nbArm){nbArm=1;nb.textContent='Tap again to erase this farm';setTimeout(()=>{nbArm=0;nb.textContent='New game'},3000);return}
+  try{localStorage.removeItem(SAVEKEY)}catch(e){}
+  setDrive(null);S=fresh();tr.st='idle';tr.load={};crates.forEach(c=>c.visible=false);placeTruck(0,false);
+  S.plots.forEach((_,i)=>syncPlot(i));tr.away=false;Object.assign(VEH.farmer,{x:4.0,z:2.2,h:Math.PI/2,v:0});setDrive('farmer');nbArm=0;nb.textContent='New game';toast('A fresh start');ui();
+};
+drawer.appendChild(nb);
+$('upbtn').onclick=()=>{drawer.hidden=!drawer.hidden;$('upbtn').textContent=drawer.hidden?'Upgrades':'Hide';syncPanel()};
+$('snd').onclick=()=>SFX.toggle();SFX.paint();
+$('harvestbtn').onclick=()=>{harvestAll();ui()};
+$('truckbtn').onclick=()=>{sendTruck();ui()};
+document.querySelectorAll('.sp').forEach(b=>b.onclick=()=>{speed=+b.dataset.s;document.querySelectorAll('.sp').forEach(x=>x.classList.toggle('on',x===b))});
+function syncPanel(){app.style.setProperty('--panelh',$('panel').offsetHeight+'px')}
+new ResizeObserver(syncPanel).observe($('panel'));
+
+function ui(h){
+  $('money').textContent=fmt(S.money);
+  if(typeof ANIM!=='undefined')$('pop').textContent=(NPCS.length+1)+' residents · '+ANIM.length+' animals';
+  if(h!==undefined)$('clock').textContent=clockText(h);
+  const t=total(),cap=barnCap();
+  $('stocktxt').textContent=t+'/'+cap;$('stockbar').style.width=(t/cap*100)+'%';
+  $('chips').innerHTML=KEYS.filter(k=>S.stock[k]>0).map(k=>'<span class="chip">'+CROPS[k].name+' '+S.stock[k]+'</span>').join('')||'<span class="hint">Harvest ripe plots to fill the barn.</span>';
+  KEYS.forEach(k=>{const b=cropBtns[k];b.classList.toggle('on',S.sel===k);
+    const a=trend[k]>0?'<span class="up">▲</span>':trend[k]<0?'<span class="dn">▼</span>':'';
+    b.querySelector('.px').innerHTML=a+' $'+price(k)});
+  const tb=$('truckbtn');
+  if(tr.st==='idle'){const n=Math.min(t,truckCap());if(tr.away){tb.textContent='Truck parked away';tb.disabled=true}else{tb.textContent=n?'Send truck ('+n+')':'Send truck';tb.disabled=!n}}
+  else{tb.textContent=tr.st==='out'?'Truck on the road':tr.st==='wait'?'Selling at market':'Truck returning';tb.disabled=true}
+  vehUI();
+  $('hint').textContent=owned()<NPLOTS?'Next plot '+fmt(landCost()):'All land owned';
+  UPS.forEach(u=>{const n=S.up[u.k],e=upEls[u.k];e.small.textContent=u.desc+' · level '+n+'/'+MAXUP;
+    e.b.textContent=n>=MAXUP?'Maxed':fmt(u.cost(n));e.b.disabled=n>=MAXUP||S.money<u.cost(n)});
+}
+
+// ---- input: drag to rotate, pinch/wheel to zoom, tap to act
+const ptrs=new Map();let tapInfo=null,pinch0=0;
+const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  tapInfo=ptrs.size===1?{x:e.clientX,y:e.clientY,t:performance.now(),moved:0}:null;
+  if(ptrs.size===2){const[a,b]=[...ptrs.values()];pinch0=Math.hypot(a.x-b.x,a.y-b.y)}});
+cv.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p)return;
+  const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
+  if(ptrs.size===1){cam.az-=dx*0.008;cam.el+=dy*0.006;if(tapInfo)tapInfo.moved+=Math.abs(dx)+Math.abs(dy)}
+  else if(ptrs.size===2){const[a,b]=[...ptrs.values()],d=Math.hypot(a.x-b.x,a.y-b.y);if(pinch0)cam.dist*=pinch0/d;pinch0=d}});
+function endPtr(e){const had=ptrs.has(e.pointerId);ptrs.delete(e.pointerId);pinch0=0;
+  if(had&&tapInfo&&e.type==='pointerup'&&tapInfo.moved<8&&performance.now()-tapInfo.t<500){
+    const r=cv.getBoundingClientRect();ndc.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
+    ray.setFromCamera(ndc,camera);const hit=ray.intersectObjects(npcHit.concat(plotMeshes))[0];if(hit){if(hit.object.userData.npc){SFX.voice(hit.object.userData.npc);toast(npcLine(hit.object.userData.npc))}else{tapPlot(hit.object.userData.idx);ui()}}}
+  tapInfo=null}
+cv.addEventListener('pointerup',endPtr);cv.addEventListener('pointercancel',endPtr);
+cv.addEventListener('wheel',e=>{e.preventDefault();cam.dist*=Math.exp(e.deltaY*0.001)},{passive:false});
+$('zin').onclick=()=>cam.dist*=0.85;$('zout').onclick=()=>cam.dist/=0.85;$('zreset').onclick=()=>Object.assign(cam,CAM0);
+
+// ---- save
+function save(){try{const o=JSON.parse(JSON.stringify(S));if(tr.st==='out')for(const k in tr.load)o.stock[k]+=tr.load[k];localStorage.setItem(SAVEKEY,JSON.stringify(o))}catch(e){}}
+addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
+setInterval(save,4000);
+
+// ---- loop
+let last=performance.now(),uiAcc=0;
+function frame(now){
+  const dt=Math.min(0.1,(now-last)/1000);last=now;const g=dt*speed;S.T+=g;
+  nextDrift-=g;
+  if(nextDrift<=0){nextDrift=8;KEYS.forEach(k=>{const before=S.mult[k];
+    S.mult[k]=Math.max(0.55,Math.min(1.7,S.mult[k]+(1-S.mult[k])*0.1+(Math.random()-0.5)*0.14));
+    trend[k]=Math.sign(Math.round((S.mult[k]-before)*100))})}
+  if(tr.st==='out'){tr.s+=truckSpd()*g;if(tr.s>=ROUTE_LEN){tr.s=ROUTE_LEN;arrive()}placeTruck(tr.s,false)}
+  else if(tr.st==='wait'){tr.wait-=g;if(tr.wait<=0)tr.st='back'}
+  else if(tr.st==='back'){tr.s-=truckSpd()*g;if(tr.s<=0){tr.s=0;tr.st='idle'}placeTruck(tr.s,true)}
+  driveUpdate(dt,now);worldUpdate(g,now);animUpdate(g,now);
+  const fx=drive.kind?VEH[drive.kind].x:CAM0.tx,fz=drive.kind?VEH[drive.kind].z:CAM0.tz,fk=Math.min(1,dt*3);
+  cam.tx+=(fx-cam.tx)*fk;cam.tz+=(fz-cam.tz)*fk;
+  const pulse=0.5+0.5*Math.sin(now/260);
+  S.plots.forEach((p,i)=>{const m=plotMeshes[i],c=cropMesh[i];
+    if(c){const pr=progress(p);setGrowth(c,pr);
+      if(pr>=1){c.rotation.y=Math.sin(now/500+i)*0.08;m.material.emissive.setRGB(0.1*pulse,0.14*pulse,0.02*pulse)}else{c.rotation.y=0;m.material.emissive.setRGB(0,0,0)}}
+    else m.material.emissive.setRGB(0,0,0)});
+  const h=applyTime();
+  SFX.tick(dt,drive.kind,drive.kind?VEH[drive.kind].v:0,drive.kind?VEH[drive.kind].max:1,h);
+  uiAcc+=dt;if(uiAcc>0.25){uiAcc=0;ui(h)}
+  updateCam();renderer.render(scene,camera);requestAnimationFrame(frame);
+}
+ui(applyTime());syncPanel();setDrive('farmer');
+if(S.T<5)setTimeout(()=>toast('Walk with the stick. Step on a plot to plant or harvest.'),600);
+requestAnimationFrame(frame);
+</script>
+
+</body></html>

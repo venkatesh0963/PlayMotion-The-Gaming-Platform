@@ -1,0 +1,2207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LAST ISLE — Remastered 2.5D</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Chakra+Petch:wght@500;700&family=Cinzel:wght@700&display=swap">
+<style>
+:root{
+  --bg:#07090d; --fg:#ece7dd; --blood:#c91823; --blood-glow:rgba(201,24,35,0.45);
+  --hp:#4ade80; --stam:#facc15; --xp:#38bdf8; --amber:#f59e0b;
+  --display:'Bebas Neue','Impact',sans-serif; --body:'Chakra Petch','Segoe UI',sans-serif;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0;padding:0;overflow:hidden;background:var(--bg);color:var(--fg);font-family:var(--body);user-select:none;-webkit-user-select:none}
+#wrap{position:relative;width:100%;height:100%}
+canvas{display:block;width:100%;height:100%;cursor:crosshair;background:var(--bg)}
+
+/* Vignette overlay */
+#cinematic-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 50%,transparent 50%,rgba(3,4,8,0.75) 100%);box-shadow:inset 0 0 120px rgba(0,0,0,0.85)}
+
+/* HUD Elements */
+.hud{position:absolute;pointer-events:none;text-transform:uppercase;letter-spacing:.07em;z-index:10}
+
+/* Top Left - Survivor Profile & Vitals */
+#tl{left:max(16px,env(safe-area-inset-left,0px));top:16px;display:flex;gap:12px;align-items:flex-start}
+#face-card{width:64px;height:74px;border:2px solid #5a1216;background:linear-gradient(180deg,#1c0d0f,#0d0506);box-shadow:0 6px 16px rgba(0,0,0,0.8),inset 0 0 12px rgba(201,24,35,0.2);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:5px 2px;position:relative}
+#face-avatar{width:36px;height:38px;border-radius:4px;background:#8b6b55;position:relative;border:1px solid #4a2820;box-shadow:inset 0 -8px 0 #2b3956}
+#face-avatar::after{content:"";position:absolute;top:2px;left:0;right:0;height:12px;background:#1e140d;border-radius:3px 3px 0 0}
+#face-card span{font:700 12px var(--body);color:#fca5a5;letter-spacing:.1em;text-shadow:0 2px 4px #000}
+#bars{display:grid;gap:6px;width:min(280px,50vw);padding-top:2px}
+.bar-wrap{display:flex;flex-direction:column;gap:2px}
+.bar-label{font:700 9px var(--body);letter-spacing:.12em;display:flex;justify-content:space-between;color:#a8a29e}
+.bar{height:10px;background:#0d1117;border:1px solid #272f3d;box-shadow:inset 0 2px 4px rgba(0,0,0,0.8);position:relative;border-radius:1px;overflow:hidden}
+.bar i{position:absolute;inset:0;width:100%;transform-origin:left;transition:transform .12s cubic-bezier(.2,0,0,1)}
+#hpb i{background:linear-gradient(90deg,#22c55e,#4ade80);box-shadow:0 0 10px rgba(74,222,128,0.5)}
+#stb i{background:linear-gradient(90deg,#eab308,#fde047);box-shadow:0 0 8px rgba(250,204,21,0.4)}
+#xpb i{background:linear-gradient(90deg,#0284c7,#38bdf8);box-shadow:0 0 8px rgba(56,189,248,0.4)}
+#lv-badge{font:700 11px var(--body);color:var(--xp);text-align:right;margin-top:-2px}
+
+/* Timer & Day/Night Phase */
+#center-hud{left:50%;top:12px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:2px}
+#timer{font:700 36px var(--display);letter-spacing:.14em;color:#f3f4f6;text-shadow:0 2px 10px rgba(0,0,0,0.9),0 0 20px rgba(255,255,255,0.1)}
+#timer.low{color:var(--blood);text-shadow:0 0 24px var(--blood-glow)}
+#phase{font:700 12px var(--body);letter-spacing:.2em;color:#cbd5e1;text-shadow:0 1px 6px #000;background:rgba(12,15,22,0.7);padding:2px 12px;border:1px solid #334155;border-radius:12px}
+#corewrap{margin-top:4px;width:min(280px,50vw);text-align:center}
+#corewrap .bar{height:9px}
+#coreb i{background:linear-gradient(90deg,#f97316,#fb923c);box-shadow:0 0 10px rgba(249,115,22,0.6)}
+#coretxt{font:700 10px var(--body);letter-spacing:.14em;color:#fdba74;text-shadow:0 1px 4px #000}
+#obj{margin-top:4px;font:700 12px var(--body);letter-spacing:.15em;color:#e2e8f0;text-shadow:0 2px 6px #000;background:rgba(15,23,42,0.8);padding:3px 14px;border:1px solid #475569;border-radius:4px}
+
+/* Top Right Inventory & Scavenge Counters */
+#tr-cluster{right:max(16px,env(safe-area-inset-right,0px));top:14px;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.res-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.box{border:1px solid #451a1d;background:rgba(20,9,11,0.85);backdrop-filter:blur(4px);padding:5px 9px;text-align:center;font:700 10px var(--body);min-width:54px;border-radius:2px;box-shadow:0 4px 10px rgba(0,0,0,0.5)}
+.box b{display:block;font:400 20px var(--display);letter-spacing:.08em;color:#f3f4f6}
+.box.sm{padding:3px 7px;min-width:48px}.box.sm b{font-size:16px}
+.box.accent{border-color:#78350f;background:rgba(30,15,8,0.85)}
+
+/* Location, Blueprints, Info */
+#loc{left:max(16px,env(safe-area-inset-left,0px));top:108px;font:700 12px var(--body);letter-spacing:.16em;color:#93c5fd;text-shadow:0 2px 6px #000}
+#weather-badge{left:max(16px,env(safe-area-inset-left,0px));top:130px;font:700 10px var(--body);letter-spacing:.12em;color:#a1a1aa}
+#bps{left:max(16px,env(safe-area-inset-left,0px));top:152px;font:700 10px var(--body);letter-spacing:.12em;color:#fbbf24;text-shadow:0 1px 4px #000;max-width:240px}
+#info{left:max(16px,env(safe-area-inset-left,0px));top:174px;font:700 10px var(--body);letter-spacing:.1em;color:#94a3b8;text-shadow:0 1px 4px #000;max-width:260px;line-height:1.45}
+
+/* Mini-Map */
+#mm-frame{position:absolute;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:156px;height:156px;border:2px solid #5a1a1f;border-radius:4px;overflow:hidden;background:#061826;box-shadow:0 8px 24px rgba(0,0,0,0.8);pointer-events:auto}
+#mm{width:100%;height:100%;display:block}
+#mm-label{position:absolute;bottom:2px;right:4px;font:700 8px var(--body);letter-spacing:.1em;color:#94a3b8;pointer-events:none}
+
+/* Hotbar & Construction Controls */
+#hotbar{position:absolute;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 12px;background:rgba(13,17,23,0.92);backdrop-filter:blur(8px);border:1px solid #30363d;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,0.8);max-width:calc(100% - 32px);z-index:20;transition:border-color .2s,box-shadow .2s}
+#hotbar.open{border-color:var(--xp);box-shadow:0 0 20px rgba(56,189,248,0.3)}
+.hrow{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:stretch}
+#hotbar button{cursor:pointer;background:#161b22;border:1px solid #30363d;color:var(--fg);padding:5px 9px;min-width:72px;text-align:left;font:500 10px var(--body);display:grid;gap:1px;border-radius:3px;transition:all .15s}
+#hotbar button:hover{border-color:#58a6ff;background:#1f242c}
+#hotbar button i{font-style:normal;color:var(--xp);font-weight:700}
+#hotbar button b{font:400 16px var(--display);letter-spacing:.06em}
+#hotbar button span{color:#8b949e;font-size:9px;letter-spacing:.02em}
+#hotbar button.sel{border-color:var(--xp);background:#0c2d48;box-shadow:0 0 10px rgba(56,189,248,0.4)}
+#hotbar button.no span{color:#ef4444}
+#hotbar button.off{opacity:.35;pointer-events:none}
+#hotbar button.cat{min-width:0;padding:4px 9px}
+#hotbar button.cat b{font-size:13px}
+#hotbar button.up2{border-color:#f59e0b;background:#2d1b06}
+#hotbar button.up2 b{color:#fbbf24}
+#tiles{font:700 10px var(--body);letter-spacing:.12em;color:#fbbf24;padding:0 8px;align-self:center}
+
+/* Tips & Action Keybind Pill */
+#tip{left:50%;bottom:calc(188px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);text-align:center;font:700 12px var(--body);letter-spacing:.14em;text-shadow:0 2px 6px #000;background:rgba(8,12,18,0.85);backdrop-filter:blur(6px);padding:6px 18px;border:1px solid #334155;border-radius:20px;pointer-events:none}
+#tip kbd{display:inline-grid;place-items:center;min-width:24px;height:24px;border:1px solid #94a3b8;border-radius:4px;margin-right:6px;font:700 11px var(--body);padding:0 4px;background:#1e293b;color:#f8fafc}
+
+/* Viewbar & Settings Controls */
+#top-controls{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:66px;display:flex;gap:6px;z-index:15}
+.ctrl-btn{pointer-events:auto;cursor:pointer;background:rgba(18,22,30,0.85);backdrop-filter:blur(4px);color:#cbd5e1;border:1px solid #334155;padding:4px 10px;font:700 10px var(--body);letter-spacing:.1em;border-radius:3px;transition:all .15s}
+.ctrl-btn:hover,.ctrl-btn.on{border-color:var(--xp);background:#0c2d48;color:#fff}
+.ctrl-btn.danger{border-color:#7f1d1d;background:rgba(30,10,12,0.85)}
+.ctrl-btn.danger:hover{background:#991b1b;border-color:#ef4444}
+
+/* Banners & Popups */
+#banner{left:50%;top:28%;transform:translateX(-50%);text-align:center;transition:opacity .6s;width:90%;pointer-events:none;z-index:25}
+#banner h1{margin:0;font:400 clamp(54px,9vw,100px) var(--display);color:var(--blood);letter-spacing:.06em;text-shadow:0 0 35px var(--blood-glow),0 4px 12px #000}
+#banner p{margin:6px 0 0;font:700 clamp(12px,1.6vw,15px) var(--body);letter-spacing:.2em;color:#e2e8f0;text-shadow:0 2px 8px #000}
+
+/* Panels */
+.panel{position:absolute;inset:0;display:none;place-items:center;background:rgba(4,6,10,0.88);backdrop-filter:blur(8px);text-align:center;padding:20px;box-sizing:border-box;z-index:50}
+.panel.on{display:grid}
+.panel-card{max-width:680px;background:#0d1117;border:2px solid #5a1a1f;box-shadow:0 20px 60px rgba(0,0,0,0.9),0 0 40px rgba(201,24,35,0.25);border-radius:6px;padding:28px 24px}
+.panel h2{margin:0 0 10px;font:400 clamp(48px,8vw,84px) var(--display);color:var(--blood);letter-spacing:.08em;text-shadow:0 0 25px var(--blood-glow)}
+.panel p{margin:8px 0;font-size:14px;line-height:1.6;color:#cbd5e1}
+.panel .keys{font-size:12px;letter-spacing:.08em;margin-top:16px;color:#94a3b8;background:#161b22;padding:12px;border-radius:4px;border:1px solid #30363d;line-height:1.6}
+.btn{pointer-events:auto;cursor:pointer;margin-top:20px;padding:12px 36px;background:var(--blood);color:#fff;border:0;font:400 26px var(--display);letter-spacing:.14em;border-radius:4px;box-shadow:0 6px 20px rgba(201,24,35,0.4);transition:all .15s}
+.btn:hover{background:#dc2626;transform:translateY(-1px);box-shadow:0 8px 24px rgba(220,38,38,0.6)}
+#ups{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+.up{pointer-events:auto;cursor:pointer;width:190px;padding:14px;border:2px solid #5a1a1f;background:#150a0d;color:var(--fg);font:500 13px var(--body);text-align:left;border-radius:4px;transition:all .15s}
+.up:hover{border-color:var(--xp);background:#0c2d48;transform:translateY(-2px)}
+.up b{display:block;font:400 24px var(--display);letter-spacing:.08em;color:var(--xp);margin-bottom:4px}
+
+@media(max-width:980px){#hotbar{bottom:calc(64px + env(safe-area-inset-bottom,0px))}}
+@media(prefers-reduced-motion:reduce){.bar i,#banner{transition:none}}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c" aria-label="Game view"></canvas>
+  <div id="cinematic-vignette"></div>
+
+  <!-- HUD: Top Left -->
+  <div class="hud" id="tl">
+    <div id="face-card"><div id="face-avatar"></div><span id="facelv">LV 1</span></div>
+    <div id="bars">
+      <div class="bar-wrap"><div class="bar-label"><span>VITALITY</span><span id="hp-val">100/100</span></div><div class="bar" id="hpb"><i></i></div></div>
+      <div class="bar-wrap"><div class="bar-label"><span>STAMINA</span><span id="st-val">100/100</span></div><div class="bar" id="stb"><i></i></div></div>
+      <div class="bar-wrap"><div class="bar-label"><span>EXPERIENCE</span><span id="xp-val">0%</span></div><div class="bar" id="xpb"><i></i></div></div>
+      <div id="lv-badge">SURVIVOR RANK 1</div>
+    </div>
+  </div>
+
+  <!-- Top Controls: Camera & Quality -->
+  <div id="top-controls">
+    <button class="ctrl-btn on" id="view-toggle">VIEW: 2.5D ISOMETRIC</button>
+    <button class="ctrl-btn" id="gfx-toggle">GFX: ULTRA</button>
+    <button class="ctrl-btn danger" id="reset">RESET</button>
+  </div>
+
+  <!-- HUD: Center Timer & Objectives -->
+  <div class="hud" id="center-hud">
+    <div id="timer">2:30</div>
+    <div id="phase">DAY 1 · SCAVENGE & FORTIFY</div>
+    <div id="corewrap"><div class="bar" id="coreb"><i></i></div><div id="coretxt">SHELTER CORE 1000/1000</div></div>
+    <div id="obj">DEFEND YOUR COMPOUND</div>
+  </div>
+
+  <!-- HUD: Top Right Resources & Armament -->
+  <div class="hud" id="tr-cluster">
+    <div class="res-row">
+      <div class="box"><b id="wood">24</b>WOOD</div>
+      <div class="box"><b id="stone">0</b>STONE</div>
+      <div class="box"><b id="metal">0</b>METAL</div>
+      <div class="box"><b id="gears">0</b>GEARS</div>
+    </div>
+    <div class="res-row">
+      <div class="box sm accent"><b id="food">3</b>FOOD</div>
+      <div class="box sm accent"><b id="water">4</b>WATER</div>
+      <div class="box sm accent"><b id="circuits">0</b>CIRCUITS</div>
+      <div class="box sm"><b id="med">0</b>MEDKIT</div>
+      <div class="box sm"><b id="boom">0</b>CHARGE</div>
+    </div>
+    <div class="res-row">
+      <div class="box sm"><b id="ammo">12</b>PISTOL</div>
+      <div class="box sm"><b id="kills">0</b>KILLS</div>
+    </div>
+  </div>
+
+  <!-- Island & Status Badges -->
+  <div class="hud" id="loc">MAIN ISLAND — SURVIVOR FOREST</div>
+  <div class="hud" id="weather-badge">ATMOSPHERE: DRIFTING FOG · BREEZE</div>
+  <div class="hud" id="bps">BLUEPRINTS: NONE YET</div>
+  <div class="hud" id="info">SHELTER LV 1 · BASIC SURVIVOR CAMP<br>RESCUE ARRIVES: NIGHT 8</div>
+
+  <!-- Mini-Map -->
+  <div id="mm-frame">
+    <canvas id="mm" width="156" height="156"></canvas>
+    <div id="mm-label">TACTICAL SATELLITE</div>
+  </div>
+
+  <!-- Hotbar for Building -->
+  <div id="hotbar"><div id="tiles">TILES 0/32</div></div>
+
+  <!-- Action Tip Pill -->
+  <div class="hud" id="tip"></div>
+
+  <!-- Centered Event Banner -->
+  <div class="hud" id="banner">
+    <h1 id="bh">LAST ISLE</h1>
+    <p id="bp">SCAVENGE MATERIALS. FORTIFY THE COMPOUND BEFORE NIGHTFALL.</p>
+  </div>
+
+  <!-- Modal Panels -->
+  <div class="panel on" id="start">
+    <div class="panel-card">
+      <h2>LAST ISLE</h2>
+      <p style="color:#f87171;font-weight:700;letter-spacing:.1em">SURVIVAL REMASTERED — 2.5D ISOMETRIC EDITION</p>
+      <p>The outbreak has consumed the archipelago. By daylight, explore the 5 islands — <strong>Main Forest, Coastal Fishing, Restricted Military, Industrial Works, and Urban City</strong>. Scavenge materials, salvage blueprints, rescue caches, and expand your fortified compound.</p>
+      <p>When night falls, hordes of infected march across the bridges. Deploy reinforced log walls, automated sentry turrets, water reservoirs, and defensive choke-points. Detonate bridges to cut off entire islands. Survive 8 nights until military evacuation.</p>
+      <div class="keys">
+        <strong>CONTROLS:</strong> WASD Move · Mouse Aim + Click Shoot · Hold E Gather/Repair · B Open Construction (Tab Category, 1-9 Piece, T Rotate, Click Place, Right-Click Demolish) · U Upgrade Shelter Level · Q Weapon Stance · F Eat Food (+HP/Stamina) · H Use Medkit · C Craft Charge · M Craft Medkit · Shift Sprint · R Reload · G Detonate/Rebuild Bridge · V Cycle Camera · P Pause
+      </div>
+      <button class="btn" id="go">ENTER APOCALYPSE</button>
+    </div>
+  </div>
+
+  <div class="panel" id="lvl">
+    <div class="panel-card">
+      <h2>SURVIVOR ADVANCEMENT</h2>
+      <p>Select a combat or tactical doctrine to adapt to the infected horde.</p>
+      <div id="ups"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="over">
+    <div class="panel-card">
+      <h2 id="oh">COMPOUND BREACHED</h2>
+      <p id="op"></p>
+      <button class="btn" id="again">TRY AGAIN</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/**
+ * LAST ISLE: REMASTERED 2.5D
+ * Isometric Survival Engine with Dynamic Lighting, Procedural Weather, Multi-Class Infected,
+ * 3-Stage Shelter Construction, and Synthesized Audio.
+ */
+(function(){
+'use strict';
+
+const $=id=>document.getElementById(id);
+const cv=$('c'),ctx=cv.getContext('2d');
+const light=document.createElement('canvas'),lx=light.getContext('2d');
+let W=0,H=0,DPR=1;
+
+function resize(){
+  DPR=Math.min(2,window.devicePixelRatio||1);
+  W=cv.clientWidth;H=cv.clientHeight;
+  cv.width=Math.floor(W*DPR);cv.height=Math.floor(H*DPR);
+  light.width=cv.width;light.height=cv.height;
+}
+addEventListener('resize',resize);
+
+/* Math & RNG */
+const S=5200,CX=2600,CY=2600;
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const ri=(a,b)=>Math.floor(rnd(a,b+1));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const hash=(a,b)=>{
+  let h=Math.imul(a|0,374761393)^Math.imul(b|0,668265263);
+  h=Math.imul(h^(h>>>13),1274126177);
+  return((h^(h>>>16))>>>0)/4294967295;
+};
+const keys={},mouse={x:0,y:0,down:false};
+
+/* Graphics Settings */
+const GFX_MODES=['LOW','MEDIUM','HIGH','ULTRA'];
+let gfxIdx=3; // Default Ultra
+
+/* Camera Views */
+const MODES=[
+  {n:'2.5D ISOMETRIC',zoom:1.15,tilt:0.56,rot:Math.PI/4},
+  {n:'CINEMATIC TILT',zoom:1.20,tilt:0.64,rot:0},
+  {n:'TOP-DOWN TACTICAL',zoom:1.00,tilt:1.00,rot:0},
+  {n:'CLOSE-UP COMBAT',zoom:1.65,tilt:0.80,rot:Math.PI/4},
+  {n:'WIDE STRATEGIC',zoom:0.65,tilt:0.90,rot:0}
+];
+const V={zoom:1.15,tilt:0.56,rot:Math.PI/4,m:0,targetZoom:1.15};
+
+/* Mouse Wheel Zoom */
+cv.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const delta=e.deltaY<0?0.1:-0.1;
+  V.targetZoom=clamp(V.targetZoom+delta,0.55,2.1);
+},{passive:false});
+
+/* Islands & Geography */
+const ISL=[
+  {id:0,x:CX,y:CY,r:950,p1:.4,p2:1.7,p3:3.1,n:'MAIN ISLAND — SURVIVOR FOREST'},
+  {id:1,x:CX,y:600,r:480,p1:2.2,p2:.5,p3:4.0,n:'FISHING ISLAND — COASTAL REFUGE'},
+  {id:2,x:4600,y:CY,r:480,p1:1.1,p2:2.9,p3:.7,n:'MILITARY ISLAND — RESTRICTED OUTPOST'},
+  {id:3,x:CX,y:4600,r:480,p1:3.3,p2:1.3,p3:2.2,n:'INDUSTRIAL ISLAND — SCRAP FACTORY'},
+  {id:4,x:600,y:CY,r:480,p1:.9,p2:3.7,p3:1.5,n:'CITY ISLAND — METROPOLITAN RUINS'}
+];
+const shoreR=(o,a)=>o.r*(1+.09*Math.sin(3*a+o.p1)+.06*Math.sin(5*a+o.p2)+.035*Math.sin(9*a+o.p3));
+
+function islandAt(x,y,inset=0){
+  for(const o of ISL){
+    const dx=x-o.x,dy=y-o.y,d2=dx*dx+dy*dy,m=o.r*1.25;
+    if(d2>m*m)continue;
+    if(Math.sqrt(d2)<shoreR(o,Math.atan2(dy,dx))-inset)return o.id;
+  }
+  return -1;
+}
+
+const DIRS=[null,{x:0,y:-1},{x:1,y:0},{x:0,y:1},{x:-1,y:0}],BW=110,BR=[null];
+for(let k=1;k<=4;k++){
+  const d=DIRS[k];
+  BR.push({
+    k,
+    a:{x:CX+d.x*700,y:CY+d.y*700},
+    b:{x:CX+d.x*1700,y:CY+d.y*1700},
+    inner:{x:CX+d.x*720,y:CY+d.y*720},
+    outer:{x:CX+d.x*1640,y:CY+d.y*1640}
+  });
+}
+function nearSeg(x,y,s,w){
+  const vx=s.b.x-s.a.x,vy=s.b.y-s.a.y;
+  const t=clamp(((x-s.a.x)*vx+(y-s.a.y)*vy)/(vx*vx+vy*vy),0,1);
+  return Math.hypot(x-(s.a.x+vx*t),y-(s.a.y+vy*t))<w;
+}
+const BRK=[null,false,false,false,false];
+for(let k=1;k<=4;k++){
+  const b=BR[k],d=DIRS[k];
+  b.s1={a:b.a,b:{x:b.a.x+d.x*430,y:b.a.y+d.y*430}};
+  b.s2={a:{x:b.a.x+d.x*830,y:b.a.y+d.y*830},b:b.b};
+  b.h={x:b.a.x+d.x*260,y:b.a.y+d.y*260};
+  b.e1={x:b.a.x+d.x*480,y:b.a.y+d.y*480};
+  b.e2={x:b.a.x+d.x*780,y:b.a.y+d.y*780};
+}
+function onBridge(x,y){
+  for(let k=1;k<=4;k++){
+    const b=BR[k];
+    if(BRK[k]){if(nearSeg(x,y,b.s1,BW/2-4)||nearSeg(x,y,b.s2,BW/2-4))return true;}
+    else if(nearSeg(x,y,b,BW/2-4))return true;
+  }
+  return false;
+}
+
+let LAKES=[],SITES=[],SRECT=[];
+const inLake=(x,y,pad=0)=>{
+  for(const l of LAKES){
+    const a=(x-l.x)/(l.rx+pad),b=(y-l.y)/(l.ry+pad);
+    if(a*a+b*b<1)return true;
+  }
+  return false;
+};
+const inSite=(x,y)=>{
+  for(const r of SRECT)if(x>r.x&&x<r.x+r.w&&y>r.y&&y<r.y+r.h)return true;
+  return false;
+};
+const walkable=(x,y)=>(islandAt(x,y,10)>=0||onBridge(x,y))&&!inLake(x,y,14)&&!inSite(x,y);
+
+/* Shelter Plot: Fixed Grid on Main Island */
+const TS=48,PC=16,PR=12,PX0=CX-PC*TS/2,PY0=CY-PR*TS/2,CORE_C=7,CORE_R=5;
+const PLOT={x:PX0,y:PY0,w:PC*TS,h:PR*TS};
+const ZONES=[null,{c0:5,r0:3,c1:10,r1:8},{c0:3,r0:2,c1:12,r1:9},{c0:1,r0:1,c1:14,r1:10},{c0:0,r0:0,c1:15,r1:11}];
+const zoneCount=l=>{const z=ZONES[l];return(z.c1-z.c0+1)*(z.r1-z.r0+1)-4};
+const SPAWN={x:PX0+8*TS,y:PY0+7.55*TS};
+
+/* Core Gameplay State */
+const P={};
+const G={
+  state:'menu',day:1,phase:'day',pt:150,kills:0,tut:0,hurt:0,banner:0,t:0,
+  spawnT:0,horde:0,hordeTotal:0,dark:.12,build:false,sel:0,cat:0,rot:false,
+  gather:0,tip:'',winDay:8,weather:'clear',rainIntensity:0,wind:1.2,msg:'',msgT:0,shake:0
+};
+
+let Z=[],Bu=[],Dr=[],Pt=[],decals=[],ftxt=[],obs=[],weatherParticles=[];
+const tiles=[];let core=null;
+const BASECAP={wood:40,stone:30,metal:30,gears:8,circuits:8,food:10,water:10,medkit:4,charges:4};
+let E={cap:{},regen:0,rep:[]},dirtyS=true;
+
+/* Landmarks & Loot Sites */
+const ROTI=[0,0,Math.PI/2,Math.PI,-Math.PI/2];
+const mkS=(t,n,w,h,col,loot,o)=>Object.assign({t,n,w,h,col,loot},o||{});
+const ST=(g,s0,add,max)=>({k:'stock',g,s0,add,max});
+const BPL=(bp,txt)=>({k:'bp',bp,txt});
+const MIS=(rw,txt,fx)=>({k:'mission',rw,txt,fx});
+
+const SPEC=[
+  /* Main Island */
+  {i:0,a:22.5,r:660,s:mkS('market','SUPERMARKET RUIN',130,80,'#ff8a4a',ST({food:3},2,2,4))},
+  {i:0,a:67.5,r:660,s:mkS('gas','DERELICT GAS STATION',120,80,'#ffd84a',ST({metal:3},1,1,3))},
+  {i:0,a:112.5,r:660,s:mkS('warehouse','TIMBER WAREHOUSE',140,80,'#b8bec8',ST({wood:8,metal:3},1,1,2))},
+  {i:0,a:157.5,r:660,s:mkS('police','PRECINCT DEBRIS',110,80,'#5a9aff',ST({gears:1,metal:2},1,1,2))},
+  {i:0,a:202.5,r:660,s:mkS('hospital','FIELD CLINIC',120,90,'#ff5a6a',ST({medkit:1},2,1,3))},
+  {i:0,a:247.5,r:660,s:mkS('construction','QUARRY / CRANE',140,90,'#ffb02a',ST({stone:8,wood:6},1,1,2))},
+  {i:0,a:292.5,r:640,dx:-70,dy:-40,s:mkS('field','OVERGROWN FARMLAND',96,60,'',null,{solid:false})},
+  {i:0,a:292.5,r:640,dx:70,dy:-40,s:mkS('field','OVERGROWN FARMLAND',96,60,'',null,{solid:false})},
+  {i:0,a:292.5,r:640,dx:0,dy:50,s:mkS('field','OVERGROWN FARMLAND',96,60,'',null,{solid:false})},
+  {i:0,a:337.5,r:660,dx:-62,dy:-52,s:mkS('house','ABANDONED CABIN',60,50,'',null)},
+  {i:0,a:337.5,r:660,dx:62,dy:-44,s:mkS('house','ABANDONED CABIN',60,50,'',null)},
+  {i:0,a:337.5,r:660,dx:-54,dy:48,s:mkS('house','ABANDONED CABIN',60,50,'',null)},
+  {i:0,a:337.5,r:660,dx:62,dy:50,s:mkS('house','ABANDONED CABIN',60,50,'',null)},
+  {i:0,a:135,r:650,s:mkS('hills','GRANITE BLUFF',240,170,'',null,{solid:false})},
+  /* Fishing Island */
+  {i:1,x:-215,y:-95,s:mkS('hut','FISHER SHACK',66,52,'',null)},
+  {i:1,x:215,y:-95,s:mkS('hut','FISHER SHACK',66,52,'',null)},
+  {i:1,x:-130,y:-388,s:mkS('pier','WOODEN WHARF',38,96,'',null,{solid:false})},
+  {i:1,x:130,y:-388,s:mkS('pier','WOODEN WHARF',38,96,'',null,{solid:false})},
+  {i:1,x:-200,y:-215,s:mkS('boat','TRAWLER DRYDOCK',124,66,'#4fd0ff',ST({metal:3,gears:1},1,1,2))},
+  {i:1,x:190,y:-200,s:mkS('cave','SEA CAVE CACHE',104,80,'#b58cff',MIS({stone:10,gears:2},'CAVE CACHE SECURED'),{guards:3})},
+  {i:1,x:200,y:40,s:mkS('warehouse','COASTAL SHED',124,72,'#b8bec8',ST({wood:8,stone:4},1,1,2))},
+  {i:1,x:-200,y:30,s:mkS('water','DESALINATOR CISTERN',84,62,'#4fd0ff',ST({water:5},3,3,6))},
+  {i:1,x:-170,y:150,s:mkS('field','',96,60,'',null,{solid:false})},
+  {i:1,x:170,y:150,s:mkS('field','',96,60,'',null,{solid:false})},
+  /* Military Island */
+  {i:2,x:-170,y:-150,s:mkS('armory','ARMORY BUNKER',112,72,'#ff8a4a',BPL('pierce','AP ROUNDS: TURRETS +60% DAMAGE, LONGER RANGE'))},
+  {i:2,x:170,y:-150,s:mkS('lab','DEFENSE RESEARCH LAB',112,72,'#46e08a',BPL('rapid','RAPID FIRE: TURRETS CYCLE 50% FASTER'))},
+  {i:2,x:110,y:-255,s:mkS('tower','RADIO MAST',64,64,'#ff5a3a',MIS({},'SOS BROADCAST SENT: RESCUE ARRIVES 1 NIGHT SOONER','rescue'),{guards:4})},
+  {i:2,x:-110,y:-255,s:mkS('hatch','SUBTERRANEAN VAULT',84,64,'#ff5ac8',MIS({circuits:3,gears:3},'VAULT SECURED'),{guards:4})},
+  {i:2,x:-190,y:10,s:mkS('storage','DEPOT BARRACKS',124,72,'#ffd84a',ST({metal:6,stone:4},1,1,2))},
+  {i:2,x:190,y:10,s:mkS('barracks','CANVAS QUARTERS',124,72,'',null)},
+  /* Industrial Island */
+  {i:3,x:-170,y:-150,s:mkS('factory','SMELTING PLANT',132,82,'#ff5a3a',ST({charges:1},2,1,4))},
+  {i:3,x:170,y:-140,s:mkS('power','TRANSFORMER GRID',120,90,'#ffd84a',BPL('power','POWER GRID: DIESEL GENERATORS UNLOCKED'))},
+  {i:3,x:0,y:-250,s:mkS('lab','ROBOTICS VAULT',104,72,'#46e08a',ST({circuits:1},1,1,2))},
+  {i:3,x:-190,y:40,s:mkS('warehouse','SCRAP CRUSHER',124,72,'#b8bec8',ST({wood:8,stone:6},1,1,2))},
+  {i:3,x:190,y:40,s:mkS('warehouse','FOUNDRY STORE',124,72,'#b8bec8',ST({metal:6,stone:6},1,1,2))},
+  {i:3,x:-255,y:-20,s:mkS('machine','BOILER',60,52,'',null)},
+  {i:3,x:255,y:-20,s:mkS('machine','GENERATOR RIG',60,52,'',null)},
+  /* City Island */
+  {i:4,x:-170,y:-170,s:mkS('hospital','METROPOLITAN HOSPITAL',124,90,'#ff5a6a',ST({medkit:1},3,2,5))},
+  {i:4,x:170,y:-170,s:mkS('mall','COMMERCIAL MALL',134,90,'#ff5ac8',ST({gears:1,metal:3},2,1,3))},
+  {i:4,x:-190,y:20,s:mkS('police','SWAT ARMORY',104,72,'#5a9aff',BPL('kevlar','TACTICAL KEVLAR: +40 MAXIMUM HEALTH'))},
+  {i:4,x:190,y:20,s:mkS('apt','TENEMENT COMPLEX',92,112,'#ffb02a',ST({food:3},2,1,3))},
+  {i:4,x:0,y:-250,s:mkS('hangar','METRO TRANSIT HANGAR',112,62,'#4fd0ff',ST({metal:8,gears:1},1,1,2))},
+  {i:4,x:0,y:-312,s:mkS('runway','BOULEVARD',170,26,'',null,{solid:false})},
+  {i:4,x:110,y:140,s:mkS('garage','SUB-LEVEL GARAGE',104,72,'#b58cff',MIS({circuits:2,gears:2,medkit:1},'CONVOY LOOT SECURED'),{guards:4})},
+  {i:4,x:-190,y:150,s:mkS('storage','METRO CONCOURSE',112,70,'',null)}
+];
+
+function makeSites(){
+  SITES=[];SRECT=[];LAKES=[];
+  for(const a of [45,225]){
+    const q=a*Math.PI/180;
+    LAKES.push({x:CX+Math.cos(q)*640,y:CY+Math.sin(q)*640,rx:110,ry:75});
+  }
+  for(const sp of SPEC){
+    let x,y,w=sp.s.w,h=sp.s.h;
+    if(sp.i===0){
+      const q=sp.a*Math.PI/180;
+      x=CX+Math.cos(q)*sp.r+(sp.dx||0);
+      y=CY+Math.sin(q)*sp.r+(sp.dy||0);
+    }else{
+      const th=ROTI[sp.i],c=Math.cos(th),sn=Math.sin(th);
+      x=ISL[sp.i].x+sp.x*c-sp.y*sn;
+      y=ISL[sp.i].y+sp.x*sn+sp.y*c;
+      if(Math.abs(Math.sin(th))>.5){const t=w;w=h;h=t;}
+    }
+    const s=Object.assign({},sp.s,{x,y,w,h,isl:sp.i,id:SITES.length});
+    SITES.push(s);
+    if(s.solid!==false)SRECT.push({x:x-w/2-14,y:y-h/2-14,w:w+28,h:h+28});
+  }
+}
+let SITEST=[];
+function resetSites(){
+  SITEST=SITES.map(s=>{const l=s.loot;return l?(l.k==='stock'?{stock:l.s0}:{done:false}):null});
+  G.winDay=8;for(let k=1;k<=4;k++)BRK[k]=false;
+}
+
+const RES={tree:'wood',rock:'stone',scrap:'metal',crate:'gears',crop:'food',fish:'food',water:'water'};
+const FX=[];
+
+function genObs(){
+  obs=[];
+  SITES.forEach(s=>{if(s.loot)obs.push({k:'poi',poi:s.id,x:s.x,y:s.y+s.h/2+32,r:28,ch:1,max:1,yl:0,rs:0,isl:s.isl,ph:0,sz:1})});
+  SITES.filter(s=>s.t==='field').forEach(s=>{
+    for(let i=-1;i<=1;i++)obs.push({k:'crop',x:s.x+i*32,y:s.y,r:14,ch:1,max:1,yl:2,rs:0,isl:s.isl,ph:Math.random()*6,sz:1});
+  });
+  for(const l of LAKES){
+    const base=Math.atan2(CY-l.y,CX-l.x);
+    for(const d of [-.6,0,.6]){
+      const a=base+d;
+      obs.push({k:'water',x:l.x+Math.cos(a)*(l.rx+30),y:l.y+Math.sin(a)*(l.ry+30),r:18,ch:3,max:3,yl:3,rs:0,isl:0,ph:0,sz:1});
+    }
+  }
+  for(const sx of [-130,130])obs.push({k:'fish',x:ISL[1].x+sx,y:ISL[1].y-338,r:18,ch:4,max:4,yl:3,rs:0,isl:1,ph:Math.random()*6,sz:1});
+
+  const bad=(x,y,r)=>{
+    if(x>PX0-120&&x<PX0+PLOT.w+120&&y>PY0-120&&y<PY0+PLOT.h+120)return true;
+    for(let k=1;k<=4;k++)if(nearSeg(x,y,BR[k],BW/2+75))return true;
+    for(const q of SITES)if(Math.abs(x-q.x)<q.w/2+r+36&&Math.abs(y-q.y)<q.h/2+r+46)return true;
+    if(inLake(x,y,r+32))return true;
+    for(const o of obs)if(Math.hypot(o.x-x,o.y-y)<o.r+r+18)return true;
+    return false;
+  };
+
+  const place=(k,isl,n,r,ch,yl,cx,cy,rad)=>{
+    const o=ISL[isl];let c=0,t=0;
+    while(c<n&&t++<n*80){
+      let x,y;
+      if(cx!==undefined){const a=rnd(0,6.283),d=Math.sqrt(Math.random())*rad;x=cx+Math.cos(a)*d;y=cy+Math.sin(a)*d;}
+      else{const a=rnd(0,6.283),d=Math.sqrt(Math.random())*(shoreR(o,a)-90);x=o.x+Math.cos(a)*d;y=o.y+Math.sin(a)*d;}
+      if(bad(x,y,r)||islandAt(x,y,40)<0)continue;
+      obs.push({k,x,y,r,ch,max:ch,yl,rs:0,isl,ph:Math.random()*6,sz:rnd(.9,1.2)});c++;
+    }
+  };
+
+  const hl=SITES.find(s=>s.t==='hills');
+  place('rock',0,12,24,4,5,hl.x,hl.y,110);
+  place('tree',0,95,18,3,5);place('rock',0,18,22,3,4);place('scrap',0,14,18,3,3);place('crate',0,4,16,1,1);
+  place('tree',1,32,18,3,5);place('rock',1,6,22,3,4);place('scrap',1,4,18,3,3);place('crate',1,3,16,1,1);
+  place('tree',2,6,18,3,5);place('rock',2,16,22,3,4);place('scrap',2,10,18,3,3);place('crate',2,6,16,1,1);
+  place('tree',3,4,18,3,5);place('rock',3,8,22,3,4);place('scrap',3,42,18,3,3);place('crate',3,6,16,1,1);
+  place('tree',4,6,18,3,5);place('rock',4,5,22,3,4);place('scrap',4,16,18,3,3);place('crate',4,8,16,1,1);
+}
+
+/* Physics & Collision */
+function pushRect(e,r){
+  if(e.x<r.x-e.r||e.x>r.x+r.w+e.r||e.y<r.y-e.r||e.y>r.y+r.h+e.r)return false;
+  const cx=clamp(e.x,r.x,r.x+r.w),cy=clamp(e.y,r.y,r.y+r.h);
+  const dx=e.x-cx,dy=e.y-cy,d=Math.hypot(dx,dy);
+  if(d>=e.r)return false;
+  if(d===0){
+    const l=e.x-r.x,rr=r.x+r.w-e.x,t=e.y-r.y,bt=r.y+r.h-e.y,m=Math.min(l,rr,t,bt);
+    if(m===l)e.x=r.x-e.r;else if(m===rr)e.x=r.x+r.w+e.r;else if(m===t)e.y=r.y-e.r;else e.y=r.y+r.h+e.r;
+    return true;
+  }
+  const k=(e.r-d)/d;e.x+=dx*k;e.y+=dy*k;return true;
+}
+function pushObs(e){
+  for(const o of obs){
+    if(o.ch<=0)continue;
+    const dx=e.x-o.x;if(dx>65||dx<-65)continue;
+    const dy=e.y-o.y,d=Math.hypot(dx,dy),m=e.r+o.r*.85;
+    if(d<m&&d>0){e.x+=dx/d*(m-d);e.y+=dy/d*(m-d);}
+  }
+}
+function step(e,dx,dy){
+  if(walkable(e.x+dx,e.y))e.x+=dx;
+  if(walkable(e.x,e.y+dy))e.y+=dy;
+}
+
+const tileIdx=(x,y)=>({c:Math.floor((x-PX0)/TS),r:Math.floor((y-PY0)/TS)});
+const inPlot=(c,r)=>c>=0&&r>=0&&c<PC&&r<PR;
+const isCoreTile=(c,r)=>c>=CORE_C&&c<CORE_C+2&&r>=CORE_R&&r<CORE_R+2;
+
+/* Synthesized Web Audio */
+let AC=null;
+function initAudio(){if(!AC)try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+function sfx(f,d,type='square',v=0.06,to=null){
+  if(!AC)return;
+  try{
+    const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;
+    o.type=type;o.frequency.setValueAtTime(f,t);
+    if(to)o.frequency.exponentialRampToValueAtTime(Math.max(10,to),t+d);
+    g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+    o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d);
+  }catch(e){}
+}
+function sfxNoise(d,v=0.05,filterFreq=800){
+  if(!AC)return;
+  try{
+    const bSize=AC.sampleRate*d,buf=AC.createBuffer(1,bSize,AC.sampleRate),data=buf.getChannelData(0);
+    for(let i=0;i<bSize;i++)data[i]=Math.random()*2-1;
+    const src=AC.createBufferSource();src.buffer=buf;
+    const filter=AC.createBiquadFilter();filter.type='bandpass';filter.frequency.value=filterFreq;
+    const g=AC.createGain();g.gain.setValueAtTime(v,AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+d);
+    src.connect(filter).connect(g).connect(AC.destination);
+    src.start();src.stop(AC.currentTime+d);
+  }catch(e){}
+}
+
+/* Survivor Player Setup */
+function newPlayer(){
+  Object.assign(P,{
+    x:SPAWN.x,y:SPAWN.y,r:14,hp:100,maxhp:100,st:100,maxst:100,sprint:false,xp:0,lvl:1,
+    dmg:24,cd:.32,cdT:0,magMax:12,ammo:12,rel:0,ang:0,moved:false,stDelay:0,mf:0,shot:false,
+    animTime:0,gatherTime:0,actionState:'idle',
+    inv:{wood:28,stone:10,metal:6,gears:1,circuits:0,food:3,water:4,medkit:0,charges:0},
+    bp:{}
+  });
+}
+const need=()=>45+(P.lvl-1)*40;
+
+const UPS=[
+  {n:'HOLLOW POINTS',d:'+30% weapon kinetic impact & stopping power.',f:()=>P.dmg*=1.30},
+  {n:'IRON LUNGS',d:'+40 maximum stamina & 30% faster recharge.',f:()=>{P.maxst+=40;P.st=P.maxst}},
+  {n:'KEVLAR WEAVE',d:'+35 maximum health points.',f:()=>{P.maxhp+=35;P.hp=P.maxhp}},
+  {n:'COMBAT CYCLING',d:'Firearms cycle 20% faster.',f:()=>P.cd*=.80},
+  {n:'DRUM MAGAZINE',d:'+6 rounds per firearm magazine.',f:()=>{P.magMax+=6;P.ammo=P.magMax}},
+  {n:'SCAVENGER SIGHT',d:'+50% resource yield from natural nodes.',f:()=>P.gb=(P.gb||1)+.5}
+];
+
+function addXp(n){
+  n=Math.round(n*(E.xp||1));
+  P.xp+=n;
+  if(P.xp>=need()&&G.state==='play')showLevel();
+}
+function showLevel(){
+  G.state='level';sfx(540,.15,'triangle',.08,980);
+  const pool=UPS.slice().sort(()=>Math.random()-.5).slice(0,3),box=$('ups');box.innerHTML='';
+  pool.forEach(u=>{
+    const b=document.createElement('button');b.className='up';
+    b.innerHTML='<b>'+u.n+'</b>'+u.d;
+    b.onclick=()=>{
+      u.f();P.xp-=need();P.lvl++;P.hp=Math.min(P.maxhp,P.hp+35);
+      $('lvl').classList.remove('on');G.state='play';
+      if(P.xp>=need())showLevel();
+    };
+    box.appendChild(b);
+  });
+  $('lvl').classList.add('on');
+}
+
+/* Building Catalog: 4 Shelter Tiers, Multi-tile pieces, 3-stage Construction */
+const DAYLEN=150,NIGHTLEN=75;
+const WL=[
+  {n:'REINFORCED WOOD',hp:180,cost:{wood:4},lv:1},
+  {n:'DRESSED STONE',hp:480,cost:{stone:5},lv:2},
+  {n:'CORRUGATED STEEL',hp:1100,cost:{metal:6,gears:1},lv:3}
+];
+const SHELT=[
+  null,
+  {n:'BASIC SURVIVOR CAMP',hp:1000},
+  {n:'REINFORCED STOCKADE',hp:1500,cost:{wood:30,stone:20}},
+  {n:'FORTIFIED BUNKER',hp:2200,cost:{stone:30,metal:25,gears:3}},
+  {n:'CITADEL SETTLEMENT',hp:3200,cost:{metal:40,gears:6,circuits:3}}
+];
+
+const CATS=[
+  ['def','DEFENSE'],['res','RESIDENTIAL'],['sto','SUPPLIES'],['agr','AGRICULTURE'],
+  ['med','MEDICAL'],['uti','POWER & LIGHT'],['wrk','WORKSHOP'],['com','COMMUNITY']
+];
+const BPN={rapid:'RAPID FIRE',pierce:'AP ROUNDS',power:'POWER GRID',kevlar:'KEVLAR'};
+const mp=(id,cat,n,w,h,cost,hp,lv,solid,d,bp)=>({id,cat,n,w,h,cost,hp,lv,solid,d,bp});
+
+const PIECES=[
+  mp('wall','def','PERIMETER WALL',1,1,{wood:4},180,1,1,'Solid defensive barrier. Click existing wall to upgrade timber -> stone -> corrugated metal.'),
+  mp('gate','def','REINFORCED GATE',1,1,{wood:3},150,1,0,'Allows survivor passage. Blocks and halts infected.'),
+  mp('spikes','def','STEEL SPIKES',1,1,{wood:3},100,1,0,'Impales and drastically slows passing infected.'),
+  mp('turret','def','SENTRY TURRET',1,1,{metal:8,gears:1},250,2,1,'Automated twin-barrel caliber sentry targeting hostiles.'),
+  mp('cabin','res','TIMBER CABIN',2,2,{wood:12},240,1,1,'Survivor shelter. Heals +2 HP/sec while inside compound.'),
+  mp('bunk','res','BARRACKS',2,1,{wood:8,stone:2},200,2,1,'Reinforced dorm. Preserves full gear upon death.'),
+  mp('manor','res','COMMAND HQ',3,2,{wood:20,stone:10},400,3,1,'Advanced command house. Regain +5 HP/sec inside compound.'),
+  mp('woodstore','sto','TIMBER SHED',2,1,{wood:8},180,1,1,'+40 wood storage capacity.'),
+  mp('metalstore','sto','FOUNDRY STORE',2,1,{wood:6,stone:4},220,2,1,'+30 stone, +30 metal, +4 gears capacity.'),
+  mp('foodstore','sto','PANTRY CELLAR',1,1,{wood:5},160,1,1,'+20 food capacity.'),
+  mp('farm','agr','TILLED CROP ROW',2,1,{wood:6},140,2,0,'Yields 3 food each dawn. Requires 1 water.'),
+  mp('greenhouse','agr','GLAZED GREENHOUSE',2,2,{wood:10,stone:6,metal:4},280,3,1,'Yields 7 food each dawn. Consumes 2 water.'),
+  mp('tank','agr','CISTERN TANK',1,1,{wood:4,stone:2},160,2,1,'Stores +30 water.'),
+  mp('aid','med','TRIAGE TENT',2,1,{wood:8,stone:4},200,2,1,'Synthesizes 1 medkit each dawn.'),
+  mp('medstore','med','PHARMACY DEPOT',1,1,{wood:4,metal:4},180,3,1,'Synthesizes 1 medkit/dawn; medkits heal 90 HP.'),
+  mp('lamp','uti','FLOODLIGHT',1,1,{wood:2,stone:1},80,2,0,'Illuminates perimeter during dark night waves.'),
+  mp('generator','uti','DIESEL ENGINE',1,1,{metal:10,gears:2},240,3,1,'Requires Power Grid. Supercharges floodlights & turret firerate.','power'),
+  mp('purifier','uti','AQUIFER FILTER',1,1,{metal:6,stone:4},200,3,1,'Doubles water collected from shoreline/cisterns.'),
+  mp('craft','wrk','MUNITIONS BENCH',2,2,{wood:12,metal:4},300,2,1,'Stand near: C crafts explosive charges, M crafts medkits.'),
+  mp('repair','wrk','MAINTENANCE CRANE',1,1,{wood:6,metal:2},200,2,1,'Continuously repairs damaged structures within 5 tiles.'),
+  mp('kitchen','com','MESS TENT',2,1,{wood:8,stone:4},200,2,1,'Cooking doubles HP gain from food rations (F key).'),
+  mp('dining','com','CANTEEN HALL',2,2,{wood:14,stone:8},280,3,1,'+15% bonus combat experience from kills.'),
+  mp('rec','com','MORALE BUNKER',2,2,{wood:16,stone:8,metal:6},320,4,1,'+25% XP and 50% accelerated stamina recovery.')
+];
+const PD={};PIECES.forEach(p=>PD[p.id]=p);
+const catList=()=>PIECES.filter(p=>p.cat===CATS[G.cat][0]);
+const curPiece=()=>catList()[G.sel]||catList()[0];
+
+function initTiles(){
+  tiles.length=0;
+  for(let r=0;r<PR;r++){const row=[];for(let c=0;c<PC;c++)row.push(null);tiles.push(row)}
+  core={t:'core',hp:1000,max:1000,c:CORE_C,r:CORE_R,w:2,h:2,lv:1,construct:1};
+  for(let a=0;a<2;a++)for(let b=0;b<2;b++)tiles[CORE_R+a][CORE_C+b]=core;
+  dirtyS=true;
+}
+
+const afford=c=>Object.keys(c).every(k=>(P.inv[k]||0)>=c[k]);
+const pay=c=>{for(const k in c)P.inv[k]-=c[k]};
+const costText=c=>Object.keys(c).map(k=>c[k]+' '+k.toUpperCase()).join(' + ');
+const capOf=k=>(BASECAP[k]||99)+(E.cap[k]||0);
+function give(k,n){
+  const cur=P.inv[k]||0,add=Math.max(0,Math.min(Math.round(n),capOf(k)-cur));
+  P.inv[k]=cur+add;return add;
+}
+const rectOf=s=>({x:PX0+s.c*TS,y:PY0+s.r*TS,w:s.w*TS,h:s.h*TS});
+function eachS(cb){
+  for(let r=0;r<PR;r++)for(let c=0;c<PC;c++){
+    const s=tiles[r][c];
+    if(s&&s!==core&&s.c===c&&s.r===r)cb(s);
+  }
+}
+const usedTiles=()=>{let n=0;for(const row of tiles)for(const q of row)if(q&&q!==core)n++;return n};
+const solidZ=q=>q&&q.t!=='spikes'&&q.t!=='lamp';
+const solidP=q=>q&&(q===core||(PD[q.t]&&PD[q.t].solid));
+const inZone=(c,r)=>{const z=ZONES[core?core.lv:1];return c>=z.c0&&c<=z.c1&&r>=z.r0&&r<=z.r1};
+function say(t){G.msg=t;G.msgT=2.8}
+
+function clearS(q){for(let a=0;a<q.h;a++)for(let b=0;b<q.w;b++)tiles[q.r+a][q.c+b]=null;dirtyS=true}
+function dmgStruct(q,a){
+  q.hp-=a;q.hit=.14;
+  if(q.hp>0)return;
+  if(q===core){endGame(false,'COMPOUND BREACHED','The infected horde destroyed the shelter core on night '+G.day+'.');return}
+  clearS(q);sfx(85,.3,'sawtooth',.08,25);
+  const x=PX0+(q.c+q.w/2)*TS,y=PY0+(q.r+q.h/2)*TS;
+  for(let i=0;i<16;i++)Pt.push({x,y,vx:rnd(-140,140),vy:rnd(-140,140),life:.7,c:'#785434',s:3.5});
+}
+
+function tileUnderMouse(){const w=mouseWorld();return tileIdx(w.x,w.y)}
+const dimsOf=pc=>G.rot?{w:pc.h,h:pc.w}:{w:pc.w,h:pc.h};
+
+function tryBuild(){
+  const t=tileUnderMouse(),c=t.c,r=t.r;
+  if(!inPlot(c,r)){say('CONSTRUCTION RESTRICTED TO THE MARKED COMPOUND');return}
+  const q0=tiles[r][c];
+  if(q0===core){say('SHELTER CORE · PRESS U TO REINFORCE COMPOUND LEVEL');return}
+  if(q0){
+    if(q0.t==='wall'||q0.t==='gate'){
+      if(q0.lv>=2){say('ALREADY ARMORED STEEL PLATING');return}
+      const w=WL[q0.lv+1];
+      if(w.lv>core.lv){say('SHELTER RANK '+w.lv+' REQUIRED FOR '+w.n);return}
+      if(!afford(w.cost)){say('UPGRADE REQUIRES '+costText(w.cost));return}
+      pay(w.cost);q0.lv++;q0.max=Math.round(w.hp*(q0.t==='gate'?.88:1));q0.hp=q0.max;q0.construct=0;
+      sfx(340,.15,'triangle',.08,680);P.built=true;
+    }else say('SPACE OCCUPIED · RIGHT-CLICK TO DEMOLISH');
+    return;
+  }
+  const pc=curPiece();
+  if(pc.lv>core.lv){say(pc.n+' REQUIRES COMPOUND RANK '+pc.lv+' · PRESS U');return}
+  if(pc.bp&&!P.bp[pc.bp]){say('REQUIRES '+BPN[pc.bp]+' BLUEPRINT FROM OUTER ISLANDS');return}
+  const d=dimsOf(pc);
+  for(let a=0;a<d.h;a++)for(let b=0;b<d.w;b++){
+    const cc=c+b,rr=r+a;
+    if(!inPlot(cc,rr)||!inZone(cc,rr)||tiles[rr][cc]){say('NOT ENOUGH FREE UNLOCKED TILES');return}
+  }
+  const rc={x:PX0+c*TS,y:PY0+r*TS,w:d.w*TS,h:d.h*TS};
+  if(Math.hypot(P.x-(rc.x+rc.w/2),P.y-(rc.y+rc.h/2))>450+rc.w/2){say('OUT OF BUILD RANGE');return}
+  if(pc.solid&&P.x>rc.x-P.r&&P.x<rc.x+rc.w+P.r&&P.y>rc.y-P.r&&P.y<rc.y+rc.h+P.r){say('STEP AWAY FROM PLACEMENT SITE FIRST');return}
+  if(!afford(pc.cost)){say('INSUFFICIENT RESOURCES: '+costText(pc.cost));return}
+  pay(pc.cost);
+  const q={t:pc.id,lv:0,hp:pc.hp,max:pc.hp,c,r,w:d.w,h:d.h,cd:0,ang:0,mf:0,hit:0,construct:0};
+  for(let a=0;a<d.h;a++)for(let b=0;b<d.w;b++)tiles[r+a][c+b]=q;
+  dirtyS=true;sfx(220,.12,'square',.06,360);P.built=true;
+}
+
+function tryRemove(){
+  const t=tileUnderMouse(),q=inPlot(t.c,t.r)&&tiles[t.r][t.c];
+  if(!q||q===core)return;
+  const pc=PD[q.t];
+  if(pc){
+    for(const k in pc.cost)give(k,Math.floor(pc.cost[k]*.6));
+  }
+  clearS(q);sfx(140,.12,'sawtooth',.05,60);
+}
+
+function upgradeShelter(){
+  const l=core.lv+1;
+  if(l>4){say('COMPOUND CITADEL IS AT MAXIMUM TIER');return}
+  const cst=SHELT[l].cost;
+  if(!afford(cst)){say(SHELT[l].n+' REQUIRES '+costText(cst));return}
+  pay(cst);core.lv=l;core.hp+=SHELT[l].hp-core.max;core.max=SHELT[l].hp;core.construct=0;
+  sfx(440,.6,'triangle',.1,1200);dirtyS=true;
+  say('COMPOUND ELEVATED TO TIER '+l+': '+SHELT[l].n+' · '+zoneCount(l)+' TILES EXPANDED');
+}
+
+function recalc(){
+  dirtyS=false;
+  const e={cap:{},regen:0,noloss:false,farm:0,gh:0,pur:0,medDawn:0,medBoost:false,rep:[],gen:false,kitchen:false,xp:1,sta:1,craft:null};
+  eachS(q=>{
+    const r=rectOf(q),cx=r.x+r.w/2,cy=r.y+r.h/2,ad=(k,n)=>e.cap[k]=(e.cap[k]||0)+n;
+    switch(q.t){
+      case'cabin':e.regen=Math.max(e.regen,2);break;
+      case'manor':e.regen=Math.max(e.regen,5);break;
+      case'bunk':e.noloss=true;break;
+      case'woodstore':ad('wood',40);break;
+      case'metalstore':ad('stone',30);ad('metal',30);ad('gears',4);break;
+      case'foodstore':ad('food',20);break;
+      case'tank':ad('water',30);break;
+      case'farm':e.farm++;break;
+      case'greenhouse':e.gh++;break;
+      case'aid':e.medDawn++;break;
+      case'medstore':e.medDawn++;e.medBoost=true;break;
+      case'generator':e.gen=true;break;
+      case'purifier':e.pur++;break;
+      case'craft':e.craft={x:cx,y:cy};break;
+      case'repair':e.rep.push({x:cx,y:cy});break;
+      case'kitchen':e.kitchen=true;break;
+      case'dining':e.xp*=1.15;break;
+      case'rec':e.xp*=1.25;e.sta=1.5;break;
+    }
+  });
+  E=e;
+}
+
+/* Multi-Class Infected (Zombies) */
+// 0: Walker (shambler), 1: Runner (fast), 2: Brute (tank), 3: Crawler (ground), 4: Armored (riot), 5: Mutated (spore)
+function spawnZ(x,y,o={}){
+  const q=Math.random();
+  let type=0,r=14,hp=45,sp=62,dmg=18,xp=12;
+
+  if(G.day>=4&&q<.12){type=5;r=16;hp=110;sp=68;dmg=25;xp=32;} // Mutated
+  else if(G.day>=3&&q<.24){type=4;r=15;hp=160;sp=54;dmg=22;xp=28;} // Armored
+  else if(G.day>=3&&q<.36){type=2;r=21;hp=220;sp=44;dmg=36;xp=40;} // Brute
+  else if(G.day>=2&&q<.55){type=1;r=12;hp=28;sp=122;dmg=14;xp=16;} // Runner
+  else if(q<.70&&G.day>=2){type=3;r=11;hp=35;sp=48;dmg=20;xp=14;} // Crawler
+
+  let z={
+    x,y,r,hp,max:hp,sp,dmg,xp,type,ang:0,wob:Math.random()*6,wt:0,wa:Math.random()*6,
+    horde:!!o.horde,k:o.k||0,cr:false,guard:!!o.guard,crawlT:0
+  };
+  z.hp*=1+G.day*.08;if(o.guard)z.hp*=1.6;z.max=z.hp;z.sp*=1+G.day*.025;
+  if(z.horde)z.sp*=1.12;
+  Z.push(z);return z;
+}
+
+function killZ(z){
+  G.kills++;addXp(z.xp);
+  sfx(115,.14,'sawtooth',.06,35);
+  decals.push({x:z.x,y:z.y,r:z.r*rnd(1.3,2.2),rot:rnd(0,6),c:z.type===5?'#154018':'#58080d'});
+  if(decals.length>140)decals.shift();
+  for(let i=0;i<12;i++){
+    Pt.push({
+      x:z.x,y:z.y,vx:rnd(-180,180),vy:rnd(-180,180),life:rnd(.3,.8),
+      c:z.type===5?['#22c55e','#15803d','#84cc16'][i%3]:['#7f1d1d','#991b1b','#450a0a'][i%3],
+      s:rnd(2,5)
+    });
+  }
+  if(Math.random()<.12)Dr.push({x:z.x,y:z.y});
+  const i=Z.indexOf(z);if(i>=0)Z.splice(i,1);
+}
+
+function randLand(i,minFromPlot){
+  const o=ISL[i];
+  for(let t=0;t<60;t++){
+    const a=rnd(0,6.283),d=Math.sqrt(Math.random())*(shoreR(o,a)-80),x=o.x+Math.cos(a)*d,y=o.y+Math.sin(a)*d;
+    if(i===0&&Math.hypot(x-CX,y-CY)<(minFromPlot||430))continue;
+    if(onBridge(x,y)||!walkable(x,y)||dist({x,y},P)<460)continue;
+    if(i===0&&x>PX0-60&&x<PX0+PLOT.w+60&&y>PY0-60&&y<PY0+PLOT.h+60)continue;
+    return{x,y};
+  }
+  return null;
+}
+
+function populate(){
+  for(let i=0;i<5;i++){
+    let n=Z.filter(z=>!z.horde&&!z.guard&&islandAt(z.x,z.y,0)===i).length;
+    const want=i===0?8+G.day:(i===4?14:9)+G.day;
+    while(n<Math.min(want,i===4?22:18)){
+      const q=randLand(i);if(!q)break;
+      spawnZ(q.x,q.y,{k:i});n++;
+    }
+  }
+  for(const st of SITES){
+    if(!st.guards)continue;const ss=SITEST[st.id];if(ss&&ss.done)continue;
+    let g=Z.filter(z=>z.gs===st.id).length;
+    while(g<st.guards){
+      let x=st.x,y=st.y+st.h/2+60;
+      for(let t=0;t<30;t++){
+        x=st.x+rnd(-130,130);y=st.y+st.h/2+rnd(40,160);
+        if(walkable(x,y)&&islandAt(x,y,30)===st.isl)break;
+      }
+      const z=spawnZ(x,y,{k:st.isl,guard:true});z.gs=st.id;g++;
+    }
+  }
+}
+
+/* Day & Night Cycle */
+function startNight(){
+  G.phase='night';G.pt=NIGHTLEN;G.horde=G.hordeTotal=7+G.day*6;G.spawnT=2;
+  G.banner=4.5;
+  $('bh').textContent='NIGHTFALL '+G.day;
+  $('bp').textContent='THE INFECTED ARE DRAWN TO THE COMPOUND. HOLD THE LINE.';
+  $('banner').style.opacity=1;
+  // Alarm siren audio
+  sfx(75,1.2,'sawtooth',.09,35);
+  setTimeout(()=>sfx(150,.8,'square',.06,80),400);
+}
+
+function dawnProduce(){
+  const parts=[],need=E.farm+E.gh*2;
+  if(need>0){
+    const have=Math.min(P.inv.water,need),mult=have>=need?1:.5;
+    P.inv.water-=have;
+    const f=give('food',(E.farm*3+E.gh*7)*mult);
+    parts.push('+'+f+' FOOD'+(mult<1?' (WATER SCARCE)':''));
+  }
+  if(E.medDawn>0){const g=give('medkit',E.medDawn);parts.push('+'+g+' MEDKIT');}
+  return parts.length?'SETTLEMENT HARVEST: '+parts.join(' · '):null;
+}
+
+function startDawn(){
+  Z=Z.filter(z=>!z.horde);G.day++;G.phase='day';G.pt=DAYLEN;
+  SITES.forEach(q=>{
+    const l=q.loot;
+    if(l&&l.k==='stock'){const st=SITEST[q.id];st.stock=Math.min(l.max,st.stock+l.add);}
+  });
+  P.hp=P.maxhp;P.st=P.maxst;populate();
+  eachS(q=>{if(q.t!=='lamp')q.hp=Math.min(q.max,q.hp+q.max*.25);});
+  core.hp=Math.min(core.max,core.hp+core.max*.3);
+  const prod=dawnProduce();
+  G.banner=4;
+  $('bh').textContent='DAYBREAK '+G.day;
+  $('bp').textContent=prod||'SUNLIGHT CLEARS THE MAIN HORDE. EXPLORE AND REPAIR.';
+  $('banner').style.opacity=1;
+  sfx(480,.5,'triangle',.08,940);
+}
+
+function startGame(){
+  initAudio();
+  G.day=1;G.phase='day';G.pt=DAYLEN;G.kills=0;G.tut=0;G.build=false;G.sel=0;G.cat=0;G.rot=false;G.dark=.12;G.hurt=0;G.gather=0;
+  resetSites();FX.length=0;initTiles();genObs();newPlayer();Z=[];Bu=[];Dr=[];Pt=[];decals=[];ftxt=[];recalc();
+  populate();G.state='play';
+  $('bh').textContent='DAY 1';
+  $('bp').textContent='EXPLORE THE ARCHIPELAGO. SCAVENGE LOGS & STONE. ESTABLISH YOUR COMPOUND.';
+  G.banner=5;$('banner').style.opacity=1;
+  ['start','over','lvl'].forEach(i=>$(i).classList.remove('on'));
+}
+
+function endGame(win,title,msg){
+  G.state='over';G.mode='new';
+  $('oh').textContent=title;$('op').textContent=msg;
+  $('oh').style.color=win?'#4ade80':'#ef4444';
+  $('again').textContent=win?'COMMENCE MISSION':'RETRY CAMPAIGN';
+  $('over').classList.add('on');
+  sfx(win?520:80,.6,win?'triangle':'sawtooth',.08,win?980:30);
+}
+
+function playerDied(){
+  G.state='over';G.mode='respawn';
+  $('oh').textContent='SURVIVOR DOWN';$('oh').style.color='#ef4444';
+  $('op').textContent=E.noloss?'You awaken in your quarters with all carried gear intact.':'You wake up at the compound core, having lost 50% of your carried resources.';
+  $('again').textContent='REVIVE';$('over').classList.add('on');
+  sfx(85,.6,'sawtooth',.08,30);
+}
+function respawn(){
+  if(!E.noloss)for(const k in P.inv)P.inv[k]=Math.floor(P.inv[k]/2);
+  P.hp=P.maxhp;P.st=P.maxst;P.x=SPAWN.x;P.y=SPAWN.y;P.ammo=P.magMax;P.rel=0;
+  Z=Z.filter(z=>dist(z,P)>600);G.state='play';$('over').classList.remove('on');
+}
+
+/* POI & Bridge Interactivity */
+function siteOK(q){const l=q.loot,st=SITEST[q.id];return l.k==='stock'?st.stock>0:l.k==='bp'?!P.bp[l.bp]:!st.done}
+function claimPOI(n){
+  const q=SITES[n.poi],l=q.loot,st=SITEST[q.id];
+  if(l.k==='stock'){
+    if(st.stock<=0){say(q.n+' DEPLETED · RESTOCKS AT DAWN');return}
+    const got=[];let any=false;
+    for(const k in l.g){const a=give(k,l.g[k]*st.stock);if(a>0){any=true;got.push('+'+a+' '+k.toUpperCase())}}
+    if(!any){say('INVENTORY SATURATED · CONSTRUCT STORAGE SHEDS');return}
+    st.stock=0;say(got.join(' · '));sfx(540,.2,'triangle',.07,860);
+  }else if(l.k==='bp'){
+    if(P.bp[l.bp]){say('SCHEMATIC ALREADY INTEGRATED');return}
+    P.bp[l.bp]=true;if(l.bp==='kevlar'){P.maxhp+=40;P.hp+=40;}
+    say(l.txt);sfx(520,.35,'triangle',.08,1050);
+  }else{
+    if(st.done){say('MISSION OBJECTIVE PREVIOUSLY CLEARED');return}
+    st.done=true;for(const k in l.rw)give(k,l.rw[k]);
+    if(l.fx==='rescue')G.winDay=Math.max(G.day,G.winDay-1);
+    addXp(75);say(l.txt);sfx(440,.45,'triangle',.08,1150);
+  }
+  P.gathered=true;
+}
+
+function bridgeNear(){
+  for(let k=1;k<=4;k++){
+    const b=BR[k];
+    if(!BRK[k]){if(islandAt(P.x,P.y,0)===0&&dist(P,b.h)<190)return k;}
+    else if(dist(P,b.e1)<170||dist(P,b.e2)<170)return k;
+  }
+  return 0;
+}
+function bridgeAction(){
+  const k=bridgeNear();if(!k)return false;
+  const b=BR[k],d=DIRS[k];
+  if(!BRK[k]){
+    const pt=(P.x-b.a.x)*d.x+(P.y-b.a.y)*d.y,pp=Math.abs((P.x-b.a.x)*d.y-(P.y-b.a.y)*d.x);
+    if(pt>430&&pt<830&&pp<90){say('RETREAT FROM BLAST ZONE FIRST');return true;}
+    if(P.inv.charges<1){say('1 DEMOLITION CHARGE REQUIRED');return true;}
+    P.inv.charges--;BRK[k]=true;let kills=0;
+    for(const z of Z.slice()){
+      const t=(z.x-b.a.x)*d.x+(z.y-b.a.y)*d.y,pr=Math.abs((z.x-b.a.x)*d.y-(z.y-b.a.y)*d.x);
+      if(t>450&&t<810&&pr<90){killZ(z);kills++;}
+    }
+    const mx=b.a.x+d.x*630,my=b.a.y+d.y*630;
+    FX.push({x:mx,y:my,t:0});G.shake=.6;
+    for(let i=0;i<80;i++){
+      Pt.push({
+        x:mx+rnd(-50,50),y:my+rnd(-50,50),vx:rnd(-280,280),vy:rnd(-280,280),life:rnd(.6,1.4),
+        c:['#f97316','#fbbf24','#451a03','#1f2937'][i%4],s:rnd(3,7)
+      });
+    }
+    sfx(65,.8,'sawtooth',.14,18);
+    say('BRIDGE DEMOLISHED · '+ISL[k].n+' SEVERED'+(kills?' · '+kills+' DROWNED':''));
+  }else{
+    const c={wood:20,metal:8};
+    if(!afford(c)){say('REBUILD REQUIRES '+costText(c));return true;}
+    pay(c);BRK[k]=false;sfx(320,.25,'triangle',.08,540);say('BRIDGE SPAN RECONSTRUCTED');
+  }
+  return true;
+}
+
+const darkTarget=()=>G.phase==='day'?(G.pt<18?.12+.58*(1-G.pt/18):.12):(G.pt>NIGHTLEN-10?.70:G.pt<10?.70-.58*(1-G.pt/10):.70);
+
+function nearestNode(){
+  let best=null,bd=1e9;
+  for(const o of obs){
+    if(o.ch<=0)continue;
+    let d=Math.hypot(o.x-P.x,o.y-P.y)-o.r;
+    if(o.k==='poi')d-=60;
+    if(d<48&&d<bd){best=o;bd=d;}
+  }
+  return best;
+}
+
+function harvest(n){
+  if(n.k==='poi'){claimPOI(n);return;}
+  const res=RES[n.k];let amt=Math.round(n.yl*(P.gb||1));
+  if(n.k==='crate'){amt=1+(Math.random()<.35?1:0);give('metal',3);}
+  if(n.k==='water'&&E.pur)amt*=2;
+  const got=give(res,amt);
+  if(got<=0){say('STORAGE FULL · CONSTRUCT SHEDS');return;}
+  n.ch--;P.gathered=true;
+  ftxt.push({x:n.x,y:n.y-n.r-8,t:'+'+got+' '+res.toUpperCase(),life:1});
+  for(let i=0;i<10;i++){
+    Pt.push({
+      x:n.x,y:n.y,vx:rnd(-120,120),vy:rnd(-120,120),life:.55,
+      c:n.k==='tree'?'#3d6728':n.k==='rock'?'#78716c':n.k==='water'||n.k==='fish'?'#38bdf8':n.k==='crop'?'#84cc16':'#d97706',
+      s:rnd(2,4)
+    });
+  }
+  sfx(n.k==='tree'?180:440,.12,n.k==='tree'?'square':'triangle',.06,n.k==='tree'?80:720);
+  if(n.ch<=0)n.rs=(n.k==='crop'?55:90)+rnd(0,40);
+}
+
+function repairNear(dt){
+  let best=null,bd=1e9;
+  const test=(q,cx,cy,lim)=>{if(q.hp>=q.max)return;const d=Math.hypot(cx-P.x,cy-P.y);if(d<lim&&d<bd){best=q;bd=d}};
+  eachS(q=>{const r=rectOf(q);test(q,r.x+r.w/2,r.y+r.h/2,Math.max(r.w,r.h)/2+TS*1.2)});
+  test(core,PX0+(CORE_C+1)*TS,PY0+(CORE_R+1)*TS,TS*2.5);
+  if(!best)return false;
+  const res=best.t==='turret'?'metal':(best.t==='wall'||best.t==='gate')?['wood','stone','metal'][best.lv]:'wood';
+  P.rep=(P.rep||0)+50*dt;best.hp=Math.min(best.max,best.hp+50*dt);
+  if(P.rep>=30){
+    P.rep-=30;
+    if(P.inv[res]>0)P.inv[res]--;
+    else{say('REQUIRES '+res.toUpperCase()+' FOR CONTINUED REPAIRS');best.hp-=50*dt;}
+  }
+  return true;
+}
+
+function zombieTarget(z,reg){
+  const dp=dist(z,P),pr=islandAt(P.x,P.y,0);
+  if(dp<(z.horde?380:460)&&(reg===pr||dp<150))return{x:P.x,y:P.y};
+  if(z.horde){
+    if(z.k>0&&reg!==0){
+      const b=BR[z.k];if(reg<0||dist(z,b.outer)<90)z.cr=true;
+      if(z.cr&&dist(z,b.inner)<60){z.k=0;return{x:CX,y:CY};}
+      return z.cr?b.inner:b.outer;
+    }
+    return{x:CX,y:CY};
+  }
+  return null;
+}
+
+/* Main Loop Update */
+function update(dt){
+  G.t+=dt;
+  if(dirtyS)recalc();
+
+  // Weather update
+  if(Math.random()<0.001){
+    G.weather=['clear','rain','fog','storm'][ri(0,3)];
+  }
+  const targetRain=G.weather==='rain'?0.6:G.weather==='storm'?1.0:0;
+  G.rainIntensity+=(targetRain-G.rainIntensity)*dt*0.5;
+
+  // Particle updates
+  for(let i=Pt.length-1;i>=0;i--){
+    const p=Pt[i];p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.92;p.vy*=.92;
+    if(p.life<=0)Pt.splice(i,1);
+  }
+  for(let i=ftxt.length-1;i>=0;i--){
+    const f=ftxt[i];f.life-=dt;f.y-=30*dt;if(f.life<=0)ftxt.splice(i,1);
+  }
+  for(let i=FX.length-1;i>=0;i--){FX[i].t+=dt;if(FX[i].t>.8)FX.splice(i,1);}
+  G.shake=Math.max(0,(G.shake||0)-dt*2);
+  if(G.banner>0){G.banner-=dt;if(G.banner<=0)$('banner').style.opacity=0;}
+  if(G.msgT>0)G.msgT-=dt;
+  G.dark+=(darkTarget()-G.dark)*Math.min(1,dt*2);
+
+  if(G.state!=='play')return;
+  G.hurt=Math.max(0,G.hurt-dt);
+  G.pt-=dt;
+
+  if(G.phase==='day'){
+    if(G.pt<=0)startNight();
+  }else{
+    G.spawnT-=dt;
+    if(G.spawnT<=0&&G.horde>0){
+      G.horde--;G.spawnT=NIGHTLEN*.70/G.hordeTotal;
+      let p=null;
+      if(Math.random()<.65){
+        const k=ri(1,4);
+        if(!BRK[k]){p=randLand(k);if(p)spawnZ(p.x,p.y,{horde:true,k});}
+      }else{
+        for(let t=0;t<30&&!p;t++){
+          const a=rnd(0,6.283);let ok=true;
+          for(let k=1;k<=4;k++){
+            const d=DIRS[k];if(Math.cos(a-Math.atan2(d.y,d.x))>.92)ok=false;
+          }
+          const q={x:CX+Math.cos(a)*(shoreR(ISL[0],a)-70),y:CY+Math.sin(a)*(shoreR(ISL[0],a)-70)};
+          if(ok&&dist(q,P)>440)p=q;
+        }
+        if(p)spawnZ(p.x,p.y,{horde:true,k:0});
+      }
+    }
+    if(G.pt<=0){
+      if(G.day>=G.winDay){endGame(true,'EVACUATION REACHED','You held the archipelago through '+G.winDay+' days & nights. '+G.kills+' infected neutralized.');return;}
+      startDawn();
+    }
+  }
+
+  // Structure construction progressive animation
+  eachS(q=>{
+    if(q.construct<1){
+      q.construct=Math.min(1,q.construct+dt*1.2);
+      if(Math.random()<0.3){
+        const r=rectOf(q);
+        Pt.push({x:r.x+rnd(0,r.w),y:r.y+rnd(0,r.h),vx:rnd(-20,20),vy:rnd(-40,-10),life:.4,c:'#facc15',s:2});
+      }
+    }
+  });
+  if(core&&core.construct<1)core.construct=Math.min(1,core.construct+dt*0.8);
+
+  for(const o of obs)if(o.ch<=0){o.rs-=dt;if(o.rs<=0)o.ch=o.max;}
+  if(core)core.hit=Math.max(0,(core.hit||0)-dt);
+
+  // Survivor movement
+  let mx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);
+  let my=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
+  const moving=!!(mx||my);
+  if(moving){
+    const l=Math.hypot(mx,my);mx/=l;my/=l;P.moved=true;
+    P.animTime+=dt*10*(P.sprint?1.5:1);
+  }else P.animTime=0;
+
+  let sp=175;
+  if(P.sprint&&moving&&P.st>0){
+    sp*=1.65;P.st-=22*dt;P.stDelay=1;
+    if(P.st<=0){P.st=0;P.sprint=false;}
+  }else{
+    P.stDelay=Math.max(0,P.stDelay-dt);
+    if(P.stDelay<=0)P.st=Math.min(P.maxst,P.st+18*dt*(E.sta||1));
+  }
+  step(P,mx*sp*dt,my*sp*dt);pushObs(P);
+  if(!walkable(P.x,P.y)){
+    let o=ISL[0];for(const q of ISL)if(Math.hypot(q.x-P.x,q.y-P.y)<Math.hypot(o.x-P.x,o.y-P.y))o=q;
+    P.x+=(o.x-P.x)*.05;P.y+=(o.y-P.y)*.05;
+  }
+  const pt=tileIdx(P.x,P.y);
+  for(let r=pt.r-1;r<=pt.r+1;r++)for(let c=pt.c-1;c<=pt.c+1;c++){
+    if(inPlot(c,r)&&solidP(tiles[r][c]))pushRect(P,rectOf(tiles[r][c]));
+  }
+  P.ang=aimAngle();
+
+  if(E.regen>0&&P.hp<P.maxhp&&inPlot(pt.c,pt.r))P.hp=Math.min(P.maxhp,P.hp+E.regen*dt);
+  if(E.rep.length){
+    const heal=(q,cx,cy)=>{
+      if(q.hp<q.max)for(const w of E.rep)if(Math.hypot(cx-w.x,cy-w.y)<5*TS){q.hp=Math.min(q.max,q.hp+6*dt);break;}
+    };
+    eachS(q=>{const r=rectOf(q);heal(q,r.x+r.w/2,r.y+r.h/2);});
+    heal(core,PX0+(CORE_C+1)*TS,PY0+(CORE_R+1)*TS);
+  }
+
+  // Gathering / Repairing
+  if(keys.e){
+    const n=nearestNode();
+    if(n){
+      G.gn=n;
+      G.gather+=dt/(n.k==='poi'?(SITES[n.poi].loot.k==='mission'?3:1.4):n.k==='crate'?.65:.95);
+      P.actionState='gathering';
+      if(G.gather>=1){harvest(n);G.gather=0;}
+    }else{
+      G.gather=0;P.actionState='repairing';repairNear(dt);
+    }
+  }else{
+    G.gather=0;P.actionState=moving?'running':'idle';
+  }
+
+  // Shooting & Weapons
+  P.cdT-=dt;P.mf=Math.max(0,P.mf-dt);
+  if(P.rel>0){P.rel-=dt;if(P.rel<=0)P.ammo=P.magMax;}
+  if(mouse.down&&!G.build&&!keys.e&&P.cdT<=0&&P.rel<=0){
+    if(P.ammo>0){
+      const c=Math.cos(P.ang),s=Math.sin(P.ang);
+      Bu.push({x:P.x+c*24,y:P.y+s*24,vx:c*1020,vy:s*1020,life:.65,dmg:P.dmg});
+      P.ammo--;P.cdT=P.cd;P.mf=.07;P.shot=true;
+      sfx(280,.08,'square',.06,50);
+      sfxNoise(.06,.05,1200);
+      Pt.push({x:P.x,y:P.y,vx:-s*130+rnd(-25,25),vy:c*130+rnd(-25,25),life:.7,c:'#facc15',s:2.5});
+      if(P.ammo===0)P.rel=1.1;
+    }else P.rel=1.1;
+  }
+
+  // Turrets & Defenses
+  eachS(q=>{
+    q.hit=Math.max(0,(q.hit||0)-dt);
+    if(q.t!=='turret'||q.construct<1)return;
+    const cx=PX0+(q.c+.5)*TS,cy=PY0+(q.r+.5)*TS;q.cd-=dt;q.mf=Math.max(0,q.mf-dt);
+    let tz=null,bd=P.bp&&P.bp.pierce?480:390;
+    for(const z of Z){const d=Math.hypot(z.x-cx,z.y-cy);if(d<bd){bd=d;tz=z;}}
+    if(tz){
+      q.ang=Math.atan2(tz.y-cy,tz.x-cx);
+      if(q.cd<=0){
+        q.cd=(P.bp&&P.bp.rapid?.28:.42)*(E.gen?.75:1);q.mf=.07;
+        Bu.push({
+          x:cx+Math.cos(q.ang)*24,y:cy+Math.sin(q.ang)*24,
+          vx:Math.cos(q.ang)*950,vy:Math.sin(q.ang)*950,life:.55,
+          dmg:(18+G.day*2)*(P.bp&&P.bp.pierce?1.6:1)
+        });
+        sfx(310,.05,'square',.03,110);
+      }
+    }
+  });
+
+  // Bullets & Ballistics
+  for(let i=Bu.length-1;i>=0;i--){
+    const b=Bu[i];let dead=false;b.life-=dt;
+    for(let k=0;k<3&&!dead;k++){
+      b.x+=b.vx*dt/3;b.y+=b.vy*dt/3;
+      for(const z of Z){
+        if(Math.hypot(z.x-b.x,z.y-b.y)<z.r+4){
+          let finalDmg=b.dmg;
+          if(z.type===4)finalDmg*=.6; // Armored zombie resistance
+          z.hp-=finalDmg;z.x+=b.vx*.013;z.y+=b.vy*.013;dead=true;
+          ftxt.push({x:z.x,y:z.y-z.r-6,t:String(Math.round(finalDmg)),life:.6});
+          sfx(150,.07,'sawtooth',.04,65);
+          for(let q=0;q<5;q++){
+            Pt.push({
+              x:b.x,y:b.y,vx:rnd(-130,130),vy:rnd(-130,130),life:.35,
+              c:z.type===5?'#84cc16':'#991b1b',s:2.5
+            });
+          }
+          if(z.hp<=0)killZ(z);
+          break;
+        }
+      }
+    }
+    if(dead||b.life<=0)Bu.splice(i,1);
+  }
+
+  // Zombie AI & Horde Physics
+  for(const z of Z){
+    const reg=islandAt(z.x,z.y,0),tg=zombieTarget(z,reg);
+    let slow=1;
+    const zt=tileIdx(z.x,z.y),under=inPlot(zt.c,zt.r)&&tiles[zt.r][zt.c];
+    if(under&&under.t==='spikes'){
+      slow=.48;z.hp-=30*dt;under.hp-=4*dt;
+      if(under.hp<=0)dmgStruct(under,1);
+      if(z.hp<=0){killZ(z);continue;}
+    }
+    if(tg){
+      const dx=tg.x-z.x,dy=tg.y-z.y,d=Math.hypot(dx,dy)||1;
+      const a=Math.atan2(dy,dx)+Math.sin(G.t*2+z.wob)*.24;
+      z.ang=Math.atan2(dy,dx);
+      step(z,Math.cos(a)*z.sp*slow*dt,Math.sin(a)*z.sp*slow*dt);
+    }else{
+      z.wt-=dt;if(z.wt<=0){z.wt=rnd(1.8,4);z.wa=Math.random()*6.28;}
+      z.ang=z.wa;step(z,Math.cos(z.wa)*20*dt,Math.sin(z.wa)*20*dt);
+    }
+    pushObs(z);
+    let hit=null;
+    for(let r=zt.r-1;r<=zt.r+1;r++)for(let c=zt.c-1;c<=zt.c+1;c++){
+      if(!inPlot(c,r))continue;const s=tiles[r][c];
+      if(solidZ(s)&&pushRect(z,rectOf(s)))hit=hit||s;
+    }
+    if(hit){
+      dmgStruct(hit,z.dmg*.48*dt);
+      if(G.state!=='play')return;
+      if(Math.random()<dt*3)sfx(110,.06,'square',.03,60);
+    }
+    pushRect(z,PLOT);
+    if(!walkable(z.x,z.y)){
+      let o=ISL[0];for(const q of ISL)if(Math.hypot(q.x-z.x,q.y-z.y)<Math.hypot(o.x-z.x,o.y-z.y))o=q;
+      z.x+=(o.x-z.x)*.02;z.y+=(o.y-z.y)*.02;
+    }
+    const d=dist(z,P);
+    if(d<P.r+z.r+2){
+      P.hp-=z.dmg*dt;G.hurt=.3;
+      if(Math.random()<dt*4)sfx(85,.12,'sawtooth',.06,45);
+    }
+  }
+
+  // Zombie crowd separation
+  for(let i=0;i<Z.length;i++)for(let j=i+1;j<Z.length;j++){
+    const a=Z[i],b=Z[j],dx=b.x-a.x,dy=b.y-a.y;if(dx>32||dx<-32)continue;
+    const d=Math.hypot(dx,dy),m=a.r+b.r;
+    if(d>0&&d<m){const k=(m-d)/2/d;a.x-=dx*k;a.y-=dy*k;b.x+=dx*k;b.y+=dy*k;}
+  }
+
+  // Health kit drops
+  for(let i=Dr.length-1;i>=0;i--)if(dist(Dr[i],P)<28){
+    Dr.splice(i,1);P.hp=Math.min(P.maxhp,P.hp+35);sfx(440,.15,'triangle',.07,780);
+  }
+
+  if(P.hp<=0){P.hp=0;playerDied();return;}
+  if(P.xp>=need()&&G.state==='play')showLevel();
+
+  // Tutorial Progression
+  if(G.tut===0&&P.moved){tutT+=dt;if(tutT>1.2)G.tut=1;}
+  else if(G.tut===1&&P.gathered)G.tut=2;
+  else if(G.tut===2&&G.build)G.tut=3;
+  else if(G.tut===3&&P.built)G.tut=4;
+}
+let tutT=0;
+
+/* Camera Viewport & Coordinate Mathematics */
+function setView(i){V.m=(i+MODES.length)%MODES.length;$('view-toggle').textContent='VIEW: '+MODES[V.m].n;}
+function viewLerp(dt){
+  const T=MODES[V.m],k=Math.min(1,dt*6);
+  V.zoom+=(V.targetZoom*T.zoom/1.15-V.zoom)*k;
+  V.tilt+=(T.tilt-V.tilt)*k;
+  V.rot+=(T.rot-V.rot)*k;
+}
+function applyView(sx,sy){
+  ctx.translate(W/2+sx,H/2+sy);
+  ctx.scale(V.zoom,V.zoom);
+  ctx.rotate(V.rot);
+  ctx.scale(1,V.tilt);
+  ctx.translate(-P.x,-P.y);
+}
+function toScreen(x,y){
+  const a=x-P.x,b=(y-P.y)*V.tilt,c=Math.cos(V.rot),s=Math.sin(V.rot);
+  return{x:W/2+(a*c-b*s)*V.zoom,y:H/2+(a*s+b*c)*V.zoom};
+}
+function scrAng(a){
+  const vx=Math.cos(a),vy=Math.sin(a)*V.tilt,c=Math.cos(V.rot),s=Math.sin(V.rot);
+  return Math.atan2(vx*s+vy*c,vx*c-vy*s);
+}
+function aimVec(){
+  const sx=(mouse.x-W/2)/V.zoom,sy=(mouse.y-H/2)/V.zoom,c=Math.cos(V.rot),s=Math.sin(V.rot);
+  return{x:sx*c+sy*s,y:(-sx*s+sy*c)/V.tilt};
+}
+function aimAngle(){const v=aimVec();return Math.atan2(v.y,v.x);}
+function mouseWorld(){const v=aimVec();return{x:P.x+v.x,y:P.y+v.y};}
+
+/* Upright Sprite Helper */
+function sprite(x,y,fn){
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(-V.rot);
+  ctx.scale(1,1/V.tilt);
+  ctx.translate(-x,-y);
+  fn();
+  ctx.restore();
+}
+
+/* Cast Shadow Helper for 2.5D Realism */
+function castShadow(x,y,w,h,len=25){
+  if(gfxIdx===0)return; // Low gfx mode disables dynamic shadow projection
+  const sunA=V.rot+0.6; // Sun direction relative to camera
+  const sx=Math.cos(sunA)*len,sy=Math.sin(sunA)*len*V.tilt;
+  ctx.save();
+  ctx.fillStyle='rgba(0,0,0,0.38)';
+  ctx.beginPath();
+  ctx.ellipse(x+sx*0.4,y+sy*0.4+4,w*0.8,h*0.4,sunA*0.3,0,Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+}
+
+/* World Terrain Baker (Half-Res Buffer for 60fps) */
+let baked=false;
+const world=document.createElement('canvas');world.width=world.height=S/2;
+const wx=world.getContext('2d');
+const bridgeCv=document.createElement('canvas');bridgeCv.width=bridgeCv.height=S/2;
+const bx=bridgeCv.getContext('2d');
+const mini=document.createElement('canvas');mini.width=mini.height=156;
+const FOAM=[];
+
+function blobPath(o,off){
+  const p=new Path2D();
+  for(let i=0;i<=140;i++){
+    const a=i/140*Math.PI*2,r=shoreR(o,a)+off,x=o.x+Math.cos(a)*r,y=o.y+Math.sin(a)*r;
+    i?p.lineTo(x,y):p.moveTo(x,y);
+  }
+  p.closePath();return p;
+}
+
+function bakeWorld(){
+  baked=true;const c=wx;c.setTransform(.5,0,0,.5,0,0);
+
+  // Deep ocean gradient with caustics
+  let g=c.createRadialGradient(CX,CY,600,CX,CY,3800);
+  g.addColorStop(0,'#113e54');g.addColorStop(1,'#04121d');
+  c.fillStyle=g;c.fillRect(0,0,S,S);
+
+  // Ocean wave trails
+  c.strokeStyle='rgba(165,225,245,0.07)';c.lineWidth=3;
+  for(let i=0;i<1500;i++){
+    const x=rnd(0,S),y=rnd(0,S);if(islandAt(x,y,-120)>=0)continue;
+    c.beginPath();c.moveTo(x,y);c.quadraticCurveTo(x+30,y-9,x+64,y);c.stroke();
+  }
+
+  // Shorelines and shallow shelves
+  FOAM.length=0;
+  for(const o of ISL){
+    FOAM.push(blobPath(o,18));
+    c.fillStyle='rgba(38,135,160,0.30)';c.fill(blobPath(o,120));
+    c.fillStyle='rgba(65,175,185,0.35)';c.fill(blobPath(o,65));
+    c.fillStyle='rgba(120,215,215,0.32)';c.fill(blobPath(o,28));
+  }
+
+  // Island landmasses with biome identities
+  for(const o of ISL){
+    // Sandy shoreline
+    c.fillStyle='#bda36e';c.fill(blobPath(o,0));
+    c.strokeStyle='rgba(100,80,45,0.6)';c.lineWidth=8;c.stroke(blobPath(o,-4));
+
+    // Interior terrain
+    const gp=blobPath(o,-55);
+    // Biome colors: Main(rich forest), Fishing(sandy coastal), Military(dry khaki), Industrial(charred ash), City(cracked asphalt)
+    c.fillStyle=o.id===0?'#2e5328':o.id===1?'#476834':o.id===2?'#444738':o.id===3?'#36383b':'#38393e';
+    c.fill(gp);
+
+    c.save();c.clip(gp);
+    // Texture noise & soil mottling
+    const n=Math.floor(o.r*o.r/75);
+    for(let i=0;i<n;i++){
+      const a=rnd(0,6.283),d=Math.sqrt(Math.random())*o.r;
+      c.fillStyle=['rgba(15,40,15,0.32)','rgba(120,165,70,0.18)','rgba(0,0,0,0.18)'][i%3];
+      c.fillRect(o.x+Math.cos(a)*d,o.y+Math.sin(a)*d,ri(2,6),ri(2,6));
+    }
+
+    // Dirt trails & overgrown secondary paths
+    c.strokeStyle='rgba(95,75,45,0.55)';c.lineWidth=34;c.lineCap='round';
+    for(let i=0;i<6;i++){
+      const a1=i*1.05,a2=a1+rnd(0.5,1.2);
+      c.beginPath();
+      c.moveTo(o.x+Math.cos(a1)*o.r*0.3,o.y+Math.sin(a1)*o.r*0.3);
+      c.quadraticCurveTo(o.x+Math.cos(a1+0.4)*o.r*0.6,o.y+Math.sin(a1+0.4)*o.r*0.6,o.x+Math.cos(a2)*o.r*0.8,o.y+Math.sin(a2)*o.r*0.8);
+      c.stroke();
+    }
+    c.restore();
+
+    // Main paved arterial road
+    c.strokeStyle='rgba(45,46,50,0.92)';c.lineCap='round';c.lineWidth=54;
+    if(o.id===0){
+      for(let k=1;k<=4;k++){
+        const d=DIRS[k];
+        c.beginPath();c.moveTo(CX+d.x*200,CY+d.y*200);c.lineTo(CX+d.x*760,CY+d.y*760);c.stroke();
+      }
+    }else{
+      const d=DIRS[o.id];
+      c.beginPath();c.moveTo(CX+d.x*1560,CY+d.y*1560);c.lineTo(o.x,o.y);c.stroke();
+    }
+    c.lineCap='butt';
+
+    // Yellow dashed highway dividers
+    c.strokeStyle='rgba(234,179,8,0.7)';c.lineWidth=3;c.setLineDash([16,14]);
+    if(o.id===0){
+      for(let k=1;k<=4;k++){
+        const d=DIRS[k];
+        c.beginPath();c.moveTo(CX+d.x*220,CY+d.y*220);c.lineTo(CX+d.x*740,CY+d.y*740);c.stroke();
+      }
+    }
+    c.setLineDash([]);
+  }
+
+  bakeSites(c);
+
+  // Survivor Compound Plot with perimeter gravel & foundation grids
+  c.fillStyle='rgba(0,0,0,0.35)';c.fillRect(PLOT.x-20,PLOT.y-20,PLOT.w+40,PLOT.h+40);
+  c.fillStyle='#5c4a32';c.fillRect(PLOT.x,PLOT.y,PLOT.w,PLOT.h);
+  for(let i=0;i<4000;i++){
+    c.fillStyle=Math.random()<.5?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.18)';
+    c.fillRect(PLOT.x+rnd(0,PLOT.w),PLOT.y+rnd(0,PLOT.h),ri(1,3),ri(1,3));
+  }
+  c.strokeStyle='rgba(255,255,255,0.12)';c.lineWidth=1.5;
+  for(let i=0;i<=PC;i++){c.beginPath();c.moveTo(PX0+i*TS,PY0);c.lineTo(PX0+i*TS,PY0+PLOT.h);c.stroke();}
+  for(let i=0;i<=PR;i++){c.beginPath();c.moveTo(PX0,PY0+i*TS);c.lineTo(PX0+PLOT.w,PY0+i*TS);c.stroke();}
+  c.strokeStyle='#eab308';c.lineWidth=5;c.strokeRect(PLOT.x,PLOT.y,PLOT.w,PLOT.h);
+
+  bakeBridges();
+}
+
+function bakeSites(c){
+  for(const l of LAKES){
+    c.fillStyle='#bda36e';c.beginPath();c.ellipse(l.x,l.y,l.rx+26,l.ry+22,0,0,7);c.fill();
+    c.fillStyle='#1c5d72';c.beginPath();c.ellipse(l.x,l.y,l.rx,l.ry,0,0,7);c.fill();
+    c.fillStyle='#2b7b95';c.beginPath();c.ellipse(l.x-6,l.y-4,l.rx*.78,l.ry*.7,0,0,7);c.fill();
+  }
+  for(const q of SITES)bakeSite(c,q);
+}
+
+function bakeSite(c,q){
+  const x=q.x-q.w/2,y=q.y-q.h/2,w=q.w,h=q.h,t=q.t;
+  c.fillStyle='rgba(0,0,0,0.42)';c.fillRect(x+8,y+10,w,h); // 2.5D base shadow
+  switch(t){
+    case'market':
+      c.fillStyle='#475569';c.fillRect(x,y,w,h);
+      c.fillStyle='#334155';c.fillRect(x,y,w,h-18);
+      // Red & white storefront awning
+      for(let i=0;i<8;i++){
+        c.fillStyle=i%2?'#dc2626':'#f8fafc';
+        c.fillRect(x+4+i*((w-8)/8),y+h-24,(w-8)/8,10);
+      }
+      break;
+    case'gas':
+      c.fillStyle='#334155';c.fillRect(x,y,w,h);
+      c.fillStyle='#f59e0b';c.fillRect(x,y,w,6);
+      c.fillStyle='#dc2626';c.fillRect(x+w-40,y+h-30,12,20);
+      c.fillRect(x+w-22,y+h-30,12,20);
+      break;
+    case'hospital':
+      c.fillStyle='#e2e8f0';c.fillRect(x,y,w,h);
+      c.fillStyle='#cbd5e1';c.fillRect(x,y,w,h-18);
+      c.fillStyle='#dc2626';c.fillRect(q.x-4,y+8,8,26);c.fillRect(q.x-13,y+17,26,8);
+      break;
+    case'armory':
+      c.fillStyle='#1c1917';c.fillRect(x,y,w,h);
+      c.fillStyle='#292524';c.fillRect(x+4,y+4,w-8,h-8);
+      c.fillStyle='#854d0e';for(let i=0;i<6;i++)c.fillRect(x+8+i*16,y+10,12,h-20);
+      break;
+    case'tower':
+      c.fillStyle='#1e293b';c.fillRect(x,y,w,h);
+      c.strokeStyle='#94a3b8';c.lineWidth=3;
+      c.beginPath();c.moveTo(x,y);c.lineTo(x+w,y+h);c.moveTo(x+w,y);c.lineTo(x,y+h);c.stroke();
+      c.fillStyle='#ef4444';c.beginPath();c.arc(q.x,q.y,6,0,7);c.fill();
+      break;
+    default:
+      c.fillStyle='#3f3f46';c.fillRect(x,y,w,h);
+      c.fillStyle='#27272a';c.fillRect(x+3,y+3,w-6,h-14);
+      break;
+  }
+}
+
+function bakeBridges(){
+  const c=bx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,S/2,S/2);
+  c.setTransform(.5,0,0,.5,0,0);
+  for(let k=1;k<=4;k++){
+    const b=BR[k],d=DIRS[k],segs=BRK[k]?[[0,480],[780,1000]]:[[0,1000]];
+    c.save();c.translate(b.a.x,b.a.y);c.rotate(Math.atan2(d.y,d.x));
+    for(const [s0,s1] of segs){
+      const w=s1-s0;
+      c.fillStyle='rgba(0,0,0,0.45)';c.fillRect(s0+10,-BW/2+12,w,BW);
+      c.fillStyle='#3e2716';c.fillRect(s0,-BW/2,w,BW);
+      for(let x=s0;x<s1;x+=18){
+        c.fillStyle=hash(x,k)>.5?'#785331':'#694728';
+        c.fillRect(x,-BW/2+8,16,BW-16);
+      }
+      c.fillStyle='#1c120a';c.fillRect(s0,-BW/2,w,8);c.fillRect(s0,BW/2-8,w,8);
+    }
+    if(BRK[k]){
+      // Blown jagged bridge debris
+      c.fillStyle='#f97316';
+      for(let i=0;i<8;i++)c.fillRect(470+hash(i,k)*320,(hash(k,i)-.5)*70,4,4);
+    }
+    c.restore();
+  }
+  bakeMini();
+}
+
+function bakeMini(){
+  const m=mini.getContext('2d'),f=156/S;m.setTransform(f,0,0,f,0,0);
+  m.fillStyle='#061826';m.fillRect(0,0,S,S);
+  for(let k=1;k<=4;k++){
+    const b=BR[k];m.strokeStyle=BRK[k]?'#ef4444':'#785331';m.lineWidth=120;
+    const segs=BRK[k]?[[b.s1.a,b.s1.b],[b.s2.a,b.s2.b]]:[[b.a,b.b]];
+    for(const [p,q] of segs){m.beginPath();m.moveTo(p.x,p.y);m.lineTo(q.x,q.y);m.stroke();}
+  }
+  for(const o of ISL){
+    m.fillStyle='#bda36e';m.fill(blobPath(o,0));
+    m.fillStyle='#2e5328';m.fill(blobPath(o,-55));
+  }
+  m.fillStyle='#eab308';m.fillRect(PLOT.x,PLOT.y,PLOT.w,PLOT.h);
+}
+
+/* 2.5D Isometric Detailed Structure Drawing */
+function drawStruct25D(s){
+  const x=PX0+s.c*TS,y=PY0+s.r*TS,w=s.w*TS,h=s.h*TS,t=s.t;
+
+  // 3-Stage Construction Rendering
+  if(s.construct<1){
+    ctx.save();
+    if(s.construct<0.35){
+      // Stage 1: Ground stakes and hazard boundary line
+      ctx.strokeStyle='rgba(250,204,21,0.85)';ctx.lineWidth=2;
+      ctx.setLineDash([8,6]);ctx.strokeRect(x+2,y+2,w-4,h-4);ctx.setLineDash([]);
+      ctx.fillStyle='#a16207';
+      for(const [cx,cy] of [[x+2,y+2],[x+w-6,y+2],[x+2,y+h-6],[x+w-6,y+h-6]])ctx.fillRect(cx,cy,4,4);
+      ctx.restore();
+      return;
+    }else if(s.construct<0.85){
+      // Stage 2: Timber/steel framing & scaffolding
+      ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(x+4,y+6,w,h);
+      ctx.strokeStyle='#785331';ctx.lineWidth=3;
+      ctx.strokeRect(x+3,y+3,w-6,h-6);
+      ctx.beginPath();ctx.moveTo(x+3,y+3);ctx.lineTo(x+w-3,y+h-3);ctx.moveTo(x+w-3,y+3);ctx.lineTo(x+3,y+h-3);ctx.stroke();
+      ctx.fillStyle='#facc15';ctx.fillRect(x+w/2-3,y+h/2-3,6,6);
+      ctx.restore();
+      return;
+    }
+    ctx.restore();
+  }
+
+  castShadow(x+w/2,y+h/2,w,h,30);
+
+  // Completed Building Renderers matching Reference Art
+  if(t==='wall'||t==='gate'){
+    const pal=[
+      ['#855328','#5a3516','#a16a3a'], // Log Wall
+      ['#78716c','#57534e','#a8a29e'], // Masonry Stone
+      ['#64748b','#475569','#94a3b8']  // Corrugated Metal
+    ][s.lv];
+    ctx.fillStyle=pal[1];ctx.fillRect(x,y,TS,TS);
+    ctx.fillStyle=pal[0];ctx.fillRect(x,y,TS,TS-12); // Extruded isometric parapet
+    ctx.fillStyle=pal[2];ctx.fillRect(x,y,TS,4); // Top cap highlight
+
+    // Texturing planks / rivets
+    ctx.strokeStyle='rgba(0,0,0,0.35)';ctx.lineWidth=1.5;
+    if(s.lv===0){
+      for(let i=1;i<4;i++){ctx.beginPath();ctx.moveTo(x,y+i*(TS-12)/4);ctx.lineTo(x+TS,y+i*(TS-12)/4);ctx.stroke();}
+    }else if(s.lv===2){
+      ctx.fillStyle='#1e293b';
+      for(const [rx,ry] of [[6,6],[TS-10,6],[6,TS-18],[TS-10,TS-18]])ctx.fillRect(x+rx,y+ry,4,4);
+    }
+    if(t==='gate'){
+      ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(x+10,y+6,TS-20,TS-20);
+      ctx.fillStyle=pal[2];ctx.fillRect(x+TS/2-2,y+8,4,TS-24);
+    }
+  }else if(t==='turret'){
+    // Turret pedestal base
+    ctx.fillStyle='#1e293b';ctx.beginPath();ctx.arc(x+TS/2,y+TS/2,TS*.40,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#334155';ctx.beginPath();ctx.arc(x+TS/2,y+TS/2-4,TS*.34,0,Math.PI*2);ctx.fill();
+    // Swiveling twin-barrel cannon
+    ctx.save();ctx.translate(x+TS/2,y+TS/2-4);ctx.rotate(s.ang);
+    ctx.fillStyle='#0f172a';ctx.fillRect(2,-5,TS*.52,4);ctx.fillRect(2,1,TS*.52,4);
+    ctx.fillStyle='#64748b';ctx.fillRect(-6,-7,14,14);
+    if(s.mf>0){
+      ctx.fillStyle='#facc15';ctx.beginPath();ctx.arc(TS*.56,-3,8,0,7);ctx.arc(TS*.56,3,8,0,7);ctx.fill();
+    }
+    ctx.restore();
+    ctx.fillStyle=E.gen?'#22c55e':'#ef4444';ctx.beginPath();ctx.arc(x+TS/2,y+TS/2-4,3.5,0,7);ctx.fill();
+  }else if(t==='spikes'){
+    ctx.fillStyle='#27272a';ctx.fillRect(x+3,y+3,TS-6,TS-6);
+    for(let i=0;i<3;i++)for(let j=0;j<3;j++){
+      const px=x+10+i*14,py=y+10+j*14;
+      ctx.fillStyle='#71717a';ctx.beginPath();ctx.moveTo(px,py-8);ctx.lineTo(px-4,py+4);ctx.lineTo(px+4,py+4);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#991b1b';ctx.fillRect(px-1,py-7,2,4); // Blood stains
+    }
+  }else if(t==='lamp'){
+    ctx.fillStyle='#1e293b';ctx.beginPath();ctx.arc(x+TS/2,y+TS/2,7,0,7);ctx.fill();
+    ctx.fillStyle='#fef08a';ctx.beginPath();ctx.arc(x+TS/2,y+TS/2-8,5,0,7);ctx.fill();
+  }else if(t==='cabin'||t==='manor'||t==='bunk'){
+    // Shingled survivor house with chimney
+    ctx.fillStyle='#3f2817';ctx.fillRect(x+2,y+2,w-4,h-4);
+    ctx.fillStyle='#5c3d24';ctx.fillRect(x+2,y+2,w-4,h-16);
+    // Roof shingles
+    ctx.fillStyle=t==='manor'?'#1e293b':'#7f1d1d';
+    ctx.fillRect(x+4,y+4,w-8,h/2);
+    // Chimney smoke
+    ctx.fillStyle='#78350f';ctx.fillRect(x+w-18,y+6,10,12);
+    if(Math.random()<0.3){
+      Pt.push({x:x+w-13,y:y+4,vx:rnd(-8,8),vy:rnd(-30,-15),life:.8,c:'rgba(200,200,210,0.3)',s:4});
+    }
+  }else if(t==='generator'){
+    // Diesel generator with shaking animation
+    const vib=E.gen?Math.sin(G.t*45)*1.5:0;
+    ctx.fillStyle='#1c1917';ctx.fillRect(x+4+vib,y+4,w-8,h-8);
+    ctx.fillStyle='#d97706';ctx.fillRect(x+6+vib,y+6,w-12,h-16);
+    ctx.fillStyle='#451a03';ctx.fillRect(x+w-14+vib,y+2,6,12);
+    if(E.gen&&Math.random()<0.4){
+      Pt.push({x:x+w-11+vib,y:y+2,vx:rnd(10,30),vy:rnd(-25,-10),life:.6,c:'rgba(80,80,90,0.5)',s:3.5});
+    }
+  }else if(t==='farm'||t==='greenhouse'){
+    // Tilled soil rows
+    ctx.fillStyle='#362417';ctx.fillRect(x+2,y+2,w-4,h-4);
+    for(let i=0;i<3;i++){
+      ctx.fillStyle='#1c120a';ctx.fillRect(x+4,y+6+i*11,w-8,4);
+      ctx.fillStyle='#4ade80';
+      for(let j=0;j<5;j++)ctx.fillRect(x+8+j*(w/5.5),y+4+i*11,5,6);
+    }
+  }else{
+    // Generic high-detail building box
+    ctx.fillStyle='#27272a';ctx.fillRect(x+2,y+2,w-4,h-4);
+    ctx.fillStyle='#3f3f46';ctx.fillRect(x+2,y+2,w-4,h-12);
+    ctx.fillStyle='#f59e0b';ctx.fillRect(x+w/2-8,y+h-14,16,10);
+  }
+
+  // Hit flash & Health gauge
+  if(s.hit>0){ctx.fillStyle='rgba(239,68,68,0.4)';ctx.fillRect(x,y,w,h);}
+  if(s.hp<s.max){
+    ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(x+4,y-8,w-8,4);
+    ctx.fillStyle=s.hp/s.max>.4?'#22c55e':'#ef4444';
+    ctx.fillRect(x+5,y-7,(w-10)*s.hp/s.max,2.5);
+  }
+}
+
+/* Compound Core Drawing (Center Water/Command Citadel) */
+function drawCore25D(){
+  const x=PX0+CORE_C*TS,y=PY0+CORE_R*TS,w=TS*2;
+  castShadow(x+w/2,y+w/2,w,w,38);
+
+  ctx.fillStyle='#1e293b';ctx.fillRect(x+2,y+2,w-4,w-4);
+  ctx.fillStyle='#334155';ctx.fillRect(x+2,y+2,w-4,w-20);
+
+  // Water Tower / Radio dome matching reference image
+  ctx.fillStyle='#d4d4d8';ctx.beginPath();ctx.arc(x+w/2,y+w/2-10,w*.32,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#71717a';ctx.beginPath();ctx.arc(x+w/2,y+w/2-12,w*.28,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#991b1b';ctx.fillRect(x+w/2-10,y+w/2-15,20,5); // Graffiti / cross logo
+
+  if(core.hit>0){ctx.fillStyle='rgba(239,68,68,0.45)';ctx.fillRect(x,y,w,w);}
+  ctx.fillStyle='rgba(0,0,0,0.85)';ctx.fillRect(x,y-14,w,7);
+  ctx.fillStyle=core.hp/core.max>.4?'#22c55e':'#ef4444';
+  ctx.fillRect(x+1,y-13,(w-2)*core.hp/core.max,5);
+  ctx.font='700 11px var(--body)';ctx.fillStyle='#fef08a';ctx.textAlign='center';
+  ctx.fillText('COMMAND CITADEL LV '+core.lv,x+w/2,y-18);ctx.textAlign='left';
+}
+
+/* Detailed Character & Infected Sprite Drawing */
+function drawPlayerSprite(ca,sa){
+  castShadow(P.x,P.y,P.r*2,P.r,20);
+  ctx.save();
+  ctx.translate(P.x,P.y);
+  ctx.rotate(scrAng(P.ang));
+
+  const bob=Math.sin(P.animTime)*2;
+
+  // Legs / Boots walking kinematics
+  const legOffset=Math.sin(P.animTime)*4;
+  ctx.fillStyle='#1c1917';
+  ctx.fillRect(-6,-10+legOffset,5,9);
+  ctx.fillRect(-6,1-legOffset,5,9);
+
+  // Tactical Survivor Torso & Backpack
+  ctx.fillStyle='#78350f'; // Leather/canvas backpack
+  ctx.fillRect(-12,-6,7,12);
+  ctx.fillStyle='#1e293b'; // Tactical vest
+  ctx.beginPath();ctx.ellipse(-1,0,9,P.r+1,0,0,7);ctx.fill();
+
+  // Head & Beanie
+  ctx.fillStyle='#d4a373';ctx.beginPath();ctx.arc(1,0,P.r*.52,0,7);ctx.fill();
+  ctx.fillStyle='#1c1917';ctx.beginPath();ctx.arc(-2,0,P.r*.52,Math.PI*.5,Math.PI*1.5);ctx.fill();
+
+  // Two-Handed Gun Grip & Firearm
+  ctx.fillStyle='#0f172a';ctx.fillRect(2,-4+bob,28,4);
+  ctx.fillStyle='#334155';ctx.fillRect(8,-4.5+bob,20,3);
+
+  ctx.restore();
+}
+
+function drawZombieSprite(z){
+  castShadow(z.x,z.y,z.r*2,z.r,18);
+  ctx.save();
+  ctx.translate(z.x,z.y);
+  ctx.rotate(scrAng(z.ang));
+
+  const r=z.r;
+  const sw=Math.sin(G.t*(z.type===1?11:6)+z.wob)*3;
+
+  // Skin & Clothing Palette per infected class
+  let skin='#86a074',shirt='#3f3f46';
+  if(z.type===1){skin='#a3ad92';shirt='#7f1d1d';} // Runner
+  else if(z.type===2){skin='#4d5c43';shirt='#18181b';} // Brute
+  else if(z.type===3){skin='#657556';shirt='#451a03';} // Crawler
+  else if(z.type===4){skin='#6b7280';shirt='#1e293b';} // Armored
+  else if(z.type===5){skin='#15803d';shirt='#052e16';} // Mutated
+
+  if(z.type===3){
+    // Crawler: Low ground silhouette, dragging broken legs
+    ctx.fillStyle=shirt;ctx.fillRect(-r*.8,-r*.4,r*1.4,r*.8);
+    ctx.fillStyle=skin;ctx.beginPath();ctx.arc(r*.5,0,r*.45,0,7);ctx.fill();
+  }else{
+    // Shambling / Running Arms
+    ctx.fillStyle=skin;
+    ctx.beginPath();ctx.ellipse(r*.9,-r*.7+sw,r*.75,r*.25,.2,0,7);ctx.fill();
+    ctx.beginPath();ctx.ellipse(r*.9,r*.7-sw,r*.75,r*.25,-.2,0,7);ctx.fill();
+
+    // Torso
+    ctx.fillStyle=shirt;
+    ctx.beginPath();ctx.ellipse(-r*.1,0,r*.75,r*1.05,0,0,7);ctx.fill();
+
+    // Head
+    ctx.fillStyle=skin;ctx.beginPath();ctx.arc(r*.2,sw*.5,r*.52,0,7);ctx.fill();
+
+    // Armored Riot Helmet
+    if(z.type===4){
+      ctx.fillStyle='#0f172a';ctx.beginPath();ctx.arc(r*.15,sw*.5,r*.6,0,7);ctx.fill();
+    }
+  }
+
+  // Glowing Infection Eyes
+  ctx.fillStyle=z.type===5?'#4ade80':'#ef4444';
+  ctx.fillRect(r*.5,-r*.25+sw*.5,2.5,2.5);
+  ctx.fillRect(r*.5,r*.15+sw*.5,2.5,2.5);
+
+  ctx.restore();
+
+  // Health bar above hostile
+  if(z.hp<z.max){
+    ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(z.x-16,z.y-z.r-12,32,5);
+    ctx.fillStyle='#ef4444';ctx.fillRect(z.x-15,z.y-z.r-11,30*z.hp/z.max,3);
+  }
+}
+
+/* Environment Nodes: Trees, Rocks, Scrap, POIs */
+function drawNodeSprite(o){
+  if(o.k==='poi'){
+    const q=SITES[o.poi],ok=siteOK(q),col=q.col||'#fff',l=q.loot;
+    if(ok){
+      ctx.strokeStyle=col;ctx.globalAlpha=.6+.3*Math.sin(G.t*3);ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(o.x,o.y,26+Math.sin(G.t*3)*3,0,7);ctx.stroke();ctx.globalAlpha=1;
+    }
+    ctx.fillStyle=ok?col:'#64748b';ctx.save();ctx.translate(o.x,o.y);ctx.rotate(.785);ctx.fillRect(-7,-7,14,14);ctx.restore();
+    ctx.font='700 11px var(--body)';ctx.textAlign='center';ctx.fillStyle=ok?col:'#94a3b8';
+    ctx.fillText(q.n,o.x,o.y+34);
+    const st=SITEST[q.id];
+    ctx.fillStyle='#e2e8f0';
+    ctx.fillText(l.k==='bp'?(ok?'BLUEPRINT':'CLAIMED'):l.k==='mission'?(ok?'MISSION':'DONE'):(ok?'STOCK '+st.stock:'DEPLETED'),o.x,o.y+47);
+    ctx.textAlign='left';
+    return;
+  }
+
+  castShadow(o.x,o.y,o.r*2,o.r,26);
+
+  const f=o.ch>0?.6+.4*o.ch/o.max:0;
+  const sw=Math.sin(G.t*1.4+o.ph);
+
+  if(o.k==='tree'){
+    if(o.ch<=0){
+      ctx.fillStyle='#5a3818';ctx.beginPath();ctx.arc(o.x,o.y,7,0,7);ctx.fill();return;
+    }
+    const R=o.r*1.6*o.sz*f;
+    // Autumn / Pine multi-tone canopy
+    const leafCol=o.isl===0?(o.ph>3?'#c2410c':'#166534'):'#1e3a1f';
+    ctx.fillStyle=leafCol;ctx.beginPath();ctx.arc(o.x+sw*1.5,o.y-8,R,0,7);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.14)';ctx.beginPath();ctx.arc(o.x+sw*1.8-R*.2,o.y-8-R*.25,R*.5,0,7);ctx.fill();
+  }else if(o.k==='rock'){
+    if(o.ch<=0)return;
+    const R=o.r*1.2*f;
+    ctx.fillStyle='#57534e';ctx.beginPath();ctx.arc(o.x,o.y,R,0,7);ctx.fill();
+    ctx.fillStyle='#78716c';ctx.beginPath();ctx.arc(o.x-R*.2,o.y-R*.2,R*.6,0,7);ctx.fill();
+  }else if(o.k==='scrap'){
+    ctx.fillStyle='#78350f';ctx.fillRect(o.x-10,o.y-6,20,12);
+    ctx.fillStyle='#475569';ctx.fillRect(o.x-6,o.y-9,14,14);
+  }else if(o.k==='crate'){
+    ctx.fillStyle='#854d0e';ctx.fillRect(o.x-12,o.y-12,24,24);
+    ctx.strokeStyle='#451a03';ctx.lineWidth=2;ctx.strokeRect(o.x-12,o.y-12,24,24);
+  }
+}
+
+/* Master Scene Rendering Pipeline */
+function render(){
+  if(!baked)bakeWorld();
+
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.fillStyle='#020810';ctx.fillRect(0,0,W,H);
+
+  let sx=0,sy=0;
+  if(G.hurt>0){sx=rnd(-4,4);sy=rnd(-4,4);}
+  if(P.mf>0){sx+=rnd(-1.5,1.5);sy+=rnd(-1.5,1.5);}
+  if(G.shake>0){sx+=rnd(-1,1)*G.shake*16;sy+=rnd(-1,1)*G.shake*16;}
+
+  ctx.save();
+  applyView(sx,sy);
+
+  // Baked Map & Bridges
+  ctx.drawImage(world,0,0,S,S);
+  ctx.drawImage(bridgeCv,0,0,S,S);
+
+  // Shoreline wave animation
+  ctx.lineWidth=5;ctx.setLineDash([36,26]);ctx.lineDashOffset=-G.t*16;
+  ctx.strokeStyle='rgba(255,255,255,'+(.22+.1*Math.sin(G.t*1.6))+')';
+  for(const p of FOAM)ctx.stroke(p);
+  ctx.setLineDash([]);
+
+  const VR=Math.hypot(W,H)/2/(V.zoom*Math.min(1,V.tilt))+110;
+  const vis=(x,y,w,h)=>Math.abs(x+w/2-P.x)<VR+w/2&&Math.abs(y+h/2-P.y)<VR+h/2;
+
+  // Blood Decals
+  for(const d of decals){
+    if(!vis(d.x-40,d.y-40,80,80))continue;
+    ctx.fillStyle=d.c||'rgba(127,29,29,0.55)';
+    ctx.beginPath();ctx.ellipse(d.x,d.y,d.r,d.r*.6,d.rot,0,7);ctx.fill();
+  }
+
+  // Building Grid Overlay in Build Mode
+  if(G.build){
+    for(let r=0;r<PR;r++)for(let c=0;c<PC;c++){
+      const x=PX0+c*TS,y=PY0+r*TS;
+      if(!inZone(c,r)){
+        ctx.fillStyle='rgba(15,23,42,0.65)';ctx.fillRect(x,y,TS,TS);
+      }else if(!tiles[r][c]){
+        ctx.strokeStyle='rgba(255,255,255,0.22)';ctx.strokeRect(x+1,y+1,TS-2,TS-2);
+      }
+    }
+  }
+
+  // 2.5D Isometric Depth Sorting (y-sorting entities)
+  const drawList=[];
+  eachS(s=>drawList.push({y:PY0+(s.r+s.h)*TS,draw:()=>drawStruct25D(s)}));
+  if(core)drawList.push({y:PY0+(CORE_R+2)*TS,draw:()=>drawCore25D()});
+
+  obs.filter(o=>vis(o.x-40,o.y-40,80,80)).forEach(o=>{
+    drawList.push({y:o.y,draw:()=>sprite(o.x,o.y,()=>drawNodeSprite(o))});
+  });
+
+  Z.filter(z=>vis(z.x-30,z.y-30,60,60)).forEach(z=>{
+    drawList.push({y:z.y,draw:()=>sprite(z.x,z.y,()=>drawZombieSprite(z))});
+  });
+
+  drawList.push({
+    y:P.y,
+    draw:()=>{
+      const ca=Math.cos(P.ang),sa=Math.sin(P.ang);
+      // Laser pointer sight
+      if(G.state==='play'&&P.rel<=0&&!G.build){
+        const lg=ctx.createLinearGradient(P.x,P.y,P.x+ca*460,P.y+sa*460);
+        lg.addColorStop(0,'rgba(239,68,68,0.5)');lg.addColorStop(1,'rgba(239,68,68,0)');
+        ctx.strokeStyle=lg;ctx.lineWidth=1.5;ctx.beginPath();
+        ctx.moveTo(P.x+ca*26,P.y+sa*26);ctx.lineTo(P.x+ca*460,P.y+sa*460);ctx.stroke();
+      }
+      sprite(P.x,P.y,()=>drawPlayerSprite(ca,sa));
+    }
+  });
+
+  // Sort and execute draw
+  drawList.sort((a,b)=>a.y-b.y);
+  for(const item of drawList)item.draw();
+
+  // Bullet Tracers
+  ctx.globalCompositeOperation='lighter';
+  for(const b of Bu){
+    const g=ctx.createLinearGradient(b.x,b.y,b.x-b.vx*.035,b.y-b.vy*.035);
+    g.addColorStop(0,'#fef08a');g.addColorStop(1,'rgba(249,115,22,0)');
+    ctx.strokeStyle=g;ctx.lineWidth=3;ctx.beginPath();
+    ctx.moveTo(b.x,b.y);ctx.lineTo(b.x-b.vx*.035,b.y-b.vy*.035);ctx.stroke();
+  }
+  ctx.globalCompositeOperation='source-over';
+
+  // Combat Floating Numbers
+  for(const f of ftxt){
+    ctx.globalAlpha=Math.min(1,f.life*2);ctx.fillStyle='#fef08a';
+    ctx.font='700 13px var(--body)';ctx.textAlign='center';
+    sprite(f.x,f.y,()=>ctx.fillText(f.t,f.x,f.y));
+  }
+  ctx.globalAlpha=1;ctx.textAlign='left';
+
+  // Particles
+  for(const p of Pt){
+    ctx.globalAlpha=Math.min(1,p.life*3);ctx.fillStyle=p.c;
+    ctx.fillRect(p.x,p.y,p.s,p.s);
+  }
+  ctx.globalAlpha=1;
+
+  ctx.restore();
+
+  // Dynamic Atmospheric Night Lighting & Flashlight Canvas
+  const nd=clamp(G.dark/.6,0,1);
+  lx.setTransform(DPR,0,0,DPR,0,0);
+  lx.globalCompositeOperation='source-over';
+  lx.clearRect(0,0,W,H);
+
+  // Midnight ambient shadow
+  lx.fillStyle='rgba(3,6,12,'+G.dark+')';
+  lx.fillRect(0,0,W,H);
+  lx.globalCompositeOperation='destination-out';
+
+  const hole=(x,y,r,a)=>{
+    const q=toScreen(x,y),rr=r*V.zoom;
+    if(q.x<-rr||q.x>W+rr||q.y<-rr||q.y>H+rr)return;
+    lx.save();lx.translate(q.x,q.y);lx.rotate(V.rot);lx.scale(V.zoom,V.zoom*V.tilt);
+    const g=lx.createRadialGradient(0,0,0,0,0,r);
+    g.addColorStop(0,'rgba(0,0,0,'+a+')');g.addColorStop(1,'rgba(0,0,0,0)');
+    lx.fillStyle=g;lx.beginPath();lx.arc(0,0,r,0,7);lx.fill();lx.restore();
+  };
+
+  if(nd>.02){
+    const ca=Math.cos(P.ang),sa=Math.sin(P.ang);
+    // Player Flashlight Cone & Aura
+    hole(P.x,P.y,480,1);
+    hole(P.x+ca*220,P.y+sa*220,360,0.95);
+    if(core)hole(PX0+(CORE_C+1)*TS,PY0+(CORE_R+1)*TS,320,.85);
+    eachS(s=>{
+      const x=PX0+(s.c+.5)*TS,y=PY0+(s.r+.5)*TS;
+      if(s.t==='lamp')hole(x,y,E.gen?520:380,0.95);
+    });
+  }
+
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.drawImage(light,0,0);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+
+  // Atmospheric Weather: Rain & Fog
+  if(G.rainIntensity>0.05){
+    ctx.strokeStyle='rgba(186,230,253,0.35)';ctx.lineWidth=1.2;ctx.beginPath();
+    for(let i=0;i<180*G.rainIntensity;i++){
+      const rx=(i*97+G.t*180)%(W+80)-40,ry=(i*53+G.t*900)%(H+60)-30;
+      ctx.moveTo(rx,ry);ctx.lineTo(rx-8,ry+22);
+    }
+    ctx.stroke();
+  }
+
+  // Red damage border flash
+  if(G.hurt>0||P.hp<30){
+    const a=Math.max(G.hurt*1.8,P.hp<30?.3+Math.sin(G.t*6)*.12:0);
+    const g=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.25,W/2,H/2,Math.max(W,H)*.7);
+    g.addColorStop(0,'rgba(185,28,28,0)');g.addColorStop(1,'rgba(185,28,28,'+a+')');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  }
+}
+
+/* HUD & Interface Update */
+let lastTip='';
+const sc=(id,v)=>{$(id).firstElementChild.style.transform='scaleX('+clamp(v,0,1)+')'};
+const mm=$('mm'),mmx=mm.getContext('2d');
+const hb=$('hotbar');
+let barKey='';
+
+function renderBar(){
+  hb.innerHTML='';
+  const r0=document.createElement('div');r0.className='hrow';
+  const g=document.createElement('button');g.className='cat';g.innerHTML='<i>Q</i><b>FIREARM</b>';
+  g.onclick=()=>{G.build=false;g.blur()};r0.appendChild(g);
+
+  CATS.forEach((ct,i)=>{
+    const b=document.createElement('button');b.className='cat';
+    b.innerHTML='<i>'+(i===0?'TAB':'')+'</i><b>'+ct[1]+'</b>';
+    b.onclick=()=>{G.cat=i;G.sel=0;G.build=true;b.blur()};
+    r0.appendChild(b);
+  });
+  const u=document.createElement('button');u.className='cat up2';u.id='upBtn';
+  u.onclick=()=>{upgradeShelter();u.blur()};r0.appendChild(u);
+
+  const tl=document.createElement('div');tl.id='tiles';r0.appendChild(tl);
+  const r1=document.createElement('div');r1.className='hrow';
+
+  catList().forEach((pc,i)=>{
+    const b=document.createElement('button');
+    b.innerHTML='<i>'+(i+1)+' · '+pc.w+'x'+pc.h+'</i><b>'+pc.n+'</b><span></span>';
+    b.onclick=()=>{G.sel=i;G.build=true;b.blur()};
+    b.title=pc.d;r1.appendChild(b);
+  });
+  hb.appendChild(r0);hb.appendChild(r1);
+}
+
+function updBar(){
+  const key=G.cat+'|'+(core?core.lv:1)+'|'+Object.keys(P.bp).join(',');
+  if(key!==barKey){barKey=key;renderBar();}
+  const r0=hb.children[0],r1=hb.children[1],list=catList();
+  r0.children[0].classList.toggle('sel',!G.build);
+  CATS.forEach((c,i)=>r0.children[i+1].classList.toggle('sel',G.build&&i===G.cat));
+  const l=core.lv+1,up=$('upBtn');
+  up.innerHTML=l>4?'<i>U</i><b>MAX CITADEL</b>':'<i>U</i><b>REINFORCE TO TIER '+l+'</b>';
+  up.classList.toggle('no',l<=4&&!afford(SHELT[l].cost));
+  $('tiles').textContent='TILES '+usedTiles()+'/'+zoneCount(core.lv);
+
+  list.forEach((pc,i)=>{
+    const b=r1.children[i];if(!b)return;
+    const locked=pc.lv>core.lv||(pc.bp&&!P.bp[pc.bp]);
+    b.classList.toggle('sel',G.build&&i===G.sel);
+    b.classList.toggle('no',!locked&&!afford(pc.cost));
+    b.classList.toggle('off',locked);
+    b.lastChild.textContent=pc.lv>core.lv?'REQUIRES TIER '+pc.lv:(pc.bp&&!P.bp[pc.bp])?'BLUEPRINT LOCKED':costText(pc.cost);
+  });
+}
+
+function eat(){
+  if(P.inv.food<=0){say('FOOD DEPLETED · SCAVENGE OR HARVEST FARMS');return;}
+  if(P.hp>=P.maxhp&&P.st>=P.maxst){say('VITALITY & STAMINA AT MAXIMUM');return;}
+  P.inv.food--;const h=E.kitchen?80:40;P.hp=Math.min(P.maxhp,P.hp+h);P.st=Math.min(P.maxst,P.st+35);
+  sfx(340,.15,'triangle',.06,560);ftxt.push({x:P.x,y:P.y-24,t:'+'+h+' HP',life:1});
+}
+
+function craftAt(kind){
+  if(!E.craft||Math.hypot(P.x-E.craft.x,P.y-E.craft.y)>320){say('POSITION NEAR A MUNITIONS BENCH');return;}
+  const c=kind==='c'?{metal:4,stone:2}:{wood:3,metal:2},res=kind==='c'?'charges':'medkit';
+  if(!afford(c)){say('INSUFFICIENT: '+costText(c));return;}
+  if((P.inv[res]||0)>=capOf(res)){say('PACK CAPACITY REACHED');return;}
+  pay(c);P.inv[res]++;sfx(500,.15,'triangle',.07,950);
+  say(kind==='c'?'DEMOLITION CHARGE FABRICATED':'FIRST-AID KIT ASSEMBLED');
+}
+
+function hud(){
+  sc('hpb',P.hp/P.maxhp);$('hp-val').textContent=Math.ceil(P.hp)+'/'+P.maxhp;
+  sc('stb',P.st/P.maxst);$('st-val').textContent=Math.ceil(P.st)+'/'+P.maxst;
+  sc('xpb',P.xp/need());$('xp-val').textContent=Math.floor(P.xp/need()*100)+'%';
+  $('lv-badge').textContent='SURVIVOR RANK '+P.lvl;$('facelv').textContent='LV '+P.lvl;
+
+  const t=Math.max(0,Math.ceil(G.pt)),m=Math.floor(t/60),s=t%60,night=G.phase==='night';
+  $('timer').textContent=m+':'+String(s).padStart(2,'0');
+  $('timer').classList.toggle('low',night||G.pt<20);
+
+  const left=night?Z.filter(z=>z.horde).length+G.horde:0;
+  $('phase').textContent=night?'NIGHTFALL '+G.day+' · DAWN IN · '+left+' INFECTED':'DAY '+G.day+' · FORTIFY COMPOUND';
+
+  for(const k of ['wood','stone','metal','gears','food','water','circuits'])$(k).textContent=P.inv[k]+'/'+capOf(k);
+  $('ammo').textContent=P.rel>0?'RELOAD':P.ammo;$('kills').textContent=G.kills;
+  $('med').textContent=P.inv.medkit;$('boom').textContent=P.inv.charges;
+
+  $('bps').textContent='BLUEPRINTS: '+(Object.keys(P.bp).map(k=>BPN[k]).join(' · ')||'NONE RECOVERED');
+  const l=core.lv,nx=l<4?SHELT[l+1]:null;
+  $('info').innerHTML='SHELTER TIER '+l+' · '+SHELT[l].n+(nx?'<br>UPGRADE: '+costText(nx.cost):'<br>MAXIMUM CITADEL TIER')+'<br>EVACUATION: NIGHT '+G.winDay;
+  if(core){sc('coreb',core.hp/core.max);$('coretxt').textContent='COMPOUND CITADEL '+Math.ceil(core.hp)+'/'+core.max;}
+
+  updBar();
+  hb.classList.toggle('open',G.build);
+  const reg=islandAt(P.x,P.y,0);$('loc').textContent=reg>=0?ISL[reg].n:'CONNECTING BRIDGE';
+  $('weather-badge').textContent='ATMOSPHERE: '+G.weather.toUpperCase()+' · RAIN '+(Math.round(G.rainIntensity*100))+'%';
+
+  let tip='';
+  const nn=G.state==='play'&&!G.build?nearestNode():null;
+  const bn=G.state==='play'&&!G.build&&!nn?bridgeNear():0;
+  if(G.msgT>0)tip=G.msg;
+  else if(nn)tip=nn.k==='poi'?'<kbd>E</kbd>HOLD TO '+(SITES[nn.poi].loot.k==='mission'?'SECURE ':'SEARCH ')+SITES[nn.poi].n:'<kbd>E</kbd>HOLD TO HARVEST '+RES[nn.k].toUpperCase();
+  else if(bn)tip=BRK[bn]?'<kbd>G</kbd>RECONSTRUCT BRIDGE · 20 WOOD + 8 METAL':'<kbd>G</kbd>DEMOLISH BRIDGE · 1 CHARGE · CUTS OFF '+ISL[bn].n;
+  else if(G.build)tip=curPiece().d+' · T ROTATE · RIGHT-CLICK REMOVE · Q: GUN';
+  else tip=['<kbd>WASD</kbd>MOVE SURVIVOR','<kbd>E</kbd>HOLD NEAR RESOURCE NODE','<kbd>B</kbd>CONSTRUCTION MODE · TAB CATEGORIES','<kbd>CLICK</kbd>BUILD · U REINFORCE COMPOUND · F EAT RATIONS',''][G.tut];
+  if(tip!==lastTip){lastTip=tip;$('tip').innerHTML=tip;}
+
+  // Tactical Minimap Rendering
+  mmx.clearRect(0,0,156,156);mmx.drawImage(mini,0,0);
+  const f=156/S;
+  mmx.fillStyle='#ef4444';
+  for(const z of Z){if(z.horde||dist(z,P)<750)mmx.fillRect(z.x*f-1,z.y*f-1,2.5,2.5);}
+  mmx.fillStyle='#22c55e';mmx.fillRect(CX*f-3,CY*f-3,6,6);
+  for(const q of SITES){
+    if(!q.loot)continue;const ok=siteOK(q);
+    mmx.fillStyle=ok?q.col:'#64748b';mmx.save();mmx.translate(q.x*f,q.y*f);mmx.rotate(.785);
+    mmx.fillRect(-2,-2,4,4);mmx.restore();
+  }
+  mmx.fillStyle='#38bdf8';mmx.beginPath();mmx.arc(P.x*f,P.y*f,4,0,7);mmx.fill();
+}
+
+/* User Input Listeners */
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+function mpos(e){const r=cv.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;}
+cv.addEventListener('pointermove',mpos);
+cv.addEventListener('pointerdown',e=>{
+  mpos(e);initAudio();
+  if(G.state!=='play')return;
+  if(e.button===2){if(G.build)tryRemove();return;}
+  if(G.build)tryBuild();else mouse.down=true;
+});
+addEventListener('pointerup',()=>{mouse.down=false;});
+addEventListener('blur',()=>{mouse.down=false;for(const k in keys)keys[k]=false;});
+
+addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  initAudio();
+  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
+  keys[k]=true;
+
+  if(k==='v'&&!e.repeat)setView(V.m+1);
+  if(G.state==='level'&&'123'.includes(k)&&k){
+    const u=document.querySelectorAll('.up')[+k-1];if(u)u.click();
+  }
+  if(G.state!=='play'&&G.state!=='pause')return;
+  if(k==='shift'&&!e.repeat){P.sprint=!P.sprint&&P.st>5;}
+  if(k==='r'&&P.rel<=0&&P.ammo<P.magMax)P.rel=1.1;
+  if(k==='b'&&!e.repeat&&G.state==='play')G.build=!G.build;
+  if(k==='x'&&G.build&&G.state==='play')tryRemove();
+  if(k==='g'&&!e.repeat&&G.state==='play')bridgeAction();
+  if(k==='h'&&!e.repeat&&G.state==='play'&&P.inv.medkit>0&&P.hp<P.maxhp){
+    const h=E.medBoost?90:60;P.inv.medkit--;P.hp=Math.min(P.maxhp,P.hp+h);
+    sfx(440,.15,'triangle',.07,850);ftxt.push({x:P.x,y:P.y-24,t:'+'+h+' HP',life:1});
+  }
+  if(k==='f'&&!e.repeat&&G.state==='play')eat();
+  if(k==='u'&&!e.repeat&&G.state==='play')upgradeShelter();
+  if(k==='t'&&!e.repeat&&G.state==='play')G.rot=!G.rot;
+  if((k==='c'||k==='m')&&!e.repeat&&G.state==='play')craftAt(k);
+  if(k==='tab'&&G.state==='play'){
+    e.preventDefault();G.cat=(G.cat+(e.shiftKey?CATS.length-1:1))%CATS.length;
+    G.sel=0;G.build=true;
+  }
+  if(G.state==='play'&&k.length===1&&'123456789'.includes(k)&&+k<=catList().length){
+    G.sel=+k-1;G.build=true;
+  }
+  if(k==='q'&&G.state==='play')G.build=false;
+  if((k==='p'||k==='escape')&&!e.repeat){
+    if(k==='escape'&&G.build){G.build=false;return;}
+    G.state=G.state==='play'?'pause':'play';
+    G.msg=G.state==='pause'?'CAMPAIGN PAUSED · PRESS P TO RESUME':'';
+    G.msgT=G.state==='pause'?999:0;
+  }
+});
+addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+
+$('go').onclick=()=>{tutT=0;startGame();};
+$('view-toggle').onclick=()=>setView(V.m+1);
+$('gfx-toggle').onclick=()=>{
+  gfxIdx=(gfxIdx+1)%GFX_MODES.length;
+  $('gfx-toggle').textContent='GFX: '+GFX_MODES[gfxIdx];
+};
+$('again').onclick=()=>{if(G.mode==='respawn')respawn();else{tutT=0;startGame();}};
+$('reset').onclick=()=>{tutT=0;G.msgT=0;lastTip='';startGame();$('lvl').classList.remove('on');};
+
+// Booting loop
+resize();makeSites();resetSites();newPlayer();initTiles();genObs();recalc();
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  viewLerp(dt);update(dt);render();hud();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+window.__game={
+  G,P,E:()=>E,SITES:()=>SITES,SITEST:()=>SITEST,core:()=>core,upgradeShelter,recalc,
+  give,PIECES,CATS,startGame,BRK,markDirty:()=>{baked=false;},get Z(){return Z},
+  get tiles(){return tiles},get obs(){return obs},islandAt,walkable,BR,spawnZ,
+  setPhase:p=>{if(p==='night')startNight();else startDawn()}
+};
+})();
+</script>
+</body>
+</html>

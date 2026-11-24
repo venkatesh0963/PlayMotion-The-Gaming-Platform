@@ -1,0 +1,1372 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Mini Motel</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Josefin+Sans:wght@600;700&display=swap">
+<style>
+/* Layout: one narrow column. Balance on top, a 3D toy-diorama of the hotel in the middle, then a selected-item card and tabbed shop lists. */
+:root{
+  --bg:#ece8e1; --stage:#e9e5dd; --surface:#ffffff; --surface2:#efece6; --ink:#1d2a2e; --muted:#5d6a6e;
+  --line:#d6d1c7; --brass:#9a6a12; --brass-soft:#f3e5bf; --teal:#0f5c63; --teal-ink:#ffffff;
+  --good:#1f7a4d; --bad:#c23b3b; --chip:rgba(255,255,255,.88);
+  --display:'Josefin Sans','Trebuchet MS',system-ui,sans-serif;
+  --body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e171b; --stage:#1a252a; --surface:#14232a; --surface2:#1b2e36; --ink:#e8eff1; --muted:#93a8ae;
+    --line:#2a424b; --brass:#e2b24d; --brass-soft:#3a3018; --teal:#4fb3bb; --teal-ink:#06191c;
+    --good:#58c48b; --bad:#ee7b7b; --chip:rgba(20,35,42,.88); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e171b; --stage:#1a252a; --surface:#14232a; --surface2:#1b2e36; --ink:#e8eff1; --muted:#93a8ae;
+  --line:#2a424b; --brass:#e2b24d; --brass-soft:#3a3018; --teal:#4fb3bb; --teal-ink:#06191c;
+  --good:#58c48b; --bad:#ee7b7b; --chip:rgba(20,35,42,.88); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--body); font-size:15px; line-height:1.4;
+  padding-block:14px 40px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  -webkit-tap-highlight-color:transparent;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.wrap{max-width:560px;margin:0 auto;display:grid;gap:12px}
+.num{font-variant-numeric:tabular-nums}
+
+.hud{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:end;padding:2px 2px 0}
+.brand{font-family:var(--display);font-weight:700;letter-spacing:.16em;text-transform:uppercase;font-size:12px;color:var(--brass)}
+.stars{letter-spacing:.2em;color:var(--brass);font-size:14px;text-align:right}
+.balance{font-family:var(--display);font-weight:700;font-size:clamp(32px,9.5vw,44px);line-height:1}
+.hudr{text-align:right;color:var(--muted);font-size:13px;line-height:1.3}
+.hudr b{color:var(--ink);font-weight:600}
+
+.stage{position:relative;aspect-ratio:1/1.04;max-height:86vh;background:var(--stage);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;cursor:grab}
+.fail{margin:24px;color:var(--muted)}
+#pops{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.pop{position:absolute;transform:translate(-50%,-50%);font-family:var(--display);font-weight:700;font-size:17px;color:#e6a312;white-space:nowrap;text-shadow:0 0 3px rgba(0,0,0,.45),0 1px 0 rgba(0,0,0,.35);animation:rise 1.25s ease-out forwards}
+.pop.bad{color:#ff8a80}
+.pop.up{color:#7be3a6}
+@keyframes rise{0%{opacity:0;margin-top:6px}15%{opacity:1}100%{opacity:0;margin-top:-46px}}
+.bar{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding:10px max(10px,env(safe-area-inset-right,0px)) 10px max(10px,env(safe-area-inset-left,0px));pointer-events:none}
+.chip{pointer-events:auto;background:var(--chip);border:1px solid var(--line);border-radius:5px;padding:6px 10px;font-size:13px;font-weight:600}
+.barbtns{display:flex;gap:6px;align-items:center}
+.taxi{pointer-events:auto;background:var(--brass);color:var(--surface);border:none;border-radius:5px;padding:9px 14px;font-family:var(--display);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+.taxi:disabled{opacity:.55;cursor:not-allowed}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px;display:grid;gap:10px}
+.card h2{margin:0;font-family:var(--display);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:15px}
+.selhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.status{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.status.on{color:var(--good)}.status.busy{color:var(--brass)}
+.pips{display:flex;gap:4px}
+.pip{width:22px;height:8px;background:var(--surface2);border:1px solid var(--line);border-radius:2px}
+.pip.f{background:var(--teal);border-color:var(--teal)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:12px;font-weight:600;background:var(--surface2);border:1px solid var(--line);border-radius:4px;padding:3px 8px}
+.note{margin:0;color:var(--muted);font-size:14px}
+.actrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+.actrow .t{font-size:14px}
+.actrow .t b{display:block}
+.buy{min-width:108px;border:1px solid var(--teal);background:var(--teal);color:var(--teal-ink);border-radius:5px;padding:8px 10px;text-align:center;line-height:1.15}
+.buy b{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.buy span{font-size:14px;font-weight:600}
+.buy:disabled{background:var(--surface2);color:var(--muted);border-color:var(--line);cursor:not-allowed}
+.maxed{min-width:108px;text-align:center;color:var(--good);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.tab{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 2px;font-family:var(--display);font-weight:700;letter-spacing:.03em;text-transform:uppercase;font-size:11px;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--teal);color:var(--teal-ink);border-color:var(--teal)}
+.list{display:grid;gap:8px}
+.catrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:6px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.catrow:first-child{margin-top:0}
+.cat{font-family:var(--display);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:12px;color:var(--brass)}
+.catnote{font-size:12px;color:var(--muted)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+.row.sel{border-color:var(--brass);box-shadow:0 0 0 2px var(--brass-soft)}
+.rn{font-weight:700}
+.rn small{font-weight:500;color:var(--muted);margin-left:6px}
+.rd{color:var(--muted);font-size:13px}
+.subh{margin:0;font-family:var(--display);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:12px;color:var(--brass)}
+.daily{display:grid;gap:8px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:4px}
+.days{display:flex;gap:5px}
+.day{flex:1;text-align:center;font-size:12px;font-weight:700;border:1px solid var(--line);border-radius:4px;padding:5px 0;color:var(--muted)}
+.day.f{background:var(--teal);color:var(--teal-ink);border-color:var(--teal)}
+.day.now{border-color:var(--brass);color:var(--ink);box-shadow:0 0 0 2px var(--brass-soft)}
+.prog{height:6px;background:var(--surface2);border:1px solid var(--line);border-radius:3px;overflow:hidden;margin-top:6px}
+.prog i{display:block;height:100%;background:var(--teal)}
+.goalr{text-align:right;min-width:60px}
+.kv{display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:14px;margin:0}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-weight:600;text-align:right}
+.bigbtn{border:2px solid var(--brass);background:var(--brass-soft);color:var(--ink);border-radius:6px;padding:12px 14px;font-weight:700;font-family:var(--display);letter-spacing:.08em;text-transform:uppercase;font-size:13px}
+.bigbtn:disabled{opacity:.5;cursor:not-allowed}
+.bigbtn.arm{background:var(--brass);color:var(--surface)}
+.evchip{position:absolute;top:10px;left:max(10px,env(safe-area-inset-left,0px));pointer-events:none}
+.linkbtn{justify-self:start;background:none;border:none;color:var(--muted);text-decoration:underline;padding:4px 0;font-size:13px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:6px;font-size:14px;max-width:min(92vw,420px);text-align:center;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion: reduce){.pop{animation-duration:.01s}.toast{transition:none}}
+@media (max-width:380px){.buy,.maxed{min-width:94px}}
+/* floor-plan edition */
+:root{--hdr:#6a4524;--hdr-ink:#fbf1de;--hdr-gold:#f0c35a}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hdr:#3a2a1a}}
+:root[data-theme="dark"]{--hdr:#3a2a1a}
+.hud{background:var(--hdr);color:var(--hdr-ink);border-radius:6px;padding:12px 14px;gap:4px 12px}
+.brand{color:var(--hdr-gold)}
+.stars{color:var(--hdr-gold)}
+.hudr{color:rgba(251,241,222,.78)}
+.hudr b{color:#fff}
+.stage{aspect-ratio:1/1.12;max-height:82vh}
+.stage canvas{touch-action:none;cursor:grab}
+.stage canvas:active{cursor:grabbing}
+#names{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.nm{position:absolute;transform:translate(-50%,-100%);pointer-events:auto;font-family:var(--body);font-weight:700;font-size:10.5px;line-height:1;background:var(--chip);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:3px 5px;white-space:nowrap;cursor:pointer}
+.nm small{font-weight:500;font-size:9.5px;opacity:.7;margin-left:4px}
+.nm.vip{background:#f0c35a;color:#2a1d05;border-color:#b98a1f}
+.nm.sel{outline:2px solid var(--brass)}
+.live{position:absolute;top:10px;left:max(10px,env(safe-area-inset-left,0px));pointer-events:none;display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--good);display:block}
+.evchip{left:auto;right:max(10px,env(safe-area-inset-right,0px))}
+.hint{display:flex;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.hint span{border:1px solid var(--line);border-radius:4px;padding:3px 7px;background:var(--surface)}
+.roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;min-height:62px}
+.rempty{grid-column:1/-1;color:var(--muted);font-size:14px}
+.pc{height:62px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px;display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px;align-items:center;text-align:left}
+.pc.st{background:var(--surface2)}
+.pc.sel{border-color:var(--brass);box-shadow:0 0 0 2px var(--brass-soft)}
+.av{width:34px;height:40px;position:relative;border-radius:3px;background:var(--shirt,#888);display:block}
+.av::before{content:"";position:absolute;left:5px;top:2px;width:24px;height:20px;background:var(--skin,#e8c39e);border-radius:3px;box-shadow:inset 0 7px 0 var(--hair,#2b1d14)}
+.pw{display:grid;gap:2px;min-width:0}
+.pn{font-weight:700;font-size:13px;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pt{font-size:11px;color:var(--muted);line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ps{font-size:11px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+</style>
+
+<div class="wrap">
+  <header class="hud">
+    <div class="brand">Mini Motel</div>
+    <div class="stars" id="stars" aria-hidden="true"></div>
+    <div class="balance num" id="coins">$0</div>
+    <div class="hudr num" id="rate"></div>
+  </header>
+
+  <section class="stage" id="stage" aria-label="Your hotel floor plan. Drag to rotate, pinch or scroll to zoom, tap a room, the reception, the restaurant or the mall to select it.">
+    <canvas id="gl"></canvas>
+    <div id="names"></div>
+    <div id="pops"></div>
+    <div class="chip live"><i class="dot"></i><span id="livetxt"></span></div>
+    <div class="chip evchip" id="ev" hidden></div>
+    <div class="bar">
+      <div class="chip num" id="free"></div>
+      <div class="barbtns"><button class="chip" id="snd" type="button" aria-pressed="true" aria-label="Turn sound on or off">Sound on</button><button class="chip" id="view" type="button" aria-label="Reset camera view">Reset view</button><button class="taxi" id="taxi" type="button">Call taxi</button></div>
+    </div>
+  </section>
+  <div class="hint"><span>Drag to rotate</span><span>Two fingers or right-drag to pan</span><span>Pinch or scroll to zoom</span><span>Tap a guest to follow</span></div>
+
+  <section class="card" id="sel" aria-live="polite"></section>
+
+  <nav class="tabs" role="tablist" aria-label="Shop">
+    <button class="tab" role="tab" id="tab-rooms" data-tab="rooms" aria-selected="true">Rooms</button>
+    <button class="tab" role="tab" id="tab-lobby" data-tab="lobby" aria-selected="false">Lobby</button>
+    <button class="tab" role="tab" id="tab-staff" data-tab="staff" aria-selected="false">Staff</button>
+    <button class="tab" role="tab" id="tab-goals" data-tab="goals" aria-selected="false">Goals</button>
+    <button class="tab" role="tab" id="tab-fran" data-tab="fran" aria-selected="false">Franchise</button>
+  </nav>
+  <section class="card" id="panel-rooms" role="tabpanel" aria-labelledby="tab-rooms"><div class="list" id="list-rooms"></div></section>
+  <section class="card" id="panel-lobby" role="tabpanel" aria-labelledby="tab-lobby" hidden><h3 class="subh">Guests and staff in the lobby</h3><div class="roster" id="roster"><div class="rempty" id="rosterempty">Guests appear here as soon as a taxi arrives. Tap a card to follow that person.</div></div><h3 class="subh">Services</h3><div class="list" id="list-lobby"></div></section>
+  <section class="card" id="panel-staff" role="tabpanel" aria-labelledby="tab-staff" hidden><div class="list" id="list-staff"></div></section>
+  <section class="card" id="panel-goals" role="tabpanel" aria-labelledby="tab-goals" hidden><div class="list" id="list-goals"></div></section>
+  <section class="card" id="panel-fran" role="tabpanel" aria-labelledby="tab-fran" hidden>
+    <p class="note">Sell Mini Motel and reopen with reputation. Each reputation point adds 10% to all income for good. You keep reputation, goals and your daily streak. You lose cash, rooms, services and staff.</p>
+    <dl class="kv">
+      <dt>Reputation</dt><dd class="num" id="f-rep"></dd>
+      <dt>Income bonus</dt><dd class="num" id="f-bonus"></dd>
+      <dt>Earned this run</dt><dd class="num" id="f-run"></dd>
+      <dt>Reputation if you sell now</dt><dd class="num" id="f-gain"></dd>
+      <dt>Franchises opened</dt><dd class="num" id="f-count"></dd>
+      <dt>Lifetime earnings</dt><dd class="num" id="f-life"></dd>
+    </dl>
+    <p class="note" id="f-hint"></p>
+    <button class="bigbtn" id="f-btn" type="button">Franchise</button>
+    <button class="linkbtn" id="wipe" type="button">Erase all progress</button>
+  </section>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+var stage=document.getElementById('stage');
+if(!window.THREE){stage.innerHTML='<p class="fail">The 3D engine could not load. Check your connection and reload the page.</p>';return;}
+const T=THREE;
+const $=id=>document.getElementById(id);
+
+/* ---------- game data ---------- */
+const KEY='meridian-hotel-tycoon-v1';
+const H=3.0, Y0=0.21;
+const yF=f=>Y0+H*f;
+const SLOT=[-3.6,-1.2,1.2,3.6];
+const STOPX=0;
+const CATS=[
+  {name:'Economy',floor:1,tint:0x9cc4ef,wall:0xdbe9fb,blanket:0x4f86c6,build:40,price:12,stay:10,up:35},
+  {name:'Deluxe',floor:2,tint:0xb9a6ea,wall:0xe7dffa,blanket:0x7a5cc7,build:700,price:70,stay:12,up:520},
+  {name:'Suite',floor:3,tint:0xf0be72,wall:0xfbe9c6,blanket:0xc7782b,build:11000,price:420,stay:14,up:8500}
+];
+const LVM=[1,1.45,2.1,3,4.3,6.2];
+const LVADD=['Single bed','Standing fan','TV on a dresser','Air conditioner','Sofa and floor lamp','Gold bed, rug and painting'];
+const ROOMS=[];
+CATS.forEach((c,ci)=>{for(let i=0;i<4;i++)ROOMS.push({id:ROOMS.length,cat:c,idx:i,cx:SLOT[i],f:c.floor,row:ci,cz:[-1.2,-4.8,-8.4][ci],cdz:[0.6,-3.0,-6.6][ci],busy:false,dirty:0,mess:false,messT:0});});
+const roomBuildCost=r=>r.cat.build*Math.pow(1.5,r.idx);
+const roomUpCost=(r,lv)=>r.cat.up*Math.pow(2.4,lv-1);
+const roomPrice=(r,lv)=>r.cat.price*LVM[lv-1];
+const REC_MAX=6;
+const recInterval=()=>8/(1+0.35*(S.rec-1))*mktMult();
+const recCheckin=()=>1.4/(1+0.15*(S.rec-1));
+const recUpCost=l=>120*Math.pow(3.2,l-1);
+const REC_ADD=['Front desk','Computer and bell','Plant and sign','Red carpet','Second clerk and gold trim','Velvet rope'];
+const REST={name:'Restaurant',build:900,up:l=>900*Math.pow(2.6,l),pay:l=>25*Math.pow(1.7,l-1),prob:l=>0.5+0.08*(l-1),max:5,add:['One table','Second table','Third table','Fourth table','Fifth table, chef and lanterns']};
+const MALL={name:'Mall',build:6500,up:l=>6500*Math.pow(2.6,l),pay:l=>140*Math.pow(1.7,l-1),prob:l=>0.35+0.07*(l-1),max:5,add:['One shop','Second shop','Third shop','Fourth shop','Fifth shop and balloons']};
+const STAR_AT=[0,8,20,38,58], STAR_M=[1,1.1,1.22,1.36,1.5];
+const TIERS=['Roadside inn','Guest house','City hotel','Grand hotel','Palace hotel'];
+const STAFF=[
+  {id:'clean',name:'Cleaner',cost:[250,2500,25000],fx:['Rooms stay dirty for 6s after a guest leaves.','Rooms are ready 4s after checkout.','Rooms are ready 2.5s after checkout.','Rooms are ready 1s after checkout, and messes clear faster.']},
+  {id:'bell',name:'Bellhop',cost:[400,4000,40000],fx:['Guests walk at normal speed and tip nothing.','Guests walk faster and tip 8% more.','Guests walk faster and tip 16% more.','Guests walk fastest and tip 24% more.']},
+  {id:'chef',name:'Head chef',cost:[1500,15000,150000],fx:['Restaurant pays its base price.','Restaurant income +25%.','Restaurant income +50%.','Restaurant income +75%.']},
+  {id:'shop',name:'Shop manager',cost:[8000,80000,800000],fx:['Mall pays its base price.','Mall income +25%.','Mall income +50%.','Mall income +75%.']},
+  {id:'conc',name:'Concierge',cost:[5000,50000,500000],fx:['Guests visit the restaurant and mall at the usual rate.','Guests visit 10% more often.','Guests visit 20% more often.','Guests visit 30% more often.']},
+  {id:'mkt',name:'Marketing manager',cost:[1200,12000,120000],fx:['Taxis arrive at the usual rate.','Taxis arrive 12% sooner.','Taxis arrive 24% sooner.','Taxis arrive 36% sooner.']}
+];
+const slv=id=>(S.staff&&S.staff[id])||0;
+const cleanTime=()=>[6,4,2.5,1][slv('clean')];
+const messTime=()=>[25,14,8,4][slv('clean')];
+const tipMult=()=>1+0.08*slv('bell');
+const chefMult=()=>1+0.25*slv('chef');
+const shopMult=()=>1+0.25*slv('shop');
+const concBonus=()=>0.1*slv('conc');
+const mktMult=()=>1-0.12*slv('mkt');
+/* guest types: prefs are category indexes in order of preference (0 Economy, 1 Deluxe, 2 Suite) */
+const GT={
+  tourist:{name:'Tourist',mult:1,stay:1,prefs:[0,1,2],rest:0,mall:0,rm:1,mm:1},
+  family:{name:'Family',mult:1.4,stay:1.1,prefs:[1,2,0],rest:0.3,mall:0,rm:1.3,mm:1},
+  business:{name:'Business',mult:1.25,stay:0.6,prefs:[1,0,2],rest:-0.3,mall:0.3,rm:1,mm:1.2},
+  vip:{name:'VIP',mult:3,stay:1.4,prefs:[2],rest:1,mall:1,rm:2,mm:2},
+  celeb:{name:'Celebrity',mult:6,stay:1.6,prefs:[2,1,0],rest:1,mall:1,rm:3,mm:3}
+};
+const hasSuite=()=>S.rooms.slice(8).some(x=>x>0);
+function typeMix(){const vip=hasSuite()?0.02+0.01*stars():0;return {vip:vip,fam:0.2,biz:0.15,tour:1-vip-0.35};}
+function rollType(){const m=typeMix(),r=Math.random();if(r<m.vip)return 'vip';if(r<m.vip+m.fam)return 'family';if(r<m.vip+m.fam+m.biz)return 'business';return 'tourist';}
+const avgTypeMult=()=>{const m=typeMix();return m.tour+m.fam*GT.family.mult+m.biz*GT.business.mult+m.vip*GT.vip.mult;};
+const builtCount=()=>S.rooms.filter(x=>x>0).length;
+const staffRoles=()=>STAFF.filter(s=>slv(s.id)>0).length;
+const GOALS=[
+  {id:'g10',name:'Host 10 guests',stat:()=>S.stats.guests,target:10,base:40,min:2},
+  {id:'r4',name:'Build 4 rooms',stat:builtCount,target:4,base:150,min:3},
+  {id:'rest',name:'Open the restaurant',stat:()=>S.rest,target:1,base:400,min:4},
+  {id:'g50',name:'Host 50 guests',stat:()=>S.stats.guests,target:50,base:250,min:4},
+  {id:'bus1',name:'Greet a tour bus',stat:()=>S.stats.buses,target:1,base:300,min:3},
+  {id:'clean5',name:'Clean up 5 messy rooms',stat:()=>S.stats.cleaned,target:5,base:800,min:5},
+  {id:'star3',name:'Reach 3 stars',stat:()=>stars(),target:3,base:1000,min:6},
+  {id:'r8',name:'Build 8 rooms',stat:builtCount,target:8,base:2000,min:6},
+  {id:'mall',name:'Open the mall',stat:()=>S.mall,target:1,base:2500,min:6},
+  {id:'g200',name:'Host 200 guests',stat:()=>S.stats.guests,target:200,base:1000,min:8},
+  {id:'vip5',name:'Welcome 5 VIP guests',stat:()=>S.stats.vips,target:5,base:1500,min:8},
+  {id:'l6',name:'Upgrade a room to level 6',stat:()=>Math.max.apply(null,S.rooms),target:6,base:800,min:6},
+  {id:'staff6',name:'Hire all six staff',stat:staffRoles,target:6,base:3000,min:8},
+  {id:'bus3',name:'Greet 3 tour buses',stat:()=>S.stats.buses,target:3,base:1200,min:6},
+  {id:'e1m',name:'Earn $1M in total',stat:()=>S.life,target:1e6,base:5000,min:10},
+  {id:'r12',name:'Build all 12 rooms',stat:builtCount,target:12,base:20000,min:10},
+  {id:'g1k',name:'Host 1000 guests',stat:()=>S.stats.guests,target:1000,base:6000,min:15},
+  {id:'star5',name:'Reach 5 stars',stat:()=>stars(),target:5,base:50000,min:20},
+  {id:'fr1',name:'Open your first franchise',stat:()=>S.fr,target:1,base:8000,min:15}
+];
+
+const SUF=['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc'];
+const fmt=n=>{
+  if(!isFinite(n))return '0';
+  if(n<1000)return n<10&&n%1!==0?n.toFixed(1).replace(/\.0$/,''):String(Math.floor(n));
+  let i=0;while(n>=1000&&i<SUF.length-1){n/=1000;i++;}
+  return (n>=100?n.toFixed(0):n>=10?n.toFixed(1):n.toFixed(2))+SUF[i];
+};
+
+function fresh(){const r=new Array(12).fill(0);r[0]=1;return {coins:30,life:0,run:0,rep:0,fr:0,rooms:r,rec:1,rest:0,mall:0,staff:{clean:0,bell:0,chef:0,shop:0,conc:0,mkt:0},stats:{guests:0,vips:0,buses:0,cleaned:0},claimed:{},daily:{last:'',streak:0},last:Date.now()};}
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY);if(!raw)return null;
+    const o=JSON.parse(raw),f=fresh();
+    for(const k in f){if(o[k]!==undefined)f[k]=o[k];}
+    if(!Array.isArray(f.rooms)||f.rooms.length!==12)f.rooms=fresh().rooms;
+    const dd=fresh();f.staff=Object.assign(dd.staff,f.staff||{});f.stats=Object.assign(dd.stats,f.stats||{});f.claimed=f.claimed||{};f.daily=Object.assign(dd.daily,f.daily||{});
+    return f;
+  }catch(e){return null;}
+}
+function save(){try{S.last=Date.now();localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let S=load()||fresh();
+
+const points=()=>S.rooms.reduce((a,b)=>a+b,0)+S.rec-1+S.rest+S.mall;
+const stars=()=>{let s=1;for(let i=0;i<STAR_AT.length;i++)if(points()>=STAR_AT[i])s=i+1;return s;};
+const starMult=()=>STAR_M[stars()-1]*(1+0.1*S.rep);
+
+function estRate(){
+  const lam=1/recInterval();let sup=0,rev=0;
+  ROOMS.forEach(r=>{const lv=S.rooms[r.id];if(!lv)return;const cyc=r.cat.stay+8+cleanTime();sup+=1/cyc;rev+=roomPrice(r,lv)/cyc;});
+  if(!sup)return 0;
+  const served=Math.min(lam,sup),avg=rev/sup;
+  let ex=0;
+  if(S.rest)ex+=Math.min(0.97,REST.prob(S.rest)+concBonus())*REST.pay(S.rest)*chefMult();
+  if(S.mall)ex+=Math.min(0.97,MALL.prob(S.mall)+concBonus())*MALL.pay(S.mall)*shopMult();
+  return served*(avg*avgTypeMult()*tipMult()+ex)*starMult();
+}
+
+/* ---------- three.js setup ---------- */
+const canvas=$('gl');
+const renderer=new T.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
+renderer.setClearColor(0x000000,0);
+const scene=new T.Scene();
+scene.add(new T.AmbientLight(0xffffff,0.64));
+const sun=new T.DirectionalLight(0xffffff,0.62);sun.position.set(-7,16,11);scene.add(sun);
+const cam=new T.PerspectiveCamera(30,1,0.5,400);
+const V0={az:-0.62,el:0.86,zoom:1,tx:0,tz:-1.6};
+const V={az:V0.az,el:V0.el,zoom:1,tx:V0.tx,tz:V0.tz,fitD:60};
+const CLAMP=(v,a,b)=>Math.max(a,Math.min(b,v));
+let follow=null;
+function placeCam(){
+  const d=V.fitD*V.zoom,ce=Math.cos(V.el);
+  cam.position.set(V.tx+d*ce*Math.sin(V.az),0.4+d*Math.sin(V.el),V.tz+d*ce*Math.cos(V.az));
+  cam.lookAt(V.tx,0.4,V.tz);cam.updateMatrixWorld(true);
+}
+const world=new T.Group();scene.add(world);
+const hotelPts=[];[-7.4,7.4].forEach(x=>[-9.8,6.2].forEach(z=>[0,1.4].forEach(y=>hotelPts.push([x,y,z]))));
+function fit(){
+  const w=Math.max(10,stage.clientWidth),h=Math.max(10,stage.clientHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.setSize(w,h,false);
+  cam.aspect=w/h;cam.updateProjectionMatrix();
+  const keep={az:V.az,el:V.el,zoom:V.zoom,tx:V.tx,tz:V.tz};
+  V.az=V0.az;V.el=V0.el;V.zoom=1;V.tx=V0.tx;V.tz=V0.tz;
+  let d=V.fitD>5?V.fitD:60;
+  const v=new T.Vector3();
+  for(let it=0;it<6;it++){
+    V.fitD=d;placeCam();
+    let m=0;
+    hotelPts.forEach(p=>{v.set(p[0],p[1],p[2]).project(cam);m=Math.max(m,Math.abs(v.x),Math.abs(v.y));});
+    if(!isFinite(m)||m<=0)break;
+    d*=m/0.93;
+  }
+  V.fitD=isFinite(d)&&d>5?d:60;
+  V.az=keep.az;V.el=keep.el;V.zoom=keep.zoom;V.tx=keep.tx;V.tz=keep.tz;
+  placeCam();
+}
+function resetView(){V.az=V0.az;V.el=V0.el;V.zoom=1;V.tx=V0.tx;V.tz=V0.tz;follow=null;placeCam();}
+function panView(dx,dy){
+  const s=V.fitD*V.zoom*0.0016,sa=Math.sin(V.az),ca=Math.cos(V.az);
+  V.tx=CLAMP(V.tx-ca*dx*s+(-sa)*dy*s,-11,11);
+  V.tz=CLAMP(V.tz+sa*dx*s+(-ca)*dy*s,-13,9);
+}
+/* ---------- mesh helpers ---------- */
+const GC={},MC={};
+const geo=(k,f)=>GC[k]||(GC[k]=f());
+const mat=c=>MC[c]||(MC[c]=new T.MeshLambertMaterial({color:c}));
+const bx=(p,w,h,d,c,x,y,z)=>{const m=new T.Mesh(geo('b'+w+'|'+h+'|'+d,()=>new T.BoxGeometry(w,h,d)),mat(c));m.position.set(x,y,z);p.add(m);return m;};
+const cy=(p,rt,rb,h,c,x,y,z,s)=>{const m=new T.Mesh(geo('c'+rt+'|'+rb+'|'+h+'|'+(s||10),()=>new T.CylinderGeometry(rt,rb,h,s||10)),mat(c));m.position.set(x,y,z);p.add(m);return m;};
+const sp=(p,r,c,x,y,z)=>{const m=new T.Mesh(geo('s'+r,()=>new T.SphereGeometry(r,12,9)),mat(c));m.position.set(x,y,z);p.add(m);return m;};
+const cn=(p,r,h,c,x,y,z,s)=>{const m=new T.Mesh(geo('n'+r+'|'+h+'|'+(s||8),()=>new T.ConeGeometry(r,h,s||8)),mat(c));m.position.set(x,y,z);p.add(m);return m;};
+const SHADOW=new T.MeshBasicMaterial({color:0x000000,transparent:true,opacity:0.16,depthWrite:false});
+const shadow=(p,r,sx,sz)=>{const m=new T.Mesh(geo('sh'+r,()=>new T.CylinderGeometry(r,r,0.01,14)),SHADOW);m.scale.set(sx||1,1,sz||1);m.position.set(0,0.035,0);p.add(m);return m;};
+const signs=[];
+function drawSign(s){
+  const c=s.cv.getContext('2d');
+  c.fillStyle=s.bg;c.fillRect(0,0,s.cv.width,s.cv.height);
+  c.fillStyle=s.fg;c.font='700 '+Math.round(s.cv.height*0.5)+"px 'Josefin Sans','Trebuchet MS',sans-serif";
+  c.textAlign='center';c.textBaseline='middle';c.fillText(s.text,s.cv.width/2,s.cv.height/2+2);
+  s.tex.needsUpdate=true;
+}
+function sign(p,text,bg,fg,w,h,x,y,z){
+  const cv=document.createElement('canvas');cv.width=512;cv.height=Math.max(32,Math.round(512*h/w));
+  const tex=new T.CanvasTexture(cv);
+  const s={cv:cv,tex:tex,text:text,bg:bg,fg:fg};drawSign(s);signs.push(s);
+  const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({map:tex}));
+  m.position.set(x,y,z);p.add(m);return m;
+}
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(()=>signs.forEach(drawSign)).catch(()=>{});}
+
+function person(p,shirt,pants,skin,hair,hat){
+  cy(p,0.13,0.14,0.22,pants,0,0.11,0,8);
+  cy(p,0.15,0.17,0.36,shirt,0,0.4,0,8);
+  sp(p,0.14,skin,0,0.73,0);
+  sp(p,0.145,hair,0,0.77,-0.025);
+  if(hat)cy(p,0.1,0.12,0.2,0xffffff,0,0.98,0,8);
+}
+
+/* ---------- the hotel floor plan ---------- */
+const bld=new T.Group();world.add(bld);
+const picks=[];
+const PICKM=new T.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false});
+function addPick(selKey,x,y,z,w,h,d){
+  const m=new T.Mesh(new T.BoxGeometry(w,h,d),PICKM);m.position.set(x,y,z);m.userData.sel=selKey;world.add(m);picks.push(m);
+}
+const RO=[];
+const rest={items:[[],[],[],[],[]],cons:null,tables:[[-6.3,3.4],[-4.9,3.4],[-3.5,3.4],[-5.6,4.9],[-4.2,4.9]]};
+const mall={items:[[],[],[],[],[]],cons:null,stalls:[3.1,4.0,4.9,5.8,6.7]};
+const rec={items:[[],[],[],[],[],[]]};
+const GREEN=0x4cd964,RED=0xe74c3c,GOLD=0xd9a521,WOOD=0x8a5a3b;
+const lampColor=R=>R.mess?0xff7a1a:R.busy?RED:R.dirty>0?0xf2b632:GREEN;
+const staffV={clean:[],bell:[],chef:[],shop:[],conc:[],mkt:[]};
+const staffPeople=[];
+const WH=1.05,WT=0.12,WALLC=0xf4f1ea,CAPC=0xc9c2b2;
+
+function wall(x1,z1,x2,z2,c,h){
+  h=h||WH;
+  const horiz=z1===z2,len=horiz?Math.abs(x2-x1):Math.abs(z2-z1);
+  const cx=(x1+x2)/2,cz=(z1+z2)/2,w=horiz?len+WT:WT,d=horiz?WT:len+WT;
+  bx(bld,w,h,d,c||WALLC,cx,Y0+h/2,cz);
+  bx(bld,w+0.02,0.05,d+0.02,CAPC,cx,Y0+h+0.025,cz);
+}
+function floorTile(x1,z1,x2,z2,c){bx(bld,x2-x1,0.03,z2-z1,c,(x1+x2)/2,Y0+0.015,(z1+z2)/2);}
+
+function construction(g,x,z,y){
+  const c=new T.Group();c.position.set(x||0,y||0,z||0);g.add(c);
+  bx(c,0.7,0.7,0.7,0xc9a26b,-0.4,0.35,-0.3);bx(c,0.5,0.5,0.5,0xd7b27a,0.5,0.25,-0.5);bx(c,0.45,0.45,0.45,0xc9a26b,0.2,0.62,-0.4);
+  cn(c,0.22,0.55,0xff7a1a,0.45,0.28,0.5,10);bx(c,0.9,0.28,0.04,0xffd84a,-0.2,0.8,0.6);bx(c,0.1,0.8,0.05,0x3b3b3b,-0.5,0.4,0.6);bx(c,0.1,0.8,0.05,0x3b3b3b,0.1,0.4,0.6);
+  return c;
+}
+
+/* ---------- scenery ---------- */
+function buildScenery(){
+  bx(world,30,0.7,32,0xa5d63f,0,-0.35,-0.5);
+  bx(world,30,0.12,32,0xe3f6a4,0,-0.06,-0.5);
+  bx(world,30,0.2,2.2,0xf6f4ee,0,0.1,7.1);
+  bx(world,30,0.08,2.8,0x59636d,0,0.04,9.6);
+  for(let x=-13;x<=13;x+=1.8)bx(world,0.9,0.02,0.07,0xf4f4f0,x,0.09,9.6);
+  bx(world,30,0.09,0.08,0xe7e3d8,0,0.045,8.2);
+  for(let x=-12;x<=12;x+=4){if(Math.abs(x)<2)continue;cy(world,0.03,0.03,1.0,0x2b3a42,x,0.7,7.9,6);bx(world,0.2,0.07,0.2,0xfff0a8,x,1.22,7.9);}
+  const tree=(x,z,s)=>{const g=new T.Group();cy(g,0.07,0.09,0.5,0x8a5a3b,0,0.25,0,6);sp(g,0.46,0x58b947,0,0.9,0);g.scale.setScalar(s||1);g.position.set(x,0,z);world.add(g);};
+  const pine=(x,z,s)=>{const g=new T.Group();cy(g,0.06,0.08,0.4,0x8a5a3b,0,0.2,0,6);cn(g,0.45,0.8,0x3f9e4a,0,0.75,0,8);cn(g,0.33,0.6,0x4cb25a,0,1.15,0,8);g.scale.setScalar(s||1);g.position.set(x,0,z);world.add(g);};
+  const house=(x,z,wall,roof,s,ry)=>{const g=new T.Group();bx(g,1.2,0.8,1.0,wall,0,0.4,0);const r=cn(g,0.95,0.6,roof,0,1.1,0,4);r.rotation.y=Math.PI/4;bx(g,0.22,0.4,0.04,0x3b4a55,0,0.2,0.52);bx(g,0.22,0.22,0.04,0xbfe3f5,0.35,0.5,0.52);g.scale.setScalar(s||1);g.rotation.y=ry||0;g.position.set(x,0,z);world.add(g);};
+  house(-8.5,-12.3,0xc7e3d4,0x3b7bbf,1.3,0.1);house(-4.8,-12.8,0xf3c9bf,0x4a5f7a,1.3,-0.05);
+  house(-1.0,-12.4,0xcfe0f5,0xe04b4b,1.3,0.05);house(3.0,-12.8,0xffe39a,0x3b7bbf,1.3,0);house(7.2,-12.3,0xc7e3d4,0xe04b4b,1.3,-0.1);
+  tree(-9.4,-3.5,1.2);tree(-9.6,1.5,1.1);tree(9.5,-2.5,1.2);tree(9.6,2.5,1.1);tree(-9.2,-8.5,1.0);tree(9.4,-8,1.1);
+  pine(-10.6,4.5,1.3);pine(10.6,5,1.2);tree(-11,-1,1);pine(11,-5,1.2);tree(-12,10.5,1);tree(12.2,10,1.1);
+  tree(-10,13,1.1);tree(-5,13.2,1);pine(0,13.1,1.2);tree(5,13,1);tree(10,13.2,1.1);pine(-2.5,-14,1.1);pine(1.5,-14.2,1.2);
+}
+
+/* ---------- rooms ---------- */
+function makeRoom(R){
+  const g=new T.Group();g.position.set(R.cx,Y0,R.cz);bld.add(g);
+  const o={g:g,items:[[],[],[],[],[],[]],gold:[],blades:null};
+  const add=(k,m)=>{o.items[k].push(m);return m;};
+  o.panel=bx(g,2.2,0.95,0.02,R.cat.wall,0,0.5,-1.12);
+  o.carpet=bx(g,2.1,0.02,2.1,R.cat.tint,0,0.012,0);
+  o.lamp=sp(g,0.1,GREEN,0,1.22,1.2);
+  const code=R.cat.name.charAt(0)+(R.idx+1);
+  sign(g,code,'#'+('000000'+R.cat.tint.toString(16)).slice(-6),'#1d2a2e',0.5,0.22,0.82,0.62,1.215);
+  const bb=add(0,bx(g,0.95,0.28,1.55,WOOD,-0.5,0.14,-0.35));o.gold.push(bb);
+  const hb=add(0,bx(g,0.95,0.5,0.06,WOOD,-0.5,0.5,-1.08));o.gold.push(hb);
+  add(0,bx(g,0.85,0.16,1.45,0xffffff,-0.5,0.36,-0.35));
+  add(0,bx(g,0.55,0.1,0.28,0xf4f4f4,-0.5,0.49,-0.9));
+  add(0,bx(g,0.87,0.05,0.85,R.cat.blanket,-0.5,0.46,0.0));
+  const fan=new T.Group();fan.position.set(0.9,0,0.05);g.add(fan);add(1,fan);
+  cy(fan,0.18,0.2,0.04,0x4a5a64,0,0.02,0,12);cy(fan,0.03,0.03,0.8,0x9aa7b0,0,0.42,0,6);
+  const head=new T.Group();head.position.set(0,0.85,0);fan.add(head);sp(head,0.09,0x4a5a64,0,0,0);
+  const blades=new T.Group();blades.position.set(0,0,0.1);head.add(blades);
+  for(let a=0;a<3;a++){const b=bx(blades,0.4,0.09,0.015,0xcfe4ee,0,0,0);b.rotation.z=a*Math.PI/3;}
+  o.blades=blades;
+  add(2,bx(g,0.8,0.42,0.34,0x9b6b43,0.62,0.21,-0.95));
+  add(2,bx(g,0.66,0.4,0.05,0x1d2630,0.62,0.64,-0.95));
+  add(2,bx(g,0.58,0.32,0.02,0x8fe3ff,0.62,0.64,-0.92));
+  add(3,bx(g,0.85,0.3,0.22,0xf6f8fa,-0.5,0.8,-1.0));
+  add(3,bx(g,0.7,0.035,0.02,0x9fb1bd,-0.5,0.71,-0.89));
+  add(3,bx(g,0.05,0.05,0.02,GREEN,-0.15,0.82,-0.89));
+  add(4,bx(g,0.9,0.28,0.42,0xd16a5b,0.65,0.16,0.6));
+  add(4,bx(g,0.9,0.34,0.1,0xb9524a,0.65,0.38,0.83));
+  add(4,bx(g,0.1,0.24,0.42,0xb9524a,0.25,0.26,0.6));
+  add(4,bx(g,0.1,0.24,0.42,0xb9524a,1.05,0.26,0.6));
+  add(4,cy(g,0.025,0.025,0.95,0x2b2b2b,-0.95,0.475,0.6,6));
+  add(4,cy(g,0.1,0.1,0.03,0x2b2b2b,-0.95,0.02,0.6,10));
+  add(4,cn(g,0.15,0.22,0xffe08a,-0.95,1.05,0.6,10));
+  add(5,bx(g,1.7,0.02,1.1,0xb03a48,0.0,0.03,0.15));
+  add(5,bx(g,0.62,0.4,0.03,GOLD,0.62,0.72,-1.1));
+  add(5,bx(g,0.52,0.3,0.03,0x4aa3a0,0.62,0.72,-1.08));
+  add(5,sp(g,0.06,0xffd84a,0.72,0.78,-1.06));
+  add(5,cy(g,0.12,0.09,0.2,0xb5651d,-0.88,0.11,0.95,8));
+  add(5,sp(g,0.18,0x3fa34d,-0.88,0.38,0.95));
+  o.cons=construction(g,0,0);
+  o.mess=new T.Group();g.add(o.mess);
+  sp(o.mess,0.22,0x2f6b3c,0.3,0.2,0.5);sp(o.mess,0.18,0x3a7d48,0.6,0.16,0.3);bx(o.mess,0.3,0.12,0.3,0xe8d28c,-0.1,0.07,0.6);bx(o.mess,0.2,0.1,0.2,0xc0392b,0.1,0.06,0.2);sp(o.mess,0.1,0xff7a1a,0.0,1.0,0.5);
+  addPick('room:'+R.id,R.cx,Y0+0.6,R.cz,2.4,1.2,2.4);
+  RO[R.id]=o;
+}
+
+/* ---------- restaurant, mall, lobby ---------- */
+function makeRestaurant(){
+  const g=bld,Y=Y0;
+  bx(g,3.6,0.75,0.5,0xaeb9c1,-4.8,Y+0.375,1.9);
+  bx(g,3.7,0.06,0.56,0xe3e9ed,-4.8,Y+0.78,1.9);
+  bx(g,3.2,0.06,0.2,WOOD,-4.8,Y+1.0,1.55);
+  for(let i=0;i<5;i++)cy(g,0.1,0.1,0.18,[0xe04b3b,0xf2b632,0x58b947,0x4a90d9,0xe04b3b][i],-6.0+i*0.6,Y+0.9,1.9,8);
+  rest.tables.forEach((t,k)=>{
+    const grp=new T.Group();g.add(grp);rest.items[k].push(grp);
+    const tx=t[0],tz=t[1];
+    cy(grp,0.04,0.05,0.5,0x6b4a2f,tx,Y+0.25,tz,6);
+    cy(grp,0.34,0.34,0.05,0xe74c3c,tx,Y+0.52,tz,14);
+    cy(grp,0.13,0.13,0.02,0xffffff,tx,Y+0.56,tz,10);
+    bx(grp,0.26,0.05,0.26,WOOD,tx,Y+0.28,tz-0.55);bx(grp,0.26,0.3,0.05,WOOD,tx,Y+0.45,tz-0.68);
+    bx(grp,0.26,0.05,0.26,WOOD,tx,Y+0.28,tz+0.55);bx(grp,0.26,0.3,0.05,WOOD,tx,Y+0.45,tz+0.68);
+  });
+  const chef=new T.Group();chef.position.set(-4.8,Y,1.45);g.add(chef);rest.items[4].push(chef);person(chef,0xffffff,0x35414a,0xf2c8a2,0x3a2a1f,true);
+  [[-6.6,2.6],[-4.8,2.6],[-3.0,2.6]].forEach(p=>{rest.items[4].push(sp(g,0.14,0xffd75a,p[0],Y+1.3,p[1]));});
+  rest.cons=construction(g,-4.8,3.6,Y);
+  sign(g,'RESTAURANT','#d94b3d','#ffffff',2.8,0.42,-4.8,Y+1.5,6.07);
+  bx(g,0.06,0.5,0.06,0x9aa7b0,-6.0,Y+1.25,6.05);bx(g,0.06,0.5,0.06,0x9aa7b0,-3.6,Y+1.25,6.05);
+  addPick('rest',-4.8,Y+0.6,3.6,4.8,1.2,4.8);
+}
+function makeMall(){
+  const g=bld,Y=Y0;
+  const goods=[0xe04b3b,0xf2b632,0x58b947,0x4a90d9,0xb06ad4];
+  mall.stalls.forEach((sx,k)=>{
+    const s=new T.Group();g.add(s);mall.items[k].push(s);
+    bx(s,0.7,0.95,0.3,0xffffff,sx,Y+0.475,1.5);
+    for(let j=0;j<3;j++)bx(s,0.18,0.2,0.18,goods[(k+j)%5],sx-0.2+j*0.2,Y+0.6,1.7);
+    bx(s,0.2,0.2,0.2,goods[(k+1)%5],sx,Y+1.05,1.5);
+    bx(s,0.65,0.34,0.42,goods[k%5],sx,Y+0.17,2.05);
+    bx(s,0.72,0.04,0.46,0xffffff,sx,Y+0.36,2.05);
+  });
+  [[3.6,4.2],[5.0,4.7],[6.4,4.0]].forEach((p,i)=>{mall.items[4].push(sp(g,0.17,[0xe04b3b,0xf2b632,0x4a90d9][i],p[0],Y+1.5+(i%2)*0.1,p[1]));});
+  mall.cons=construction(g,4.8,3.6,Y);
+  sign(g,'MALL','#2f6fb5','#ffffff',2.0,0.42,4.8,Y+1.5,6.07);
+  bx(g,0.06,0.5,0.06,0x9aa7b0,3.9,Y+1.25,6.05);bx(g,0.06,0.5,0.06,0x9aa7b0,5.7,Y+1.25,6.05);
+  addPick('mall',4.8,Y+0.6,3.6,4.8,1.2,4.8);
+}
+function makeLobby(){
+  const g=bld,Y=Y0,DX=-0.9,DZ=2.3;
+  const add=(k,m)=>{rec.items[k].push(m);return m;};
+  add(0,bx(g,1.7,0.7,0.5,0x7a4a2b,DX,Y+0.35,DZ));
+  add(0,bx(g,1.8,0.06,0.6,0xe9d7b8,DX,Y+0.73,DZ));
+  const rcp=new T.Group();rcp.position.set(DX+0.45,Y,DZ-0.55);g.add(rcp);add(0,rcp);person(rcp,0x1f3d4a,0x1f3d4a,0xf2c8a2,0x2b1d14);
+  add(1,bx(g,0.4,0.28,0.04,0x222a30,DX-0.5,Y+1.0,DZ-0.05));add(1,bx(g,0.08,0.14,0.08,0x222a30,DX-0.5,Y+0.83,DZ-0.05));
+  add(1,cy(g,0.08,0.1,0.07,GOLD,DX+0.5,Y+0.8,DZ+0.05,10));
+  [[-2.05,1.6],[2.0,5.7]].forEach(p=>{add(2,cy(g,0.14,0.11,0.24,0xb5651d,p[0],Y+0.12,p[1],8));add(2,sp(g,0.26,0x3fa34d,p[0],Y+0.48,p[1]));});
+  add(2,bx(g,0.5,0.6,0.04,0x0f5c63,0.9,Y+0.3,5.0));
+  add(3,bx(g,1.2,0.03,3.0,0xc0392b,-0.35,Y+0.035,4.5));
+  const c2=new T.Group();c2.position.set(DX-0.45,Y,DZ-0.55);g.add(c2);add(4,c2);person(c2,0x1f3d4a,0x1f3d4a,0xd9a67a,0x1c1410);
+  add(4,bx(g,1.8,0.05,0.02,GOLD,DX,Y+0.6,DZ+0.26));
+  [[-2.1,3.0],[-2.1,4.2]].forEach(p=>add(5,cy(g,0.04,0.05,0.7,GOLD,p[0],Y+0.35,p[1],8)));
+  add(5,bx(g,0.03,0.03,1.2,0xc0392b,-2.1,Y+0.62,3.6));
+  /* decoration that is always there: stairs, water cooler, sofa */
+  for(let i=0;i<6;i++)bx(g,0.9,0.12*(i+1),0.3,0xcdb38b,1.85,Y+0.06*(i+1),3.3-0.3*i);
+  bx(g,0.04,0.5,1.9,0x6b7a85,2.33,Y+0.55,2.45);
+  cy(g,0.14,0.14,0.55,0xdfe9ef,2.0,Y+0.28,4.1,10);cy(g,0.12,0.12,0.25,0x7ec8e3,2.0,Y+0.67,4.1,10);
+  bx(g,0.9,0.28,0.42,0x7a8fa6,1.7,Y+0.16,5.4);bx(g,0.9,0.34,0.1,0x66798f,1.7,Y+0.38,5.6);
+  /* entrance */
+  bx(g,0.08,1.55,0.08,GOLD,-1.1,Y+0.78,6.05);bx(g,0.08,1.55,0.08,GOLD,1.1,Y+0.78,6.05);bx(g,2.4,0.08,0.3,GOLD,0,Y+1.58,6.05);
+  sign(g,'MINI MOTEL','#1f3d4a','#f0c35a',2.3,0.34,0,Y+1.95,6.08);
+  sign(g,'RECEPTION','#0f5c63','#ffffff',1.3,0.2,DX,Y+0.96,DZ+0.31);
+  addPick('rec',0,Y+0.6,3.6,4.8,1.2,4.8);
+}
+function makeShaftAndLaundry(){
+  const g=bld,Y=Y0;
+  for(let i=0;i<6;i++)bx(g,1.3,0.14*(i+1),0.28,0xcdb38b,6.0,Y+0.07*(i+1),-8.0-0.28*i+0.0);
+  bx(g,0.04,0.55,1.8,0x6b7a85,6.7,Y+0.6,-8.7);
+  [[7.0,0.6],[7.0,-4.8],[5.0,-9.2]].forEach(p=>{cy(g,0.14,0.11,0.24,0xb5651d,p[0],Y+0.12,p[1],8);sp(g,0.26,0x3fa34d,p[0],Y+0.48,p[1]);});
+  cy(g,0.14,0.14,0.55,0xdfe9ef,6.9,Y+0.28,-1.8,10);cy(g,0.12,0.12,0.25,0x7ec8e3,6.9,Y+0.67,-1.8,10);
+  for(let i=0;i<4;i++){bx(g,0.7,0.8,0.7,0xf5f7f8,-6.8,Y+0.4,-8.9+i*0.95);const w=cy(g,0.2,0.2,0.05,0x7ea6c4,-6.43,Y+0.45,-8.9+i*0.95,12);w.rotation.z=Math.PI/2;}
+  for(let i=0;i<3;i++)bx(g,0.45,1.0,0.5,0x4f86c6,-5.1,Y+0.5,-8.8+i*0.55);
+  bx(g,0.7,0.5,0.7,0xffffff,-5.4,Y+0.25,-4.2);bx(g,0.7,0.12,0.7,0x8fd0e3,-5.4,Y+0.56,-4.2);
+  sign(g,'LAUNDRY','#0f5c63','#ffffff',1.6,0.26,-6.0,Y+1.4,-9.5);
+  sign(g,'STAIRS','#5d6a6e','#ffffff',1.2,0.24,6.0,Y+1.4,-9.5);
+}
+function makeStaffVisuals(){
+  const SK=0xf2c8a2;
+  const mk=(id,name,role,x,z,shirt,pants,hat,extra)=>{
+    const g=new T.Group();g.position.set(x,Y0,z);bld.add(g);
+    person(g,shirt,pants,SK,0x2b1d14,hat);
+    if(extra)extra(g);
+    staffV[id].push(g);
+    staffPeople.push({id:'s_'+id,staffId:id,name:name,kind:role,status:'On duty',paid:0,shirt:shirt,skin:SK,hair:0x2b1d14,pos:g.position,staff:true});
+    return g;
+  };
+  mk('clean','Rani','Cleaner',-6.0,-5.4,0x2ecc71,0x2c353d,false,g=>{bx(g,0.34,0.3,0.24,0x9aa7b0,0.35,0.2,0);bx(g,0.04,0.5,0.04,0x6b7a85,0.35,0.55,0.1);});
+  mk('bell','Arjun','Bellhop',1.4,5.35,0xc0392b,0x2c353d,false,g=>{cy(g,0.12,0.14,0.14,0xc0392b,0,1.0,0,8);bx(g,0.5,0.05,0.3,GOLD,0.45,0.3,0);bx(g,0.18,0.22,0.14,0x8d5a2b,0.4,0.45,0);bx(g,0.18,0.16,0.14,0x3b6ea5,0.55,0.42,0);});
+  mk('conc','Meera','Concierge',-1.6,5.3,0x1f2b36,0x1f2b36,false,g=>{bx(g,0.06,0.2,0.02,0xd9a521,0,0.5,0.17);bx(g,0.5,0.6,0.3,0x7a4a2b,0.0,0.3,0.4);});
+  mk('chef','Luca','Head chef',-6.3,1.45,0xffffff,0x35414a,true);
+  mk('shop','Zoya','Shop manager',3.0,4.9,0x2f6fb5,0x2c353d,false);
+  const bb=new T.Group();world.add(bb);
+  bx(bb,0.08,1.5,0.08,0x6b7a85,-9.0,0.95,7.1);bx(bb,0.08,1.5,0.08,0x6b7a85,-7.0,0.95,7.1);
+  bx(bb,2.2,0.95,0.08,0xffffff,-8.0,1.75,7.1);
+  sign(bb,'STAY WITH US','#e04b3b','#ffffff',2.1,0.85,-8.0,1.75,7.15);
+  staffV.mkt.push(bb);
+}
+
+function buildHotel(){
+  bx(world,14.8,0.2,16.0,0xd9d3c5,0,0.1,-1.8);
+  floorTile(-7.2,1.2,-2.4,6.0,0xe9d3a8);
+  floorTile(2.4,1.2,7.2,6.0,0xdde7ee);
+  floorTile(-2.4,1.2,2.4,6.0,0xf1e6d2);
+  floorTile(-7.2,-9.6,-4.8,1.2,0xc9e0df);
+  floorTile(4.8,-9.6,7.2,1.2,0xe8e5de);
+  [[0,1.2,0xdbe8f6],[-3.6,-2.4,0xe7e0f7],[-7.2,-6.0,0xf8ead0]].forEach(c=>floorTile(-4.8,c[0],4.8,c[1],c[2]));
+  /* outer walls */
+  wall(-7.2,-9.6,7.2,-9.6);wall(-7.2,-9.6,-7.2,6.0);wall(7.2,-9.6,7.2,6.0);
+  wall(-7.2,6.0,-1.0,6.0);wall(1.0,6.0,7.2,6.0);
+  /* lobby partitions and the line behind the front block */
+  wall(-2.4,1.2,-2.4,2.9);wall(-2.4,4.3,-2.4,6.0);wall(2.4,1.2,2.4,2.9);wall(2.4,4.3,2.4,6.0);
+  wall(-7.2,1.2,-0.7,1.2);wall(0.7,1.2,7.2,1.2);
+  wall(-4.8,-9.6,-4.8,1.2);
+  /* room rows */
+  [-1.2,-4.8,-8.4].forEach(cz=>{
+    wall(-4.8,cz-1.2,4.8,cz-1.2);
+    for(let k=0;k<5;k++){const x=-4.8+2.4*k;wall(x,cz-1.2,x,cz+1.2);}
+    for(let k=0;k<4;k++){const cx=-3.6+2.4*k;wall(cx-1.2,cz+1.2,cx-0.45,cz+1.2);wall(cx+0.45,cz+1.2,cx+1.2,cz+1.2);}
+  });
+  makeLobby();makeRestaurant();makeMall();makeShaftAndLaundry();
+  ROOMS.forEach(makeRoom);
+  makeStaffVisuals();
+}
+
+/* ---------- selection ---------- */
+const selEdges=new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(1,1,1)),new T.LineBasicMaterial({color:0xffc107}));
+const selFloor=new T.Mesh(new T.PlaneGeometry(1,1),new T.MeshBasicMaterial({color:0xffc107,transparent:true,opacity:0.3,depthWrite:false}));
+selFloor.rotation.x=-Math.PI/2;
+world.add(selEdges);world.add(selFloor);
+let sel='room:0';
+function selBox(k){
+  if(k.indexOf('room:')===0){const R=ROOMS[+k.slice(5)];return {x:R.cx,z:R.cz,w:2.4,d:2.4};}
+  if(k==='rest')return {x:-4.8,z:3.6,w:4.8,d:4.8};
+  if(k==='mall')return {x:4.8,z:3.6,w:4.8,d:4.8};
+  return {x:0,z:3.6,w:4.8,d:4.8};
+}
+function placeSel(){
+  const b=selBox(sel);
+  selEdges.position.set(b.x,Y0+0.6,b.z);selEdges.scale.set(b.w,1.2,b.d);
+  selFloor.position.set(b.x,Y0+0.05,b.z);selFloor.scale.set(b.w,b.d,1);
+}
+
+/* ---------- apply state to the 3D scene ---------- */
+function applyState(){
+  ROOMS.forEach(R=>{
+    const lv=S.rooms[R.id],o=RO[R.id];
+    o.cons.visible=lv===0;o.carpet.visible=lv>0;o.lamp.visible=lv>0;
+    o.panel.material=mat(lv>0?R.cat.wall:0xcfd3d6);
+    o.items.forEach((arr,k)=>arr.forEach(m=>{m.visible=lv>k;}));
+    o.gold.forEach(m=>{m.material=mat(lv>=6?GOLD:WOOD);});
+    o.lamp.material=mat(lampColor(R));o.mess.visible=!!R.mess;
+  });
+  rest.cons.visible=S.rest===0;rest.items.forEach((a,k)=>a.forEach(m=>{m.visible=S.rest>k;}));
+  mall.cons.visible=S.mall===0;mall.items.forEach((a,k)=>a.forEach(m=>{m.visible=S.mall>k;}));
+  rec.items.forEach((a,k)=>a.forEach(m=>{m.visible=S.rec>k;}));
+  for(const id in staffV)staffV[id].forEach(m=>{m.visible=slv(id)>0;});
+}
+
+/* ---------- popups ---------- */
+const popsEl=$('pops'),tmpV=new T.Vector3();
+function pop(x,y,z,text,cls){
+  tmpV.set(x,y,z).project(cam);
+  const w=stage.clientWidth,h=stage.clientHeight;
+  const d=document.createElement('div');d.className='pop '+(cls||'');d.textContent=text;
+  d.style.left=((tmpV.x*0.5+0.5)*w)+'px';d.style.top=((-tmpV.y*0.5+0.5)*h)+'px';
+  popsEl.appendChild(d);
+  while(popsEl.children.length>14)popsEl.removeChild(popsEl.firstChild);
+  setTimeout(()=>{if(d.parentNode)d.parentNode.removeChild(d);},1350);
+}
+let toastTimer=null;
+function toast(msg){sfx('notify');const t=$('toast');t.textContent=msg;t.classList.add('on');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('on'),3600);}
+
+/* ---------- sound ---------- */
+const AU={ctx:null,master:null,on:true,last:{}};
+try{AU.on=localStorage.getItem('mini-motel-sound')!=='off';}catch(e){}
+function audioReady(){
+  if(!AU.ctx){try{const C=window.AudioContext||window.webkitAudioContext;if(C)AU.ctx=new C();}catch(e){}}
+  const c=AU.ctx;if(!c)return null;
+  if(c.state==='suspended'){try{c.resume();}catch(e){}}
+  if(!AU.master){AU.master=c.createGain();AU.master.gain.value=0.55;AU.master.connect(c.destination);}
+  return c;
+}
+function tone(f,t0,dur,type,vol,f2){
+  const c=AU.ctx;if(!c||!AU.master)return;
+  const o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(f,t0);
+  if(f2)o.frequency.exponentialRampToValueAtTime(f2,t0+dur);
+  g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(vol,t0+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  o.connect(g);g.connect(AU.master);o.start(t0);o.stop(t0+dur+0.05);
+}
+function sfx(n){
+  if(!AU.on)return;
+  const now=performance.now();
+  if(AU.last[n]&&now-AU.last[n]<(n==='coin'?90:160))return;
+  AU.last[n]=now;
+  const c=audioReady();if(!c||c.state!=='running')return;
+  const t=c.currentTime+0.01;
+  if(n==='coin'){tone(988,t,0.09,'square',0.045);tone(1319,t+0.07,0.16,'square',0.045);}
+  else if(n==='bell'){tone(1760,t,0.5,'sine',0.11);tone(2637,t,0.35,'sine',0.05);}
+  else if(n==='up'){[523,659,784,1047].forEach((f,i)=>tone(f,t+i*0.08,0.2,'triangle',0.1));}
+  else if(n==='tap'){tone(440,t,0.07,'sine',0.08,660);}
+  else if(n==='horn'){tone(420,t,0.13,'square',0.035);tone(420,t+0.2,0.13,'square',0.035);}
+  else if(n==='notify'){tone(784,t,0.12,'sine',0.08);tone(1047,t+0.1,0.22,'sine',0.08);}
+  else if(n==='clean'){tone(660,t,0.1,'triangle',0.08,990);tone(990,t+0.08,0.15,'triangle',0.08);}
+}
+let musicT=null,musicI=0;
+const SCALE=[261.6,329.6,392,440,523.3,440,392,329.6,293.7,349.2,440,392];
+function startMusic(){
+  if(musicT||!AU.on)return;
+  const c=audioReady();if(!c)return;
+  musicT=setInterval(()=>{
+    if(!AU.on||document.hidden||!AU.ctx||AU.ctx.state!=='running')return;
+    const t=AU.ctx.currentTime+0.02,f=SCALE[musicI%SCALE.length];musicI++;
+    tone(f,t,1.7,'sine',0.028);
+    if(musicI%4===0)tone(f/2,t,2.4,'triangle',0.03);
+  },1000);
+}
+function syncSoundBtn(){const b=$('snd');b.textContent=AU.on?'Sound on':'Sound off';b.setAttribute('aria-pressed',String(AU.on));}
+$('snd').addEventListener('click',()=>{
+  AU.on=!AU.on;
+  try{localStorage.setItem('mini-motel-sound',AU.on?'on':'off');}catch(e){}
+  if(AU.on){audioReady();startMusic();sfx('tap');}
+  else if(musicT){clearInterval(musicT);musicT=null;}
+  syncSoundBtn();
+});
+document.addEventListener('pointerdown',()=>{if(AU.on){audioReady();startMusic();}});
+syncSoundBtn();
+
+/* ---------- cars ---------- */
+const cars=[],guests=[];
+const CAR_COLORS=[0xe04b3b,0x3b7bbf,0xf2b632,0x58b947,0xf5f5f5,0xff8a3d,0x9b59b6,0x1abc9c];
+function mkCar(color,taxi){
+  const g=new T.Group();
+  bx(g,1.5,0.34,0.76,color,0,0.32,0);bx(g,0.78,0.3,0.68,color,-0.08,0.62,0);bx(g,0.74,0.2,0.71,0x9fd6ee,-0.08,0.64,0);
+  [[0.5,0.36],[0.5,-0.36],[-0.5,0.36],[-0.5,-0.36]].forEach(p=>{const w=cy(g,0.16,0.16,0.12,0x2b2b2b,p[0],0.16,p[1],10);w.rotation.x=Math.PI/2;});
+  bx(g,0.05,0.1,0.14,0xffe98a,0.76,0.34,0.22);bx(g,0.05,0.1,0.14,0xffe98a,0.76,0.34,-0.22);
+  bx(g,0.05,0.1,0.14,0xd33b3b,-0.76,0.34,0.22);bx(g,0.05,0.1,0.14,0xd33b3b,-0.76,0.34,-0.22);
+  if(taxi)bx(g,0.3,0.1,0.14,0xfff176,-0.08,0.85,0);
+  shadow(g,0.8,1,0.55);
+  return g;
+}
+let arrivalT=1.2,ambientT=2,taxiCD=0,eventT=40;
+const ev={rush:0};
+function mkBus(){
+  const g=new T.Group();
+  bx(g,3.2,0.8,0.85,0x3b7bbf,0,0.56,0);bx(g,3.0,0.3,0.87,0x9fd6ee,0,0.78,0);bx(g,3.2,0.12,0.85,0xf5f5f5,0,1.0,0);
+  [[1.0,0.4],[1.0,-0.4],[-1.0,0.4],[-1.0,-0.4]].forEach(p=>{const w=cy(g,0.2,0.2,0.12,0x2b2b2b,p[0],0.2,p[1],10);w.rotation.x=Math.PI/2;});
+  bx(g,0.05,0.12,0.2,0xffe98a,1.61,0.4,0.25);bx(g,0.05,0.12,0.2,0xffe98a,1.61,0.4,-0.25);
+  shadow(g,1.7,1,0.5);return g;
+}
+function mkLimo(){
+  const g=new T.Group();
+  bx(g,2.5,0.34,0.76,0x1b1f24,0,0.32,0);bx(g,1.3,0.28,0.68,0x1b1f24,-0.2,0.6,0);bx(g,1.24,0.18,0.7,0x6f8794,-0.2,0.62,0);bx(g,2.5,0.04,0.78,GOLD,0,0.45,0);
+  [[0.8,0.36],[0.8,-0.36],[-0.8,0.36],[-0.8,-0.36]].forEach(p=>{const w=cy(g,0.16,0.16,0.12,0x2b2b2b,p[0],0.16,p[1],10);w.rotation.x=Math.PI/2;});
+  bx(g,0.05,0.1,0.14,0xffe98a,1.26,0.34,0.22);bx(g,0.05,0.1,0.14,0xffe98a,1.26,0.34,-0.22);
+  shadow(g,1.3,1,0.55);return g;
+}
+function queued(){let n=0;cars.forEach(c=>{if(c.lane==='A'&&c.drop&&!c.done)n++;});return n;}
+function spawnCar(drop,kind,gtype){
+  for(const c of cars){if(c.lane==='A'&&c.x<-8.6)return false;}
+  const m=kind==='bus'?mkBus():kind==='limo'?mkLimo():mkCar(CAR_COLORS[(Math.random()*CAR_COLORS.length)|0],drop);
+  m.position.set(-11.8,0.08,9.0);world.add(m);
+  cars.push({m:m,x:-11.8,lane:'A',v:kind==='bus'?2.8:3.4,drop:drop,done:false,state:'drive',t:0,kind:kind||'car',len:kind==='bus'?3.2:kind==='limo'?2.5:1.5,left:kind==='bus'?5:1,next:0.35,n:0,gtype:gtype||null});
+  return true;
+}
+function spawnAmbient(){
+  const m=mkCar(CAR_COLORS[(Math.random()*CAR_COLORS.length)|0],false);
+  m.rotation.y=Math.PI;m.position.set(11.8,0.08,10.2);world.add(m);
+  cars.push({m:m,x:11.8,lane:'B',v:2.4+Math.random()*1.4,drop:false,done:true,state:'drive',t:0,kind:'car',len:1.5,left:0,next:0,n:0,gtype:null});
+}
+function edgeScale(x){return Math.max(0,Math.min(1,(11.2-Math.abs(x))/1.0));}
+function updCars(dt){
+  for(let i=cars.length-1;i>=0;i--){
+    const c=cars[i];
+    if(c.lane==='B'){
+      c.x-=c.v*dt;
+    }else{
+      let lim=1e9;
+      for(const o of cars){if(o!==c&&o.lane==='A'&&o.x>c.x)lim=Math.min(lim,o.x-(o.len+c.len)/2-0.5);}
+      if(c.state==='stop'){
+        c.t+=dt;
+        if(c.left>0&&c.t>=c.next){
+          c.left--;c.next+=0.4;
+          const off=c.kind==='bus'?(-1.0+c.n*0.5):0.1;c.n++;
+          newPassenger(c.x+off,c.gtype||rollType());
+        }
+        if(c.left<=0&&c.t>=c.next+0.4){c.done=true;c.state='drive';}
+      }else{
+        let nx=c.x+c.v*dt;
+        if(c.drop&&!c.done&&nx>=STOPX)nx=Math.min(nx,STOPX);
+        nx=Math.min(nx,Math.max(lim,c.x));
+        c.x=nx;
+        if(c.drop&&!c.done&&c.x>=STOPX-0.001){c.state='stop';c.t=0;sfx('horn');}
+      }
+    }
+    const s=edgeScale(c.x);
+    c.m.visible=s>0.03;c.m.scale.setScalar(Math.max(s,0.01));c.m.position.x=c.x;
+    if((c.lane==='A'&&c.x>12.2)||(c.lane==='B'&&c.x<-12.2)){world.remove(c.m);cars.splice(i,1);}
+  }
+}
+function fireEvent(){
+  const opts=['rush'];
+  if(builtCount()>=2)opts.push('bus','bus','mess');
+  if(builtCount()>=1)opts.push('celeb');
+  const k=opts[(Math.random()*opts.length)|0];
+  if(k==='bus'){
+    if(spawnCar(true,'bus','tourist')){S.stats.buses++;toast('A tour bus is pulling up with 5 guests.');}else eventT=6;
+  }else if(k==='celeb'){
+    if(spawnCar(true,'limo','celeb')){ev.rush=30;toast('A celebrity limo is arriving. Fans crowd the street, so taxis double for 30 seconds.');}else eventT=6;
+  }else if(k==='rush'){
+    ev.rush=30;toast('Rush hour. Taxis arrive twice as fast for 30 seconds.');
+  }else{
+    const c=ROOMS.filter(R=>S.rooms[R.id]>0&&!R.busy&&!R.mess&&R.dirty<=0);
+    if(c.length){
+      const R=c[(Math.random()*c.length)|0];R.mess=true;R.messT=messTime();applyState();
+      toast(R.cat.name+' room '+(R.idx+1)+' needs cleaning. Tap it in the hotel to clean it for a bonus.');
+      pop(R.cx,Y0+1.5,R.cz,'Needs cleaning','bad');
+      if(sel==='room:'+R.id)renderSel();
+    }else eventT=8;
+  }
+}
+function cleanRoom(R,byTap){
+  if(!R.mess)return;
+  R.mess=false;applyState();
+  if(sel==='room:'+R.id)renderSel();
+  if(byTap){sfx('clean');S.stats.cleaned++;earn(roomPrice(R,Math.max(1,S.rooms[R.id]))*2,R.cx,Y0+1.5,R.cz);refreshUI(true);}
+}
+
+/* ---------- guests ---------- */
+const SHIRTS=[0xe74c3c,0x3498db,0xf1c40f,0x2ecc71,0x9b59b6,0xe67e22,0x1abc9c,0xec407a];
+const SKINS=[0xf2c8a2,0xd9a67a,0xb98055,0x8d5a3b];
+const HAIRS=[0x2b1d14,0x5a3a22,0xc9a24a,0x1c1410,0x8b8b8b];
+const NAMES=['Maya','Arjun','Sofia','Liam','Aiko','Omar','Priya','Noah','Lena','Diego','Hana','Ravi','Zara','Tomas','Nia','Kenji','Isla','Amir','Chloe','Rohan','Elena','Yusuf','Mei','Jack','Anya','Karan','Leila','Owen','Sana','Felix','Ines','Dev','Tara','Hugo','Rhea','Ben'];
+const VIPN=['Ms. Laurent','Mr. Okafor','Dr. Kapoor','Lady Ashworth','Mr. Tanaka','Ms. Duarte'];
+const STARN=['Nova Rae','Jax Stone','Star Vega'];
+const pickOf=a=>a[(Math.random()*a.length)|0];
+let pid=1;
+function mkGuest(x,z,type){
+  const g=new T.Group(),body=new T.Group();g.add(body);
+  let shirt=pickOf(SHIRTS),pants=0x34495e,bag=pickOf([0x8d5a2b,0x3b6ea5,0xb03a48,0x3a3a3a]);
+  if(type==='business'){shirt=0x56626d;pants=0x2c353d;bag=0x20262b;}
+  if(type==='vip'){shirt=GOLD;pants=0x2c353d;bag=0x7b3fa0;}
+  if(type==='celeb'){shirt=0xff4fa0;pants=0x2c353d;bag=GOLD;}
+  const skin=pickOf(SKINS),hair=pickOf(HAIRS);
+  person(body,shirt,pants,skin,hair);
+  if(type==='vip'||type==='celeb')bx(body,0.26,0.05,0.06,0x15181c,0,0.75,0.12);
+  if(type==='celeb')cn(body,0.1,0.14,GOLD,0,0.97,0,5);
+  if(type==='business')bx(body,0.05,0.2,0.02,0xc0392b,0,0.5,0.16);
+  bx(body,0.18,0.24,0.09,bag,0.24,0.13,0);
+  if(type==='family'){
+    const kid=new T.Group();kid.position.set(-0.3,0,-0.08);kid.scale.setScalar(0.65);body.add(kid);
+    person(kid,pickOf(SHIRTS),0x4a6fa5,pickOf(SKINS),pickOf(HAIRS));
+  }
+  shadow(g,0.22,1,1);
+  g.scale.setScalar(1.15);g.position.set(x,Y0,z);world.add(g);
+  const name=type==='vip'?pickOf(VIPN):type==='celeb'?pickOf(STARN):pickOf(NAMES);
+  const o={id:'g'+(pid++),m:g,body:body,pos:g.position,steps:[],t:0,dead:false,speed:1.8+0.4*slv('bell'),phase:Math.random()*6,type:type||'tourist',
+    name:name,kind:GT[type||'tourist'].name,status:'Arriving',paid:0,shirt:shirt,skin:skin,hair:hair,vip:type==='vip'||type==='celeb'};
+  guests.push(o);return o;
+}
+const go=(o,p)=>o.steps.push({k:'w',p:p.slice()});
+const wait=(o,s,fn)=>o.steps.push({k:'t',s:s,fn:fn});
+const say=(o,txt)=>o.steps.push({k:'t',s:0.001,fn:()=>{o.status=txt;}});
+const P=(x,z)=>({x:x,y:Y0,z:z});
+const roomName=R=>R.cat.name+' '+(R.idx+1);
+function earn(base,x,y,z,o){
+  const a=base*starMult();S.coins+=a;S.life+=a;S.run+=a;
+  if(o)o.paid+=a;
+  sfx('coin');
+  pop(x,y,z,'+$'+fmt(a));
+}
+function newPassenger(carX,type){
+  const o=mkGuest(carX,8.4,type);
+  const j=(Math.random()-0.5)*0.4;
+  go(o,[P(0.1+j,7.0),P(0.1+j,5.2),P(-0.9+j*0.6,3.4)]);
+  say(o,'Checking in');
+  wait(o,recCheckin(),()=>book(o));
+}
+function pickRoom(type){
+  const prefs=GT[type].prefs;
+  for(const ci of prefs){
+    let best=null,bl=-1;
+    for(let i=0;i<4;i++){
+      const R=ROOMS[ci*4+i],lv=S.rooms[R.id];
+      if(!lv||R.busy||R.dirty>0||R.mess)continue;
+      const sc=lv+Math.random()*0.1;
+      if(sc>bl){bl=sc;best=R;}
+    }
+    if(best)return best;
+  }
+  return null;
+}
+const SHAFTX=5.4;
+function toRoom(R){
+  const cz=R.cdz,p=[P(0.4,3.0),P(0.4,0.6)];
+  if(R.row>0){p.push(P(SHAFTX,0.6));p.push(P(SHAFTX,cz));}
+  p.push(P(R.cx,cz),P(R.cx+0.05,R.cz+1.0),P(R.cx+0.05,R.cz+0.2),P(R.cx+0.4,R.cz-0.2));
+  return p;
+}
+function fromRoom(R){return toRoom(R).reverse().concat([P(0.4,3.2)]);}
+const EXIT=()=>[P(0.2,4.2),P(0.1,5.3),P(0.1,7.0),P(11.8,7.2)];
+function exitTown(o){say(o,'Leaving');go(o,EXIT());}
+function book(o){
+  const g=GT[o.type];
+  const R=pickRoom(o.type);
+  if(!R){pop(-0.9,Y0+1.6,2.9,(o.type==='vip'||o.type==='celeb')?'No suite free':'Fully booked','bad');o.status='No room free';go(o,[P(0.2,4.2)]);exitTown(o);return;}
+  R.busy=true;applyState();
+  if(sel==='room:'+R.id)renderSel();
+  const lv=S.rooms[R.id];
+  earn(roomPrice(R,lv)*g.mult*tipMult(),-0.9,Y0+1.6,2.9,o);sfx('bell');
+  if(o.type!=='tourist')pop(-0.9,Y0+2.2,2.9,g.name+'!','up');
+  S.stats.guests++;if(o.type==='vip'||o.type==='celeb')S.stats.vips++;
+  refreshUI(true);
+  say(o,'Heading to '+roomName(R));
+  go(o,toRoom(R));
+  say(o,'Staying in '+roomName(R));
+  wait(o,R.cat.stay*g.stay,()=>checkout(o,R));
+}
+function checkout(o,R){
+  R.busy=false;R.dirty=cleanTime();applyState();
+  if(sel==='room:'+R.id)renderSel();
+  say(o,'Checking out');
+  go(o,fromRoom(R));
+  wait(o,0.01,()=>dineRest(o));
+}
+function dineRest(o){
+  const g=GT[o.type];
+  const p=g.rest>=1?1:Math.min(0.97,Math.max(0,REST.prob(S.rest)+g.rest+concBonus()));
+  if(S.rest>0&&Math.random()<p){
+    const k=(Math.random()*S.rest)|0,t=rest.tables[k];
+    say(o,'Heading to the restaurant');
+    go(o,[P(-1.6,3.7),P(-2.7,3.6),P(t[0],t[1]+0.62)]);
+    say(o,'Dining');
+    wait(o,5,()=>{earn(REST.pay(S.rest)*chefMult()*g.rm,t[0],Y0+1.2,t[1],o);refreshUI(true);go(o,[P(-3.0,3.6),P(-1.8,3.7)]);dineMall(o);});
+  }else dineMall(o);
+}
+function dineMall(o){
+  const g=GT[o.type];
+  const p=g.mall>=1?1:Math.min(0.97,Math.max(0,MALL.prob(S.mall)+g.mall+concBonus()));
+  if(S.mall>0&&Math.random()<p){
+    const k=(Math.random()*S.mall)|0,sx=mall.stalls[k];
+    say(o,'Shopping at the mall');
+    go(o,[P(1.8,3.7),P(2.8,3.6),P(sx,2.9)]);
+    say(o,'Shopping');
+    wait(o,4.5,()=>{earn(MALL.pay(S.mall)*shopMult()*g.mm,sx,Y0+1.2,2.6,o);refreshUI(true);go(o,[P(2.9,3.6),P(1.6,3.7)]);exitTown(o);});
+  }else exitTown(o);
+}
+function updGuests(dt){
+  for(let i=guests.length-1;i>=0;i--){
+    const o=guests[i],st=o.steps[0];
+    if(!st){o.dead=true;}
+    else if(st.k==='t'){
+      o.t+=dt;o.phase+=dt*3;o.body.position.y=Math.abs(Math.sin(o.phase))*0.015;
+      if(o.t>=st.s){o.t=0;o.steps.shift();if(st.fn)st.fn();}
+    }else{
+      const p=st.p[0],m=o.m.position;
+      const dx=p.x-m.x,dz=p.z-m.z,d=Math.sqrt(dx*dx+dz*dz);
+      m.y=Y0;
+      if(d<=o.speed*dt){
+        m.x=p.x;m.z=p.z;st.p.shift();
+        if(!st.p.length)o.steps.shift();
+      }else{
+        m.x+=dx/d*o.speed*dt;m.z+=dz/d*o.speed*dt;
+        o.m.rotation.y=Math.atan2(dx,dz);
+      }
+      o.phase+=dt*11;o.body.position.y=Math.abs(Math.sin(o.phase))*0.05;
+    }
+    const s=edgeScale(o.m.position.x)*1.15;
+    o.m.scale.setScalar(Math.max(s,0.01));
+    if(o.dead){world.remove(o.m);if(follow===o)follow=null;guests.splice(i,1);}
+  }
+}
+
+/* ---------- name tags and the guest roster ---------- */
+const namesEl=$('names'),rosterEl=$('roster');
+const tags=new Map(),cards=new Map();
+const tagV=new T.Vector3();
+const hex6=c=>'#'+('000000'+c.toString(16)).slice(-6);
+function allPeople(){const a=guests.slice();staffPeople.forEach(p=>{if(slv(p.staffId)>0)a.push(p);});return a;}
+function updTags(){
+  const people=allPeople(),seen=new Set(),many=people.length>22;
+  const w=stage.clientWidth,h=stage.clientHeight;
+  people.forEach(o=>{
+    seen.add(o.id);
+    let el=tags.get(o.id);
+    if(!el){
+      el=document.createElement('button');el.type='button';el.className='nm'+(o.vip?' vip':'');el.dataset.pid=o.id;
+      const s=document.createElement('span');s.textContent=o.name;const sm=document.createElement('small');sm.textContent=o.kind;
+      el.appendChild(s);el.appendChild(sm);namesEl.appendChild(el);tags.set(o.id,el);
+    }
+    tagV.set(o.pos.x,o.pos.y+1.5,o.pos.z).project(cam);
+    const on=tagV.z<1&&Math.abs(tagV.x)<1.05&&Math.abs(tagV.y)<1.05&&(!many||o===follow||o.vip);
+    el.style.display=on?'':'none';
+    if(on){el.style.left=((tagV.x*0.5+0.5)*w)+'px';el.style.top=((-tagV.y*0.5+0.5)*h)+'px';}
+    el.classList.toggle('sel',o===follow);
+  });
+  tags.forEach((el,id)=>{if(!seen.has(id)){if(el.parentNode)el.parentNode.removeChild(el);tags.delete(id);}});
+}
+function mkCard(o){
+  const b=document.createElement('button');b.type='button';b.className='pc'+(o.staff?' st':'');b.dataset.pid=o.id;
+  b.style.setProperty('--shirt',hex6(o.shirt));b.style.setProperty('--skin',hex6(o.skin));b.style.setProperty('--hair',hex6(o.hair));
+  b.innerHTML='<span class="av"></span><span class="pw"><span class="pn"></span><span class="pt"></span><span class="ps"></span></span>';
+  return b;
+}
+function setTxt(el,sel,txt){const n=el.querySelector(sel);if(n.textContent!==txt)n.textContent=txt;}
+function updRoster(){
+  const people=allPeople(),seen=new Set();
+  people.forEach(o=>{
+    seen.add(o.id);
+    let c=cards.get(o.id);
+    if(!c){
+      c=mkCard(o);cards.set(o.id,c);
+      if(o.staff)rosterEl.appendChild(c);
+      else{const f=rosterEl.querySelector('.st');if(f)rosterEl.insertBefore(c,f);else rosterEl.appendChild(c);}
+    }
+    if(o.staff&&o.staffId==='clean')o.status=ROOMS.some(R=>R.mess||R.dirty>0)?'Cleaning rooms':'Folding towels';
+    setTxt(c,'.pn',o.name);
+    setTxt(c,'.pt',o.kind+(o.paid>0?' - paid $'+fmt(o.paid):''));
+    setTxt(c,'.ps',o.status);
+    c.classList.toggle('sel',o===follow);
+  });
+  cards.forEach((c,id)=>{if(!seen.has(id)){if(c.parentNode)c.parentNode.removeChild(c);cards.delete(id);}});
+  const ph=$('rosterempty');if(ph)ph.hidden=people.length>0;
+}
+function followPerson(id){
+  const o=allPeople().find(p=>p.id===id);
+  follow=(follow&&follow.id===id)?null:o||null;
+  updRoster();
+}
+
+/* ---------- main loop ---------- */
+let uiAcc=0,rosAcc=0;
+function update(dt){
+  arrivalT-=dt;
+  if(arrivalT<=0){
+    if(queued()<4&&spawnCar(true))arrivalT=recInterval()*(0.75+Math.random()*0.5)*(ev.rush>0?0.5:1);
+    else arrivalT=0.4;
+  }
+  ambientT-=dt;if(ambientT<=0){ambientT=4+Math.random()*5;spawnAmbient();}
+  if(taxiCD>0)taxiCD=Math.max(0,taxiCD-dt);
+  if(ev.rush>0)ev.rush=Math.max(0,ev.rush-dt);
+  eventT-=dt;if(eventT<=0){eventT=60+Math.random()*50;fireEvent();}
+  ROOMS.forEach(R=>{
+    if(R.dirty>0){R.dirty-=dt;if(R.dirty<=0){R.dirty=0;applyState();}}
+    if(R.mess){R.messT-=dt;if(R.messT<=0)cleanRoom(R,false);}
+  });
+  updCars(dt);updGuests(dt);
+  ROOMS.forEach(R=>{const o=RO[R.id];if(S.rooms[R.id]>=2)o.blades.rotation.z+=dt*9;});
+  selFloor.material.opacity=0.22+0.12*Math.sin(performance.now()/260);
+  uiAcc+=dt;if(uiAcc>0.2){uiAcc=0;refreshUI(false);}
+  rosAcc+=dt;if(rosAcc>0.4){rosAcc=0;updRoster();}
+}
+let lastT=performance.now(),lastRender=0;
+function frame(now){
+  requestAnimationFrame(frame);
+  if(document.hidden){lastT=now;return;}
+  const dt=Math.min(0.1,(now-lastT)/1000);lastT=now;
+  update(dt);
+  if(follow){
+    if(follow.dead||(follow.staff&&slv(follow.staffId)<1))follow=null;
+    else{const k=Math.min(1,dt*4);V.tx+=(follow.pos.x-V.tx)*k;V.tz+=(follow.pos.z-V.tz)*k;V.zoom+=(0.42-V.zoom)*Math.min(1,dt*3);placeCam();}
+  }
+  if(now-lastRender>=28){lastRender=now;renderer.render(scene,cam);updTags();}
+}
+
+/* ---------- UI ---------- */
+function roomInfo(R){
+  const lv=S.rooms[R.id];
+  return {lv:lv,built:lv>0,price:lv?roomPrice(R,lv):roomPrice(R,1),
+    next:lv===0?{label:'Build room',cost:roomBuildCost(R),desc:'Adds a '+R.cat.name.toLowerCase()+' room that guests can book.'}:
+         lv<6?{label:'Upgrade',cost:roomUpCost(R,lv),desc:'Level '+(lv+1)+': '+LVADD[lv]+'. Pays $'+fmt(roomPrice(R,lv+1)*starMult())+' per guest.'}:null};
+}
+function svcInfo(kind){
+  if(kind==='rec'){
+    const l=S.rec;
+    return {lv:l,max:REC_MAX,name:'Reception',next:l<REC_MAX?{label:'Upgrade',cost:recUpCost(l),desc:'Level '+(l+1)+': '+REC_ADD[l]+'. Taxis arrive about every '+(8/(1+0.35*l)).toFixed(1)+'s.'}:null,
+      line:'A taxi arrives about every '+recInterval().toFixed(1)+' seconds. Check-in takes '+recCheckin().toFixed(1)+' seconds.',add:REC_ADD.slice(0,l)};
+  }
+  const D=kind==='rest'?REST:MALL,l=S[kind];
+  return {lv:l,max:D.max,name:D.name,
+    next:l===0?{label:'Build',cost:D.build,desc:'Guests can '+(kind==='rest'?'dine here':'shop here')+' after their stay.'}:l<D.max?{label:'Upgrade',cost:D.up(l),desc:'Level '+(l+1)+': '+D.add[l]+'.'}:null,
+    line:l?'About '+Math.round(Math.min(0.97,D.prob(l)+concBonus())*100)+'% of guests visit and spend $'+fmt(D.pay(l)*starMult()*(kind==='rest'?chefMult():shopMult()))+' each.':'Not built yet.',add:D.add.slice(0,l)};
+}
+function selTitle(k){
+  if(k.indexOf('room:')===0){const R=ROOMS[+k.slice(5)];return R.cat.name+' room '+(R.idx+1);}
+  return k==='rec'?'Reception':k==='rest'?'Restaurant':'Mall';
+}
+function actAttr(k){
+  if(k.indexOf('room:')===0)return 'data-act="room" data-i="'+k.slice(5)+'"';
+  return 'data-act="'+k+'"';
+}
+function btn(label,cost,attr){return '<button class="buy" type="button" '+attr+' data-cost="'+cost+'"><b>'+label+'</b><span class="num">$'+fmt(cost)+'</span></button>';}
+function roomStatus(R){const lv=S.rooms[R.id];if(!lv)return '<span class="status">Not built</span>';if(R.mess)return '<span class="status busy">Needs cleaning</span>';if(R.busy)return '<span class="status busy">Guest staying</span>';if(R.dirty>0)return '<span class="status busy">Being cleaned</span>';return '<span class="status on">Vacant</span>';}
+function renderSel(){
+  lastStatus='';
+  let h='',pips='',tags='',status='',note='',next=null,max=6,lv=0;
+  if(sel.indexOf('room:')===0){
+    const R=ROOMS[+sel.slice(5)],I=roomInfo(R);lv=I.lv;next=I.next;
+    status=roomStatus(R);
+    for(let i=0;i<lv;i++)tags+='<span class="tag">'+LVADD[i]+'</span>';
+    note=lv?'$'+fmt(I.price*starMult())+' per guest, '+R.cat.stay+' second stay.':'A guest pays at the desk when they book.';
+  }else{
+    const I=svcInfo(sel);lv=I.lv;max=I.max;next=I.next;
+    status=lv?'<span class="status on">Open</span>':'<span class="status">Not built</span>';
+    I.add.forEach(a=>tags+='<span class="tag">'+a+'</span>');note=I.line;
+  }
+  for(let i=0;i<max;i++)pips+='<span class="pip'+(i<lv?' f':'')+'"></span>';
+  h+='<div class="selhead"><h2>'+selTitle(sel)+'</h2><span id="selstatus">'+status+'</span></div>';
+  h+='<div class="pips" aria-label="Level '+lv+' of '+max+'">'+pips+'</div>';
+  if(tags)h+='<div class="chips">'+tags+'</div>';
+  h+='<p class="note">'+note+'</p>';
+  if(sel.indexOf('room:')===0&&ROOMS[+sel.slice(5)].mess)h+='<div class="actrow"><div class="t"><b>Needs cleaning</b>Clean it now for a bonus. It also cleans itself after a while.</div><button class="buy" type="button" data-clean="'+sel.slice(5)+'"><b>Clean</b><span>Free</span></button></div>';
+  if(next)h+='<div class="actrow"><div class="t"><b>'+next.label+'</b>'+next.desc+'</div>'+btn(next.label,next.cost,actAttr(sel))+'</div>';
+  else h+='<div class="actrow"><div class="t"><b>Fully upgraded</b>Nothing left to add here.</div><div class="maxed">Max</div></div>';
+  $('sel').innerHTML=h;
+}
+function renderLists(){
+  let h='';
+  CATS.forEach((c,ci)=>{
+    h+='<div class="catrow"><span class="cat">'+c.name+' wing</span><span class="catnote">$'+fmt(c.price)+' per guest at level 1</span></div>';
+    for(let i=0;i<4;i++){
+      const R=ROOMS[ci*4+i],I=roomInfo(R),k='room:'+R.id;
+      h+='<div class="row'+(sel===k?' sel':'')+'" data-sel="'+k+'"><div><div class="rn">Room '+(i+1)+'<small>'+(I.built?'Level '+I.lv+' ('+LVADD[I.lv-1]+')':'Not built')+'</small></div><div class="rd num">$'+fmt(I.price*starMult())+' per guest</div></div>'+
+        (I.next?btn(I.next.label,I.next.cost,actAttr(k)):'<div class="maxed">Max</div>')+'</div>';
+    }
+  });
+  $('list-rooms').innerHTML=h;
+  let l='';
+  ['rec','rest','mall'].forEach(k=>{
+    const I=svcInfo(k);
+    l+='<div class="row'+(sel===k?' sel':'')+'" data-sel="'+k+'"><div><div class="rn">'+I.name+'<small>'+(I.lv?'Level '+I.lv:'Not built')+'</small></div><div class="rd">'+I.line+'</div></div>'+
+      (I.next?btn(I.next.label,I.next.cost,actAttr(k)):'<div class="maxed">Max</div>')+'</div>';
+  });
+  $('list-lobby').innerHTML=l;
+}
+let armWipe=false,wipeTimer=null,lastStar=0,lastStatus='',armFran=false,franTimer=null,lastSig='',seenGoal={};
+function refreshUI(force){
+  $('coins').textContent='$'+fmt(S.coins);
+  const er=estRate();
+  $('rate').innerHTML='About <b>$'+fmt(er*60)+'</b> per minute'+(S.rep?'<br>Reputation '+S.rep+' (+'+(S.rep*10)+'% income)':'');
+  const s=stars();let st='';for(let i=0;i<5;i++)st+=i<s?'★':'☆';
+  $('stars').textContent=st;
+  let free=0,total=0;ROOMS.forEach(R=>{if(S.rooms[R.id]){total++;if(!R.busy&&!R.mess&&R.dirty<=0)free++;}});
+  $('free').textContent=free+' of '+total+' rooms free';
+  $('livetxt').textContent=guests.length+(guests.length===1?' guest':' guests')+' active';
+  const tx=$('taxi');tx.disabled=taxiCD>0;tx.textContent=taxiCD>0?'Taxi in '+Math.ceil(taxiCD)+'s':'Call taxi';
+  document.querySelectorAll('[data-cost]').forEach(b=>{b.disabled=S.coins<+b.dataset.cost;});
+  if(s!==lastStar){lastStar=s;if(force!==undefined&&s>1)toast('Your hotel is now a '+TIERS[s-1].toLowerCase()+'. Guests pay '+Math.round((STAR_M[s-1]-1)*100)+'% more.');}
+  const evs=[];if(ev.rush>0)evs.push('Rush hour '+Math.ceil(ev.rush)+'s');if(ROOMS.some(R=>R.mess))evs.push('Room needs cleaning');
+  const ec=$('ev');ec.hidden=!evs.length;ec.textContent=evs.join(' - ');
+  checkGoals();updFran();
+  if(sel.indexOf('room:')===0){const ss=$('selstatus');const h=roomStatus(ROOMS[+sel.slice(5)]);if(ss&&h!==lastStatus){lastStatus=h;ss.innerHTML=h;}}
+  $('wipe').textContent=armWipe?'Tap again to erase everything':'Erase all progress';
+}
+function renderAll(){renderSel();renderLists();renderStaff();lastSig='';refreshUI(true);placeSel();}
+
+function select(k){sfx('tap');sel=k;renderAll();}
+function act(type,i){
+  let cost,done=false,at=null;
+  if(type==='room'){
+    const R=ROOMS[+i],I=roomInfo(R);if(!I.next||S.coins<I.next.cost)return;
+    cost=I.next.cost;S.coins-=cost;S.rooms[R.id]++;done=true;at=[R.cx,Y0+1.5,R.cz];sel='room:'+R.id;
+  }else if(type==='rec'){
+    if(S.rec>=REC_MAX||S.coins<recUpCost(S.rec))return;S.coins-=recUpCost(S.rec);S.rec++;done=true;at=[0,Y0+1.6,3.6];sel='rec';
+  }else{
+    const D=type==='rest'?REST:MALL,l=S[type],c=l===0?D.build:D.up(l);
+    if(l>=D.max||S.coins<c)return;S.coins-=c;S[type]++;done=true;at=[type==='rest'?-4.8:4.8,Y0+1.6,3.6];sel=type;
+  }
+  if(done){sfx('up');pop(at[0],at[1],at[2],'Level up!','up');applyState();renderAll();save();}
+}
+/* ---------- staff, goals, daily reward, franchise ---------- */
+function renderStaff(){
+  let h='';
+  STAFF.forEach(s=>{
+    const l=slv(s.id);
+    h+='<div class="row"><div><div class="rn">'+s.name+'<small>'+(l?'Level '+l+' of 3':'Not hired')+'</small></div><div class="rd">'+s.fx[l]+(l<3?' Next: '+s.fx[l+1]:'')+'</div></div>'+
+      (l<3?btn(l?'Upgrade':'Hire',s.cost[l],'data-staff="'+s.id+'"'):'<div class="maxed">Max</div>')+'</div>';
+  });
+  $('list-staff').innerHTML=h;
+}
+function hireStaff(id){
+  const s=STAFF.find(x=>x.id===id);if(!s)return;
+  const l=slv(id);if(l>=3||S.coins<s.cost[l])return;
+  S.coins-=s.cost[l];S.staff[id]=l+1;
+  sfx('up');pop(0,Y0+1.8,4.0,s.name+' level '+(l+1),'up');
+  applyState();renderAll();save();
+}
+const goalReward=g=>Math.max(g.base,estRate()*60*g.min);
+const keyOf=d=>d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+const dailyReward=d=>Math.max(100*d,estRate()*60*(1+d))*(d===7?3:1);
+function dailyInfo(){
+  const t=keyOf(new Date());
+  if(S.daily.last===t){const day=((S.daily.streak-1)%7)+1;return {can:false,day:day,streak:S.daily.streak,reward:0};}
+  const y=new Date();y.setDate(y.getDate()-1);
+  const streak=S.daily.last===keyOf(y)?S.daily.streak+1:1;
+  const day=((streak-1)%7)+1;
+  return {can:true,day:day,streak:streak,reward:dailyReward(day)};
+}
+function claimDaily(){
+  const i=dailyInfo();if(!i.can)return;
+  const r=dailyReward(i.day);
+  S.daily={last:keyOf(new Date()),streak:i.streak};S.coins+=r;
+  toast('Daily reward: $'+fmt(r)+'. Day '+i.day+' of 7.');
+  lastSig='';renderAll();save();
+}
+function claimGoal(id){
+  const g=GOALS.find(x=>x.id===id);
+  if(!g||S.claimed[g.id]||g.stat()<g.target)return;
+  const r=goalReward(g);S.claimed[g.id]=true;S.coins+=r;
+  toast('Goal reward: $'+fmt(r)+'.');lastSig='';renderAll();save();
+}
+function renderGoals(){
+  const di=dailyInfo();
+  let h='<div class="daily"><h3 class="subh">Daily reward</h3><div class="days">';
+  for(let i=1;i<=7;i++){
+    const filled=di.can?i<di.day:i<=di.day,now=di.can&&i===di.day;
+    h+='<div class="day'+(filled?' f':'')+(now?' now':'')+'">'+i+'</div>';
+  }
+  h+='</div><div class="actrow"><div class="t">'+(di.can?'<b>Day '+di.day+' reward is ready</b>Come back every day to keep your streak. Day 7 pays triple.':'<b>Claimed today</b>Come back tomorrow for day '+((di.day%7)+1)+'.')+'</div>'+
+    (di.can?'<button class="buy" type="button" data-claim="daily"><b>Claim</b><span class="num">~$'+fmt(di.reward)+'</span></button>':'')+'</div></div>';
+  h+='<h3 class="subh">Goals</h3>';
+  const arr=GOALS.map(g=>{const v=g.stat();return {g:g,v:v,done:v>=g.target,claimed:!!S.claimed[g.id]};});
+  arr.sort((a,b)=>{const ka=a.claimed?2:a.done?0:1,kb=b.claimed?2:b.done?0:1;return ka!==kb?ka-kb:(b.v/b.g.target)-(a.v/a.g.target);});
+  arr.forEach(x=>{
+    const pct=Math.min(100,Math.floor(x.v/x.g.target*100));
+    h+='<div class="row"><div><div class="rn">'+x.g.name+(x.claimed?'<small>Claimed</small>':'<small class="num">'+fmt(Math.min(x.v,x.g.target))+' / '+fmt(x.g.target)+'</small>')+'</div>'+
+      (x.claimed?'':'<div class="prog"><i style="width:'+pct+'%"></i></div>')+'</div>'+
+      (x.claimed?'<div class="maxed">Done</div>':x.done?'<button class="buy" type="button" data-claim="'+x.g.id+'"><b>Claim</b><span class="num">~$'+fmt(goalReward(x.g))+'</span></button>':'<div class="rd num goalr">~$'+fmt(goalReward(x.g))+'</div>')+'</div>';
+  });
+  $('list-goals').innerHTML=h;
+}
+function checkGoals(){
+  let sig='',n=0;
+  GOALS.forEach(g=>{
+    const v=Math.min(1,g.stat()/g.target),claimed=!!S.claimed[g.id];
+    sig+=claimed?'c':v>=1?'k':String(Math.floor(v*20));sig+=',';
+    if(!claimed&&v>=1){n++;if(!seenGoal[g.id]){seenGoal[g.id]=1;toast('Goal complete: '+g.name+'. Open the Goals tab to claim it.');}}
+  });
+  const di=dailyInfo();if(di.can){n++;sig+='d'+di.day;}
+  if(sig!==lastSig){lastSig=sig;renderGoals();}
+  const tg=$('tab-goals'),txt='Goals'+(n?' ('+n+')':'');
+  if(tg.textContent!==txt)tg.textContent=txt;
+}
+function updFran(){
+  const g=Math.floor(Math.sqrt(S.run/2e6));
+  $('f-rep').textContent=S.rep;$('f-bonus').textContent='+'+(S.rep*10)+'%';
+  $('f-run').textContent='$'+fmt(S.run);$('f-gain').textContent='+'+g;
+  $('f-count').textContent=S.fr;$('f-life').textContent='$'+fmt(S.life);
+  $('f-hint').textContent=g>=1?'Selling now gives '+g+' reputation, which adds '+(g*10)+'% to all income.':'Earn $2M in a single run to gain your first reputation point.';
+  const fb=$('f-btn');fb.disabled=g<1;fb.classList.toggle('arm',armFran);
+  fb.textContent=armFran?'Tap again to sell and franchise':'Franchise';
+}
+function franchise(){
+  const g=Math.floor(Math.sqrt(S.run/2e6));if(g<1)return;
+  if(!armFran){armFran=true;clearTimeout(franTimer);franTimer=setTimeout(()=>{armFran=false;refreshUI(false);},4000);refreshUI(false);return;}
+  armFran=false;
+  const keep={rep:S.rep+g,fr:S.fr+1,life:S.life,stats:S.stats,claimed:S.claimed,daily:S.daily};
+  S=Object.assign(fresh(),keep);S.coins=30+50*S.rep;
+  ROOMS.forEach(R=>{R.busy=false;R.dirty=0;R.mess=false;});
+  guests.forEach(o=>world.remove(o.m));guests.length=0;
+  sel='room:0';lastSig='';applyState();renderAll();save();
+  toast('Franchise opened. Reputation is now '+S.rep+'.');
+}
+
+document.addEventListener('click',e=>{
+  const st=e.target.closest&&e.target.closest('[data-staff]');
+  if(st){hireStaff(st.dataset.staff);return;}
+  const cl=e.target.closest&&e.target.closest('[data-claim]');
+  if(cl){if(cl.dataset.claim==='daily')claimDaily();else claimGoal(cl.dataset.claim);return;}
+  const cr=e.target.closest&&e.target.closest('[data-clean]');
+  if(cr){cleanRoom(ROOMS[+cr.dataset.clean],true);return;}
+  const b=e.target.closest&&e.target.closest('[data-act]');
+  if(b){act(b.dataset.act,b.dataset.i);return;}
+  const r=e.target.closest&&e.target.closest('[data-sel]');
+  if(r)select(r.dataset.sel);
+});
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+  ['rooms','lobby','staff','goals','fran'].forEach(k=>{$('panel-'+k).hidden=k!==b.dataset.tab;$('tab-'+k).setAttribute('aria-selected',String(k===b.dataset.tab));});
+}));
+$('taxi').addEventListener('click',()=>{if(taxiCD>0)return;if(spawnCar(true))taxiCD=5;else taxiCD=1;refreshUI(false);});
+$('f-btn').addEventListener('click',franchise);
+$('wipe').addEventListener('click',()=>{
+  if(!armWipe){armWipe=true;clearTimeout(wipeTimer);wipeTimer=setTimeout(()=>{armWipe=false;refreshUI(false);},4000);refreshUI(false);return;}
+  armWipe=false;S=fresh();lastSig='';ROOMS.forEach(R=>{R.busy=false;R.dirty=0;R.mess=false;});
+  guests.forEach(g=>world.remove(g.m));guests.length=0;
+  sel='room:0';applyState();renderAll();save();toast('Progress erased.');
+});
+
+/* picking and camera controls */
+const ray=new T.Raycaster(),ndc=new T.Vector2();let down=null;
+const ptrs=new Map();let pinch0=0,zoom0=1,lastC=null,dragMoved=0;
+const ctr=()=>{const a=[...ptrs.values()];return {x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2,d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)};};
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+canvas.addEventListener('pointerdown',e=>{
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,btn:e.button});
+  try{canvas.setPointerCapture(e.pointerId);}catch(_){}
+  if(ptrs.size===1){down={x:e.clientX,y:e.clientY};dragMoved=0;}
+  else if(ptrs.size===2){const c=ctr();pinch0=c.d;zoom0=V.zoom;lastC=c;down=null;}
+});
+canvas.addEventListener('pointermove',e=>{
+  const p=ptrs.get(e.pointerId);if(!p)return;
+  const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
+  if(ptrs.size>=2){
+    const c=ctr();
+    if(pinch0>0)V.zoom=CLAMP(zoom0*pinch0/Math.max(10,c.d),0.22,1.45);
+    if(lastC)panView(c.x-lastC.x,c.y-lastC.y);
+    lastC=c;follow=null;placeCam();
+  }else{
+    dragMoved+=Math.abs(dx)+Math.abs(dy);
+    if(dragMoved>6){
+      follow=null;
+      if(p.btn===2||e.shiftKey)panView(dx,dy);
+      else{V.az-=dx*0.007;V.el=CLAMP(V.el+dy*0.005,0.4,1.32);}
+      placeCam();
+    }
+  }
+});
+function endPtr(e){ptrs.delete(e.pointerId);if(ptrs.size<2){pinch0=0;lastC=null;}}
+canvas.addEventListener('pointercancel',endPtr);
+canvas.addEventListener('wheel',e=>{e.preventDefault();V.zoom=CLAMP(V.zoom*(e.deltaY<0?0.9:1.11),0.22,1.45);placeCam();},{passive:false});
+$('view').addEventListener('click',resetView);
+canvas.addEventListener('pointerup',e=>{
+  endPtr(e);
+  if(!down)return;
+  const moved=Math.max(dragMoved,Math.hypot(e.clientX-down.x,e.clientY-down.y));down=null;if(moved>8)return;
+  const r=canvas.getBoundingClientRect();
+  ndc.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
+  ray.setFromCamera(ndc,cam);
+  const hits=ray.intersectObjects(picks,false);
+  if(hits.length){const k=hits[0].object.userData.sel;if(k.indexOf('room:')===0){const R=ROOMS[+k.slice(5)];if(R.mess)cleanRoom(R,true);}select(k);}
+});
+namesEl.addEventListener('click',e=>{const b=e.target.closest('.nm');if(b)followPerson(b.dataset.pid);});
+rosterEl.addEventListener('click',e=>{const b=e.target.closest('.pc');if(b){followPerson(b.dataset.pid);try{stage.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(_){}}});
+
+/* ---------- start ---------- */
+buildScenery();buildHotel();
+applyState();
+fit();
+if(window.ResizeObserver)new ResizeObserver(fit).observe(stage);else window.addEventListener('resize',fit);
+(function offline(){
+  const dt=(Date.now()-S.last)/1000;
+  if(dt>20){
+    const away=Math.min(dt,4*3600),g=estRate()*away*0.5;
+    if(g>=1){S.coins+=g;S.life+=g;S.run+=g;setTimeout(()=>toast('Welcome back. Your guests paid $'+fmt(g)+' while you were away.'),500);}
+  }
+  S.last=Date.now();
+})();
+lastStar=stars();
+GOALS.forEach(g=>{if(g.stat()>=g.target)seenGoal[g.id]=1;});
+renderAll();
+updRoster();
+requestAnimationFrame(frame);
+setInterval(save,5000);
+let hiddenAt=0;
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){hiddenAt=Date.now();save();}
+  else if(hiddenAt){
+    const dt=(Date.now()-hiddenAt)/1000;hiddenAt=0;
+    if(dt>20){const g=estRate()*Math.min(dt,4*3600)*0.5;if(g>=1){S.coins+=g;S.life+=g;S.run+=g;toast('Welcome back. Your guests paid $'+fmt(g)+' while you were away.');refreshUI(false);}}
+  }
+});
+window.addEventListener('pagehide',save);
+})();
+</script>
+
+</body></html>

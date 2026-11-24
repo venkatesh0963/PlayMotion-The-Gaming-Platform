@@ -1,0 +1,1204 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Canyon GP</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600&family=Exo+2:ital,wght@1,600;1,800&display=swap" rel="stylesheet">
+<style>
+/* Layout: one full-bleed portrait canvas (pseudo-3D road) with a slate timing board on top and a speed/gear dash at the bottom. Single committed look, so no light/dark pair. */
+:root {
+  --ink: #0f2230;
+  --panel: #1c3548;
+  --panel-edge: #34546a;
+  --cream: #f6efdf;
+  --muted: #9db2be;
+  --flame: #ff6347;
+  --flame-deep: #c9452c;
+  --mint: #7fd0a8;
+  --f-display: 'Exo 2', 'Arial Narrow', system-ui, sans-serif;
+  --f-label: 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--f-label);
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.stage { position: relative; width: 100%; height: 100%; max-width: 560px; margin: 0 auto; overflow: hidden; background: var(--ink); touch-action: none; }
+canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.hud {
+  position: absolute; inset: 0; pointer-events: none;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding-block: 14px 16px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.board {
+  position: relative; display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 8px;
+  background: rgba(28, 53, 72, 0.94); border: 1px solid var(--panel-edge); border-radius: 3px;
+  padding: 10px 14px 12px; box-shadow: 0 6px 18px rgba(8, 18, 28, 0.35);
+}
+.cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cell.mid { align-items: center; text-align: center; }
+.cell.end { align-items: flex-end; text-align: right; }
+.lbl { font-size: 0.72rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.big { font-family: var(--f-display); font-style: italic; font-weight: 800; font-size: 2.3rem; line-height: 1; display: flex; align-items: baseline; gap: 4px; font-variant-numeric: tabular-nums; }
+.big i { font-weight: 600; font-size: 0.95rem; color: var(--muted); }
+.time { font-family: var(--f-display); font-style: italic; font-weight: 600; font-size: 1.45rem; line-height: 1.25; font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
+.prog { position: absolute; left: 0; bottom: 0; height: 3px; width: 0; background: var(--cream); }
+
+.banner {
+  position: absolute; left: 50%; top: 27%; transform: translateX(-50%);
+  background: rgba(28, 53, 72, 0.92); border-left: 3px solid var(--mint);
+  padding: 7px 20px 8px 18px; font-family: var(--f-display); font-style: italic; font-weight: 600; letter-spacing: 0.16em; font-size: 0.95rem; text-transform: uppercase;
+  opacity: 0; transition: opacity 0.2s ease; white-space: nowrap;
+}
+.banner.show { opacity: 1; }
+.banner.contact { border-left-color: var(--flame); }
+.big b.up { color: var(--mint); }
+.big b.down { color: #ff9a80; }
+.vig { position: absolute; inset: 0; pointer-events: none; opacity: 0; box-shadow: inset 0 0 110px 20px rgba(255, 92, 64, 0.5); }
+.go {
+  position: absolute; left: 50%; top: 30%; transform: translateX(-50%);
+  font-family: var(--f-display); font-style: italic; font-weight: 800; font-size: 4.5rem; letter-spacing: 0.04em; color: var(--cream);
+  text-shadow: 0 4px 0 rgba(15, 34, 48, 0.55); opacity: 0; transition: opacity 0.3s ease;
+}
+.go.show { opacity: 1; }
+
+.dash { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.slip { font-size: 0.78rem; letter-spacing: 0.32em; text-transform: uppercase; color: var(--mint); display: flex; align-items: center; gap: 12px; opacity: 0; transition: opacity 0.2s ease; height: 1em; }
+.slip::before, .slip::after { content: ""; width: 28px; height: 2px; background: var(--mint); }
+.slip.show { opacity: 1; }
+.revs { display: flex; gap: 6px; width: min(62%, 280px); }
+.revs span { flex: 1; height: 5px; background: rgba(246, 239, 223, 0.22); transform: skewX(-24deg); }
+.revs span.on { background: var(--cream); }
+.revs span.hot.on { background: var(--flame); }
+.row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; width: 100%; gap: 12px; }
+.gear { justify-self: end; border: 1px solid rgba(246, 239, 223, 0.5); border-radius: 4px; padding: 3px 9px 4px; display: flex; flex-direction: column; align-items: center; line-height: 1; background: rgba(15, 34, 48, 0.35); }
+.gear small { font-size: 0.62rem; letter-spacing: 0.2em; color: var(--muted); font-weight: 500; }
+.gear b { font-family: var(--f-display); font-style: italic; font-weight: 800; font-size: 1.7rem; }
+.speed { display: flex; align-items: baseline; gap: 6px; min-width: 9.5rem; justify-content: center; }
+.speed b { font-family: var(--f-display); font-style: italic; font-weight: 800; font-size: 3.6rem; line-height: 1; font-variant-numeric: tabular-nums; text-shadow: 0 3px 0 rgba(15, 34, 48, 0.4); }
+.speed small { font-size: 0.78rem; letter-spacing: 0.16em; font-weight: 500; }
+.snd {
+  justify-self: start; pointer-events: auto; background: rgba(15, 34, 48, 0.55); color: var(--cream); border: 1px solid rgba(246, 239, 223, 0.35);
+  border-radius: 4px; padding: 6px 10px; font-family: var(--f-label); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer;
+}
+.snd[aria-pressed="false"] { opacity: 0.55; }
+.steer { display: flex; align-items: center; gap: 10px; width: min(70%, 300px); justify-content: center; height: 14px; }
+.steer span { flex: 1; height: 1px; background: rgba(246, 239, 223, 0.4); }
+.steer i { width: 8px; height: 8px; background: var(--cream); transform: rotate(45deg); flex: none; }
+
+.card {
+  position: absolute; left: 50%; top: 36%; transform: translateX(-50%);
+  width: min(300px, calc(100% - 32px)); box-sizing: border-box;
+  background: rgba(24, 45, 64, 0.95); border: 1px solid var(--panel-edge); border-radius: 22px; text-align: center;
+  padding: 18px 20px 20px; box-shadow: 0 14px 40px rgba(6, 14, 22, 0.45);
+}
+.card h2 { margin: 6px 0 4px; font-weight: 600; font-size: 1.9rem; letter-spacing: 0.01em; }
+.card p { margin: 0; color: var(--muted); letter-spacing: 0.14em; font-size: 0.92rem; }
+.card .tap { margin-top: 14px; font-size: 0.74rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--cream); opacity: 0.8; }
+.card svg { display: block; margin: 0 auto; }
+.result { top: 30%; width: min(360px, calc(100% - 32px)); border-radius: 4px; padding: 22px 22px 22px; border-top: 4px solid var(--flame); text-align: left; }
+.result .head { display: flex; align-items: center; gap: 12px; justify-content: center; font-size: 0.82rem; letter-spacing: 0.3em; text-transform: uppercase; font-weight: 600; }
+.result .place { font-family: var(--f-display); font-style: italic; font-weight: 800; font-size: 6rem; line-height: 1; text-align: center; margin: 8px 0 2px; }
+.result .msg { text-align: center; color: var(--cream); font-size: 1.05rem; margin: 0 0 14px; letter-spacing: 0; }
+.result .stats { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--panel-edge); padding-top: 14px; margin-bottom: 18px; }
+.result .stats div { display: flex; flex-direction: column; gap: 4px; }
+.result .stats div:last-child { align-items: flex-end; }
+.result .stats b { font-family: var(--f-display); font-style: italic; font-weight: 600; font-size: 1.45rem; font-variant-numeric: tabular-nums; }
+.result .pb { text-align: center; color: var(--mint); font-size: 0.82rem; letter-spacing: 0.2em; text-transform: uppercase; margin: -6px 0 14px; min-height: 1em; }
+.again {
+  width: 100%; border: 0; border-bottom: 3px solid var(--flame-deep); background: var(--flame); color: #fff7ee; border-radius: 3px;
+  padding: 13px 16px; font-family: var(--f-label); font-weight: 600; font-size: 1.15rem; letter-spacing: 0.04em; cursor: pointer; display: flex; gap: 10px; align-items: center; justify-content: center;
+}
+.again:active { transform: translateY(1px); border-bottom-width: 2px; }
+button:focus-visible { outline: 2px solid var(--cream); outline-offset: 2px; }
+@media (max-width: 380px) { .big { font-size: 1.9rem; } .speed b { font-size: 3rem; } .time { font-size: 1.2rem; } }
+@media (prefers-reduced-motion: reduce) { .banner, .slip { transition: none; } }
+</style>
+
+<div class="stage" id="stage">
+  <canvas id="c" aria-label="Canyon circuit, rear view of your car"></canvas>
+
+  <div class="hud">
+    <div class="board" role="status" aria-live="off">
+      <div class="cell"><span class="lbl">Position</span><span class="big"><b id="pos">8</b><i>/ 8</i></span></div>
+      <div class="cell mid"><span class="lbl">Race time</span><span class="time" id="time">0:00.000</span></div>
+      <div class="cell end"><span class="lbl">Lap</span><span class="big"><b id="lap">1</b><i>/ 3</i></span></div>
+      <div class="prog" id="prog"></div>
+    </div>
+
+    <div class="dash">
+      <div class="slip" id="slip">Slipstream</div>
+      <div class="revs" id="revs"></div>
+      <div class="row">
+        <div class="gear"><small>GEAR</small><b id="gear">1</b></div>
+        <div class="speed"><b id="spd">0</b><small>KM/H</small></div>
+      </div>
+      <div class="steer" aria-hidden="true"><span></span><i id="dot"></i><span></span></div>
+    </div>
+  </div>
+
+  <div class="banner" id="banner">GO</div>
+  <div class="vig" id="vig"></div>
+
+  <div class="card" id="intro">
+    <svg width="96" height="52" viewBox="0 0 96 52" fill="none" stroke="#f6efdf" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M6 26h22M13 19l-7 7 7 7"/>
+      <path d="M90 26H68M83 19l7 7-7 7"/>
+      <path d="M40 40V16a4 4 0 0 1 8 0v10M48 24a4 4 0 0 1 8 0v4M56 27a4 4 0 0 1 8 0v8c0 7-5 11-12 11h-4c-5 0-8-3-10-7l-2-5a3.5 3.5 0 0 1 6-2l2 3"/>
+    </svg>
+    <h2>Drag to steer</h2>
+    <p>3 LAPS. TAKE THE LEAD.</p>
+    <div class="tap">Tap to start</div>
+  </div>
+
+  <div class="card result" id="result" hidden>
+    <div class="head">
+      <svg width="22" height="26" viewBox="0 0 22 26" aria-hidden="true"><path d="M3 2v22" stroke="#f6efdf" stroke-width="2.4" stroke-linecap="round"/><g fill="#f6efdf"><rect x="5" y="2" width="4" height="4"/><rect x="13" y="2" width="4" height="4"/><rect x="9" y="6" width="4" height="4"/><rect x="17" y="6" width="4" height="4"/><rect x="5" y="10" width="4" height="4"/><rect x="13" y="10" width="4" height="4"/></g></svg>
+      <span>Chequered flag</span>
+    </div>
+    <div class="place" id="place">P1</div>
+    <p class="msg" id="msg">A drive to remember.</p>
+    <div class="pb" id="pb"></div>
+    <div class="stats">
+      <div><span class="lbl">Race time</span><b id="rTime">0:00.000</b></div>
+      <div><span class="lbl">Best lap</span><b id="rBest">0:00.000</b></div>
+    </div>
+    <button class="again" id="again" type="button">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 3v5h5"/></svg>
+      Race again
+    </button>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var stage = $('stage'), cv = $('c'), ctx = cv.getContext('2d', { alpha: false });
+  var clamp = function (v, a, b) { return v < a ? a : v > b ? b : v; };
+  var lerp = function (a, b, t) { return a + (b - a) * t; };
+  var W = 1, H = 1, DPR = 1, FL = 1, SCX = 0, SCY = 0;
+  var PI2 = Math.PI * 2;
+  function wrapA(a) { while (a > Math.PI) a -= PI2; while (a < -Math.PI) a += PI2; return a; }
+
+  var seed = 90210;
+  function rnd() {
+    seed = (seed + 0x6D2B79F5) | 0;
+    var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+
+  /* ================= TRACK ================= */
+  var DS = 2, N = 0, L = 1900, HW = 5.5, OR = 6.9, OW = 10.9, OWT = 11.4, OG = 46;
+  var PX, PZ, TXa, TZa, RXa, RZa, KAP, WALLRED;
+  (function buildTrack() {
+    var R0 = 300, M = 6000, xs = new Float64Array(M), zs = new Float64Array(M), cum = new Float64Array(M + 1), k;
+    for (k = 0; k < M; k++) {
+      var p = PI2 * k / M;
+      var r = R0 * (1 + 0.10 * Math.sin(2 * p + 0.6) + 0.06 * Math.sin(3 * p + 1.9) + 0.08 * Math.sin(5 * p + 0.4));
+      xs[k] = r * Math.cos(p); zs[k] = r * Math.sin(p);
+    }
+    for (k = 1; k <= M; k++) cum[k] = cum[k - 1] + Math.hypot(xs[k % M] - xs[k - 1], zs[k % M] - zs[k - 1]);
+    var sc = L / cum[M];
+    for (k = 0; k < M; k++) { xs[k] *= sc; zs[k] *= sc; }
+    for (k = 0; k <= M; k++) cum[k] *= sc;
+    N = Math.round(L / DS); DS = L / N;
+    var ax = new Float64Array(N), az = new Float64Array(N), j = 0, i;
+    for (i = 0; i < N; i++) {
+      var target = i * DS;
+      while (cum[j + 1] < target) j++;
+      var t = (target - cum[j]) / (cum[j + 1] - cum[j]);
+      ax[i] = lerp(xs[j], xs[(j + 1) % M], t); az[i] = lerp(zs[j], zs[(j + 1) % M], t);
+    }
+    // tangents and curvature on the raw loop
+    var tx = new Float64Array(N), tz = new Float64Array(N), kp = new Float64Array(N);
+    for (i = 0; i < N; i++) {
+      var ip = (i + 1) % N, im = (i - 1 + N) % N, dx = ax[ip] - ax[im], dz = az[ip] - az[im], ln = Math.hypot(dx, dz);
+      tx[i] = dx / ln; tz[i] = dz / ln;
+    }
+    for (i = 0; i < N; i++) {
+      var a1 = Math.atan2(tx[i], tz[i]), a2 = Math.atan2(tx[(i + 1) % N], tz[(i + 1) % N]);
+      kp[i] = wrapA(a2 - a1) / DS;
+    }
+    var ks = new Float64Array(N);
+    for (i = 0; i < N; i++) { var sum = 0; for (j = -3; j <= 3; j++) sum += kp[(i + j + N) % N]; ks[i] = sum / 7; }
+    // start line on the straightest stretch
+    var best = 0, bestV = 1e9;
+    for (i = 0; i < N; i += 2) {
+      var sv = 0; for (j = -20; j < 120; j++) sv += Math.abs(ks[(i + j + N) % N]);
+      if (sv < bestV) { bestV = sv; best = i; }
+    }
+    PX = new Float64Array(N); PZ = new Float64Array(N); TXa = new Float64Array(N); TZa = new Float64Array(N);
+    RXa = new Float64Array(N); RZa = new Float64Array(N); KAP = new Float64Array(N); WALLRED = new Uint8Array(N);
+    for (i = 0; i < N; i++) {
+      var q = (best + i) % N;
+      PX[i] = ax[q]; PZ[i] = az[q]; TXa[i] = tx[q]; TZa[i] = tz[q]; KAP[i] = ks[q];
+      RXa[i] = tz[q]; RZa[i] = -tx[q];
+    }
+    // red barrier panels on the outside of bends
+    for (i = 0; i < N; i++) { if (Math.abs(KAP[i]) > 0.0032) WALLRED[i] = 1; }
+  })();
+  function wrapI(i) { return ((i % N) + N) % N; }
+  function wrapS(s) { return ((s % L) + L) % L; }
+  var PQ = { x: 0, z: 0, tx: 0, tz: 1, k: 0 };
+  function posAt(s, d) {
+    var f = wrapS(s) / DS, i = Math.floor(f), t = f - i; i = i % N; var j = (i + 1) % N;
+    var cx = lerp(PX[i], PX[j], t), cz = lerp(PZ[i], PZ[j], t);
+    var tx = lerp(TXa[i], TXa[j], t), tz = lerp(TZa[i], TZa[j], t), l = Math.hypot(tx, tz) || 1;
+    tx /= l; tz /= l;
+    PQ.x = cx + tz * d; PQ.z = cz - tx * d; PQ.tx = tx; PQ.tz = tz; PQ.k = lerp(KAP[i], KAP[j], t);
+  }
+
+  /* ================= CAMERA + POLYGON FILL ================= */
+  var cam = { x: 0, y: 4, z: 0, yaw: 0, pitch: 0.33, rx: 1, rz: 0, ux: 0, uy: 1, uz: 0, fx: 0, fy: 0, fz: 1 };
+  function setCam() {
+    var sy = Math.sin(cam.yaw), cy = Math.cos(cam.yaw), sp = Math.sin(cam.pitch), cp = Math.cos(cam.pitch);
+    cam.rx = cy; cam.rz = -sy;
+    cam.fx = sy * cp; cam.fy = -sp; cam.fz = cy * cp;
+    cam.ux = sy * sp; cam.uy = cp; cam.uz = cy * sp;
+  }
+  var qx = 0, qy = 0, qz = 0;
+  function toCam(wx, wy, wz) {
+    var dx = wx - cam.x, dy = wy - cam.y, dz = wz - cam.z;
+    qx = dx * cam.rx + dz * cam.rz; qy = dx * cam.ux + dy * cam.uy + dz * cam.uz; qz = dx * cam.fx + dy * cam.fy + dz * cam.fz;
+  }
+  var NEAR = 0.25;
+  var bx = new Float64Array(40), by = new Float64Array(40), bz = new Float64Array(40);
+  var ox = new Float64Array(40), oy = new Float64Array(40), oz = new Float64Array(40);
+  function fillPoly(n, style) {
+    var i, inside = 0;
+    for (i = 0; i < n; i++) if (bz[i] >= NEAR) inside++;
+    if (inside === 0) return;
+    var X = bx, Y = by, Z = bz, m = n;
+    if (inside < n) {
+      m = 0;
+      for (i = 0; i < n; i++) {
+        var j = (i + 1) % n, zi = bz[i], zj = bz[j], ii = zi >= NEAR, jj = zj >= NEAR;
+        if (ii) { ox[m] = bx[i]; oy[m] = by[i]; oz[m] = zi; m++; }
+        if (ii !== jj) { var t = (NEAR - zi) / (zj - zi); ox[m] = bx[i] + (bx[j] - bx[i]) * t; oy[m] = by[i] + (by[j] - by[i]) * t; oz[m] = NEAR; m++; }
+      }
+      X = ox; Y = oy; Z = oz;
+    }
+    var minx = 1e9, maxx = -1e9, miny = 1e9, maxy = -1e9;
+    ctx.beginPath();
+    for (i = 0; i < m; i++) {
+      var iz = FL / Z[i], sx = SCX + X[i] * iz, sy = SCY - Y[i] * iz;
+      if (sx < minx) minx = sx; if (sx > maxx) maxx = sx; if (sy < miny) miny = sy; if (sy > maxy) maxy = sy;
+      if (i) ctx.lineTo(sx, sy); else ctx.moveTo(sx, sy);
+    }
+    if (maxx < 0 || minx > W || maxy < 0 || miny > H) return;
+    ctx.fillStyle = style; ctx.fill();
+  }
+  var FOG = [232, 198, 156];
+  function fogF(z) { return z < 30 ? 0 : Math.min(0.93, Math.pow((z - 30) / 470, 1.1)); }
+  function rgbs(r, g, b) { return 'rgb(' + (r | 0) + ',' + (g | 0) + ',' + (b | 0) + ')'; }
+  function fogc(c, z) {
+    var f = fogF(z);
+    return rgbs(c[0] + (FOG[0] - c[0]) * f, c[1] + (FOG[1] - c[1]) * f, c[2] + (FOG[2] - c[2]) * f);
+  }
+
+  /* ================= MESH BUILDER ================= */
+  function MB() { this.v = []; this.f = []; this.p = 0; }
+  MB.prototype.vert = function (x, y, z) { this.v.push(x, y, z); return this.v.length / 3 - 1; };
+  MB.prototype.face = function (idx, col, cx, cy, cz, dbl, em) {
+    var v = this.v, a = idx[0] * 3, b = idx[1] * 3, c = idx[2] * 3;
+    var ux = v[b] - v[a], uy = v[b + 1] - v[a + 1], uz = v[b + 2] - v[a + 2];
+    var wx = v[c] - v[a], wy = v[c + 1] - v[a + 1], wz = v[c + 2] - v[a + 2];
+    var nx = uy * wz - uz * wy, ny = uz * wx - ux * wz, nz = ux * wy - uy * wx, l = Math.hypot(nx, ny, nz) || 1;
+    nx /= l; ny /= l; nz /= l;
+    if (!dbl && nx * (v[a] - cx) + ny * (v[a + 1] - cy) + nz * (v[a + 2] - cz) < 0) { nx = -nx; ny = -ny; nz = -nz; }
+    if (dbl && ny < 0) { nx = -nx; ny = -ny; nz = -nz; }
+    this.f.push({ i: idx, c: col, nx: nx, ny: ny, nz: nz, dbl: !!dbl, em: !!em, p: this.p });
+  };
+  MB.prototype.box = function (cx, cy, cz, sx, sy, sz, col, em) {
+    this.p++;
+    var x0 = cx - sx / 2, x1 = cx + sx / 2, y0 = cy - sy / 2, y1 = cy + sy / 2, z0 = cz - sz / 2, z1 = cz + sz / 2;
+    var v = [this.vert(x0, y0, z0), this.vert(x1, y0, z0), this.vert(x1, y1, z0), this.vert(x0, y1, z0), this.vert(x0, y0, z1), this.vert(x1, y0, z1), this.vert(x1, y1, z1), this.vert(x0, y1, z1)];
+    var F = [[0, 1, 2, 3], [4, 5, 6, 7], [0, 1, 5, 4], [3, 2, 6, 7], [0, 3, 7, 4], [1, 2, 6, 5]];
+    for (var k = 0; k < 6; k++) this.face([v[F[k][0]], v[F[k][1]], v[F[k][2]], v[F[k][3]]], col, cx, cy, cz, false, em);
+  };
+  MB.prototype.frustum = function (x, z0, z1, w0, h0, y0, w1, h1, y1, col) {
+    this.p++;
+    var v = [
+      this.vert(x - w0 / 2, y0, z0), this.vert(x + w0 / 2, y0, z0), this.vert(x + w0 / 2, y0 + h0, z0), this.vert(x - w0 / 2, y0 + h0, z0),
+      this.vert(x - w1 / 2, y1, z1), this.vert(x + w1 / 2, y1, z1), this.vert(x + w1 / 2, y1 + h1, z1), this.vert(x - w1 / 2, y1 + h1, z1)];
+    var F = [[0, 1, 2, 3], [4, 5, 6, 7], [0, 1, 5, 4], [3, 2, 6, 7], [0, 3, 7, 4], [1, 2, 6, 5]];
+    var cx = x, cy = (y0 + h0 / 2 + y1 + h1 / 2) / 2, cz = (z0 + z1) / 2;
+    for (var k = 0; k < 6; k++) this.face([v[F[k][0]], v[F[k][1]], v[F[k][2]], v[F[k][3]]], col, cx, cy, cz);
+  };
+  MB.prototype.cyl = function (cx, cy, cz, r, len, n, col, capCol) {
+    this.p++;
+    var A = [], B = [], k, a;
+    for (k = 0; k < n; k++) {
+      a = PI2 * k / n;
+      A.push(this.vert(cx - len / 2, cy + Math.cos(a) * r, cz + Math.sin(a) * r));
+      B.push(this.vert(cx + len / 2, cy + Math.cos(a) * r, cz + Math.sin(a) * r));
+    }
+    for (k = 0; k < n; k++) this.face([A[k], A[(k + 1) % n], B[(k + 1) % n], B[k]], col, cx, cy, cz);
+    this.face(A, capCol || col, cx, cy, cz); this.face(B, capCol || col, cx, cy, cz);
+  };
+  MB.prototype.ell = function (cx, cy, cz, rx, ry, rz, sl, st, col, col2) {
+    this.p++;
+    var rings = [], s, k, top = this.vert(cx, cy + ry, cz), bot = this.vert(cx, cy - ry, cz);
+    for (s = 1; s < st; s++) {
+      var ph = Math.PI * s / st, ring = [];
+      for (k = 0; k < sl; k++) {
+        var th = PI2 * k / sl;
+        ring.push(this.vert(cx + Math.cos(th) * Math.sin(ph) * rx, cy + Math.cos(ph) * ry, cz + Math.sin(th) * Math.sin(ph) * rz));
+      }
+      rings.push(ring);
+    }
+    for (k = 0; k < sl; k++) {
+      var k2 = (k + 1) % sl;
+      this.face([top, rings[0][k], rings[0][k2]], (k & 1) && col2 ? col2 : col, cx, cy, cz);
+      this.face([bot, rings[rings.length - 1][k2], rings[rings.length - 1][k]], col, cx, cy, cz);
+      for (s = 0; s < rings.length - 1; s++) this.face([rings[s][k], rings[s][k2], rings[s + 1][k2], rings[s + 1][k]], (k & 1) && col2 ? col2 : col, cx, cy, cz);
+    }
+  };
+  MB.prototype.done = function () { return { nv: this.v.length / 3, v: new Float64Array(this.v), f: this.f, np: this.p + 1 }; };
+
+  /* ================= CAR MESHES ================= */
+  var DK = [28, 32, 39], DK2 = [17, 20, 26], GRY = [86, 92, 102];
+  function buildCar(main, helm, lod, acc, wc) {
+    var m = new MB(), n = lod ? 6 : 8, q;
+    acc = acc || main; wc = wc || DK2;
+    // pieces are added in far-to-near order as seen from behind the car
+    m.box(0, 0.14, -0.3, 1.3, 0.14, 4.0, DK2);
+    m.box(0, 0.13, 2.55, 1.95, 0.05, 0.5, wc);
+    if (!lod) {
+      m.box(0, 0.2, 2.45, 1.95, 0.04, 0.3, wc);
+      m.box(-0.98, 0.2, 2.5, 0.05, 0.28, 0.56, acc); m.box(0.98, 0.2, 2.5, 0.05, 0.28, 0.56, acc);
+      m.box(-0.55, 0.34, 1.55, 0.8, 0.05, 0.06, DK2); m.box(0.55, 0.34, 1.55, 0.8, 0.05, 0.06, DK2);
+    }
+    m.cyl(-0.93, 0.36, 1.55, 0.36, 0.46, n, DK, GRY); m.cyl(0.93, 0.36, 1.55, 0.36, 0.46, n, DK, GRY);
+    m.frustum(0, 0.8, 2.5, 0.8, 0.44, 0.22, 0.2, 0.2, 0.2, main);
+    m.frustum(0, -1.3, 0.8, 0.92, 0.55, 0.2, 0.8, 0.44, 0.22, main);
+    m.box(0.74, 0.45, -0.55, 0.56, 0.48, 1.6, main); m.box(-0.74, 0.45, -0.55, 0.56, 0.48, 1.6, main);
+    if (!lod) {
+      m.box(0, 0.78, 0.05, 0.5, 0.08, 0.9, DK2);
+      m.box(0, 0.9, 0.58, 0.06, 0.3, 0.06, DK2); m.box(0, 1.02, 0.56, 0.62, 0.05, 0.05, DK2);
+      m.box(-0.3, 1.0, 0.2, 0.05, 0.05, 0.72, DK2); m.box(0.3, 1.0, 0.2, 0.05, 0.05, 0.72, DK2);
+    }
+    m.ell(0, 0.95, -0.12, 0.27, 0.27, 0.3, 7, 4, helm);
+    if (!lod) {
+      m.box(-0.62, 0.36, -1.6, 0.8, 0.06, 0.06, DK2); m.box(0.62, 0.36, -1.6, 0.8, 0.06, 0.06, DK2);
+    }
+    m.cyl(-1.04, 0.47, -1.6, 0.47, 0.7, n, DK, GRY); m.cyl(1.04, 0.47, -1.6, 0.47, 0.7, n, DK, GRY);
+    m.frustum(0, -2.1, -0.4, 0.3, 0.32, 0.3, 0.6, 0.62, 0.3, main);
+    if (!lod && acc !== main) m.box(0, 0.93, -1.2, 0.07, 0.02, 1.5, acc);
+    if (!lod) {
+      m.box(0, 0.35, -2.35, 0.5, 0.35, 0.5, DK);
+      m.box(0, 0.2, -2.62, 1.3, 0.22, 0.35, DK2);
+      for (q = -2; q <= 2; q++) m.box(q * 0.25, 0.06, -2.84, 0.04, 0.12, 0.3, DK2);
+      m.box(0, 0.5, -2.65, 0.24, 0.2, 0.04, [255, 150, 70], true);
+      m.box(-0.22, 0.68, -2.42, 0.07, 0.5, 0.07, DK2); m.box(0.22, 0.68, -2.42, 0.07, 0.5, 0.07, DK2);
+      m.box(0, 1.0, -2.5, 1.7, 0.1, 0.46, wc);
+      m.box(0, 1.14, -2.58, 1.7, 0.12, 0.36, wc);
+      m.box(0, 1.215, -2.74, 1.7, 0.04, 0.06, acc);
+      m.box(-0.86, 0.86, -2.52, 0.06, 0.78, 0.6, acc); m.box(0.86, 0.86, -2.52, 0.06, 0.78, 0.6, acc);
+    } else {
+      m.box(0, 1.08, -2.5, 1.7, 0.3, 0.5, wc);
+      m.box(-0.86, 0.86, -2.52, 0.06, 0.78, 0.6, acc); m.box(0.86, 0.86, -2.52, 0.06, 0.78, 0.6, acc);
+    }
+    return m.done();
+  }
+
+  /* ================= SCENERY MESHES ================= */
+  function treeMesh() {
+    var m = new MB();
+    m.box(0, 1.1, 0, 0.38, 2.2, 0.38, [112, 90, 62]);
+    m.ell(0, 5.0, 0, 1.55, 3.3, 1.55, 6, 4, [44, 108, 74], [58, 128, 88]);
+    return m.done();
+  }
+  function palmMesh() {
+    var m = new MB(), k;
+    m.frustum(0, -0.28, 0.28, 0.56, 7.8, 0, 0.36, 0.2, 7.8, [128, 104, 72]);
+    for (k = 0; k < 8; k++) {
+      var a = PI2 * k / 8, ca = Math.cos(a), sa = Math.sin(a), col = k & 1 ? [48, 118, 78] : [34, 92, 62];
+      var p0 = m.vert(0, 8.0, 0), p1 = m.vert(ca * 1.7 - sa * 0.55, 8.35, sa * 1.7 + ca * 0.55), p2 = m.vert(ca * 3.7, 7.5, sa * 3.7), p3 = m.vert(ca * 1.7 + sa * 0.55, 8.35, sa * 1.7 - ca * 0.55);
+      m.face([p0, p1, p2, p3], col, 0, 8, 0, true);
+    }
+    return m.done();
+  }
+  function signMesh(bars) {
+    var m = new MB(), k;
+    m.box(0, 1.1, 0, 0.1, 2.2, 0.1, [118, 128, 132]);
+    m.box(0, 2.3, 0, 0.12, 1.15, 1.15, [240, 235, 222]);
+    for (k = 0; k < bars; k++) m.box(0.07, 2.0 + k * 0.28 + (3 - bars) * 0.1, 0, 0.03, 0.1, 0.8, [40, 50, 58]);
+    return m.done();
+  }
+  function standMesh() {
+    var m = new MB(), r, c, pal = [[56, 140, 130], [233, 98, 56], [28, 52, 72], [238, 232, 216], [214, 170, 70], [150, 90, 160]];
+    var len = 44, rows = 4;
+    for (r = 0; r < rows; r++) {
+      var x0 = r * 1.7, h = 1.0 + r * 1.15;
+      m.box(x0 + 0.85, h / 2, 0, 1.7, h, len, [214, 178, 134]);
+      for (c = 0; c < 18; c++) {
+        var zc = -len / 2 + 1.2 + c * (len - 2.4) / 17, col = pal[(c * 3 + r * 5) % 6];
+        m.box(x0 + 0.1, h + 0.0, zc, 0.12, 0.5, 1.5, col);
+      }
+    }
+    m.box(0.4, 8.3, 0, 8.4, 0.35, len + 1, [200, 72, 46]);
+    m.box(7.6, 4.3, -len / 2, 0.3, 8.6, 0.3, [120, 130, 134]); m.box(7.6, 4.3, len / 2, 0.3, 8.6, 0.3, [120, 130, 134]);
+    return m.done();
+  }
+  function pitsMesh() {
+    var m = new MB(), k;
+    m.box(0, 5, 0, 12, 10, 96, [226, 196, 156]);
+    for (k = 0; k < 6; k++) m.box(6.05, 4.6, -40 + k * 16, 0.1, 6.6, 12, [24, 40, 62]);
+    m.box(6.05, 9.2, 0, 0.1, 1.2, 94, [30, 52, 72]);
+    m.box(0, 10.3, 0, 12.4, 0.5, 96, [233, 98, 56]);
+    return m.done();
+  }
+  function gantryMesh() {
+    var m = new MB();
+    m.box(-8.9, 4.7, 0, 0.8, 9.4, 0.8, [238, 232, 216]); m.box(8.9, 4.7, 0, 0.8, 9.4, 0.8, [238, 232, 216]);
+    m.box(-8.9, 1.2, 0, 1.0, 2.4, 1.0, [233, 98, 56]); m.box(8.9, 1.2, 0, 1.0, 2.4, 1.0, [233, 98, 56]);
+    m.box(0, 9.7, 0, 19, 2.2, 0.7, [28, 52, 72]);
+    m.box(0, 8.4, 0, 12, 0.5, 0.5, [18, 36, 52]);
+    return m.done();
+  }
+  function rockMesh(kind) {
+    var m = new MB(), strata = [[176, 84, 54], [202, 114, 72], [158, 70, 46], [224, 142, 92], [188, 98, 62], [212, 132, 86]];
+    var L0 = [[22, 16, 9], [18, 13, 7], [15, 11, 6], [13, 9, 3]], L1 = [[7, 7, 14], [5.5, 5.5, 10], [4, 4, 8], [2.6, 2.6, 5]], L2 = [[26, 12, 6], [20, 10, 6], [13, 8, 6], [7, 6, 5]];
+    var Ls = kind === 0 ? L0 : kind === 1 ? L1 : L2, y = 0, i, r;
+    for (i = 0; i < Ls.length; i++) {
+      var col = i === Ls.length - 1 && kind !== 1 ? [226, 172, 118] : strata[(i * 2 + kind) % 6];
+      m.box((i & 1 ? 0.8 : -0.6) * (kind === 1 ? 0.3 : 1), y + Ls[i][2] / 2, (i & 1 ? -0.5 : 0.4), Ls[i][0], Ls[i][2], Ls[i][1], col);
+      if (Ls[i][2] > 5) m.box(0, y + Ls[i][2] * 0.55, 0, Ls[i][0] + 0.4, Ls[i][2] * 0.22, Ls[i][1] + 0.4, strata[(i * 2 + kind + 3) % 6]);
+      y += Ls[i][2];
+    }
+    return m.done();
+  }
+  function cactusMesh() {
+    var m = new MB(), G = [70, 120, 76];
+    m.box(0, 2.1, 0, 0.75, 4.2, 0.75, G);
+    m.box(-0.85, 2.3, 0, 0.9, 0.4, 0.4, G); m.box(-1.15, 3.2, 0, 0.4, 1.8, 0.4, G);
+    m.box(0.85, 2.9, 0, 0.9, 0.4, 0.4, G); m.box(1.15, 3.7, 0, 0.4, 1.5, 0.4, G);
+    return m.done();
+  }
+  function boulderMesh() { var m = new MB(); m.ell(0, 0.7, 0, 1.4, 0.9, 1.15, 6, 3, [198, 156, 116], [176, 134, 98]); return m.done(); }
+  var M_ROCK = [rockMesh(0), rockMesh(1), rockMesh(2)], M_CACTUS = cactusMesh(), M_BOULDER = boulderMesh();
+  var M_TREE = treeMesh(), M_PALM = palmMesh(), M_SIGN = [null, signMesh(1), signMesh(2), signMesh(3)], M_STAND = standMesh(), M_PITS = pitsMesh(), M_GANTRY = gantryMesh();
+
+  /* ================= SCENERY PLACEMENT ================= */
+  var buckets = new Array(N), i0;
+  for (i0 = 0; i0 < N; i0++) buckets[i0] = null;
+  var decals = new Array(N);
+  for (i0 = 0; i0 < N; i0++) decals[i0] = null;
+  function heading(s) { posAt(s, 0); return Math.atan2(PQ.tx, PQ.tz); }
+  function place(obj, s) {
+    var ix = Math.floor(wrapS(s) / DS) % N;
+    (buckets[ix] = buckets[ix] || []).push(obj);
+  }
+  var SIGNSEQ = 0;
+  (function scenery() {
+    var s, side, d, h, kind, nearStand;
+    var stands = [[150, 1], [560, -1], [930, 1], [1260, -1], [1620, 1]];
+    function blocked(ss, dd) {
+      for (var q = 0; q < stands.length; q++) {
+        var sd = stands[q][1];
+        if (Math.abs(ss - stands[q][0]) < 30 && dd * sd > 0 && Math.abs(dd) < 34) return true;
+      }
+      if (ss > -30 && ss < 100 && dd < 0 && Math.abs(dd) < 32) return true;
+      if (ss > 1850 && dd < 0 && Math.abs(dd) < 32) return true;
+      return false;
+    }
+    for (s = 0; s < L; s += 14 + rnd() * 16) {
+      for (var pass = 0; pass < 2; pass++) {
+        side = pass === 0 ? -1 : 1;
+        d = side * (25 + rnd() * 22);
+        if (blocked(s, d)) continue;
+        posAt(s + (rnd() - 0.5) * 8, d);
+        place({ m: M_ROCK[Math.floor(rnd() * 3)], x: PQ.x, z: PQ.z, yaw: rnd() * PI2, sc: 0.8 + rnd() * 0.8, sort: true, stand: true }, s);
+      }
+    }
+    for (s = 8; s < L; s += 30 + rnd() * 20) {
+      for (var pass2 = 0; pass2 < 2; pass2++) {
+        side = pass2 === 0 ? -1 : 1;
+        d = side * (62 + rnd() * 50);
+        posAt(s, d);
+        place({ m: M_ROCK[Math.floor(rnd() * 3)], x: PQ.x, z: PQ.z, yaw: rnd() * PI2, sc: 1.8 + rnd() * 1.4, sort: true, stand: true }, s);
+      }
+    }
+    for (s = 6; s < L; s += 22 + rnd() * 25) {
+      side = rnd() < 0.5 ? -1 : 1; d = side * (14 + rnd() * 9);
+      if (blocked(s, d)) continue;
+      posAt(s, d);
+      place({ m: M_CACTUS, x: PQ.x, z: PQ.z, yaw: rnd() * PI2, sc: 0.8 + rnd() * 0.6, sort: true }, s);
+    }
+    for (s = 3; s < L; s += 16 + rnd() * 20) {
+      side = rnd() < 0.5 ? -1 : 1; d = side * (13 + rnd() * 14);
+      if (blocked(s, d)) continue;
+      posAt(s, d);
+      place({ m: M_BOULDER, x: PQ.x, z: PQ.z, yaw: rnd() * PI2, sc: 0.6 + rnd() * 1.1, sort: false }, s);
+    }
+    for (s = 40; s < L; s += 70) {
+      side = (Math.floor(s / 70) & 1) ? 1 : -1;
+      d = side * 12.9; posAt(s, d); h = Math.atan2(PQ.tx, PQ.tz);
+      place({ m: M_SIGN[1 + Math.floor(rnd() * 3)], x: PQ.x, z: PQ.z, yaw: h + (side < 0 ? 0 : Math.PI), sc: 1 }, s);
+    }
+    for (var q = 0; q < stands.length; q++) {
+      side = stands[q][1]; d = side * 19; posAt(stands[q][0], d); h = Math.atan2(PQ.tx, PQ.tz);
+      place({ m: M_STAND, x: PQ.x, z: PQ.z, yaw: h + (side < 0 ? 0 : Math.PI), sc: 1, sort: true, stand: true }, stands[q][0]);
+    }
+    posAt(48, -21); h = Math.atan2(PQ.tx, PQ.tz);
+    place({ m: M_PITS, x: PQ.x, z: PQ.z, yaw: h, sc: 1, sort: true, stand: true }, 48);
+    posAt(27, 0); h = Math.atan2(PQ.tx, PQ.tz);
+    place({ m: M_GANTRY, x: PQ.x, z: PQ.z, yaw: h, sc: 1, sort: true, gantry: true, h: h }, 27);
+  })();
+
+  // road decals: start line and grid boxes
+  function addDecal(s0, s1, d0, d1, col) {
+    var ix = Math.floor(wrapS(s0) / DS) % N;
+    posAt(s0, d0); var a = [PQ.x, PQ.z]; posAt(s0, d1); var b = [PQ.x, PQ.z];
+    posAt(s1, d1); var c = [PQ.x, PQ.z]; posAt(s1, d0); var d = [PQ.x, PQ.z];
+    (decals[ix] = decals[ix] || []).push({ p: [a, b, c, d], c: col });
+  }
+  var WHITE = [236, 232, 220], BLACKC = [30, 36, 40];
+  (function () {
+    var cols = 14, k, r, cw = 2 * HW / cols;
+    for (r = 0; r < 2; r++) for (k = 0; k < cols; k++) addDecal(r * 1.0, (r + 1) * 1.0, -HW + k * cw, -HW + (k + 1) * cw, ((k + r) & 1) ? BLACKC : WHITE);
+  })();
+  var GRID = [];
+  (function () {
+    var rowS = function (r) { return 6 + r * 9; };
+    GRID.push({ s: rowS(0), d: 0, player: true });
+    var layout = [[1, -1.9, 0], [1, 1.9, 3.5], [2, -1.9, 0], [2, 1.9, 3.5], [3, -1.9, 0], [3, 1.9, 3.5], [4, 0, 0]];
+    for (var k = 0; k < layout.length; k++) GRID.push({ s: rowS(layout[k][0]) + layout[k][2], d: layout[k][1] });
+    for (k = 0; k < GRID.length; k++) {
+      var g = GRID[k], sf = g.s + 3.4, hw = 1.35;
+      addDecal(sf, sf + 0.16, g.d - hw, g.d + hw, WHITE);
+      addDecal(sf - 1.6, sf + 0.16, g.d + (g.d <= 0 ? hw - 0.14 : -hw), g.d + (g.d <= 0 ? hw : -hw + 0.14), WHITE);
+    }
+  })();
+
+  /* ================= MESH DRAW ================= */
+  var LD = (function () { var x = -0.35, y = 0.82, z = -0.45, l = Math.hypot(x, y, z); return [x / l, y / l, z / l]; })();
+  var VX = new Float64Array(3000), VY = new Float64Array(3000), VZ = new Float64Array(3000);
+  var visF = new Int32Array(1200), visK = new Float64Array(1200), visL = new Float64Array(1200);
+  var pDepth = new Float64Array(200), pCnt = new Int32Array(200), pStart = new Int32Array(200), pEnd = new Int32Array(200), pOrd = new Int32Array(200);
+  function drawMesh(m, px, py, pz, yaw, sc, sort, ordered) {
+    var cy = Math.cos(yaw), sy = Math.sin(yaw), nv = m.nv, v = m.v, i, k;
+    toCam(px, py + 1, pz);
+    var zc = qz;
+    if (zc < -40 || zc > 470) return;
+    var ff = fogF(Math.max(zc, 0));
+    for (i = 0; i < nv; i++) {
+      var lx = v[i * 3] * sc, ly = v[i * 3 + 1] * sc, lz = v[i * 3 + 2] * sc;
+      var dx = px + lx * cy + lz * sy - cam.x, dy = py + ly - cam.y, dz = pz - lx * sy + lz * cy - cam.z;
+      VX[i] = dx * cam.rx + dz * cam.rz; VY[i] = dx * cam.ux + dy * cam.uy + dz * cam.uz; VZ[i] = dx * cam.fx + dy * cam.fy + dz * cam.fz;
+    }
+    var nvis = 0, fl = m.f.length, np = m.np || 1;
+    if (ordered) for (i = 0; i < np; i++) { pDepth[i] = 0; pCnt[i] = 0; pStart[i] = -1; pEnd[i] = -1; }
+    for (k = 0; k < fl; k++) {
+      var f = m.f[k], nx = f.nx * cy + f.nz * sy, ny = f.ny, nz = -f.nx * sy + f.nz * cy;
+      var ncx = nx * cam.rx + nz * cam.rz, ncy = nx * cam.ux + ny * cam.uy + nz * cam.uz, ncz = nx * cam.fx + ny * cam.fy + nz * cam.fz;
+      var a = f.i[0];
+      if (ncx * VX[a] + ncy * VY[a] + ncz * VZ[a] > 0) {
+        if (!f.dbl) continue;
+        nx = -nx; ny = -ny; nz = -nz;
+      }
+      var dsum = 0, ln = f.i.length;
+      for (i = 0; i < ln; i++) dsum += VZ[f.i[i]];
+      visF[nvis] = k; visK[nvis] = dsum / ln;
+      visL[nvis] = f.em ? 1.25 : 0.6 + 0.5 * Math.max(0, nx * LD[0] + ny * LD[1] + nz * LD[2]);
+      if (ordered) { var pp = f.p; if (pStart[pp] < 0) pStart[pp] = nvis; pEnd[pp] = nvis + 1; pDepth[pp] += visK[nvis]; pCnt[pp]++; }
+      nvis++;
+    }
+    if (ordered) {
+      // pieces are stored far to near as seen from behind; flip when seen from the front, sort by depth from the side
+      var tcx = px - cam.x, tcz = pz - cam.z, tl = Math.hypot(tcx, tcz) || 1;
+      var dp = (Math.sin(yaw) * tcx + Math.cos(yaw) * tcz) / tl, no = 0, kk, j2;
+      for (i = 0; i < np; i++) if (pStart[i] >= 0) pOrd[no++] = i;
+      if (dp < -0.45) { for (i = 0; i < (no >> 1); i++) { kk = pOrd[i]; pOrd[i] = pOrd[no - 1 - i]; pOrd[no - 1 - i] = kk; } }
+      else if (dp <= 0.45) {
+        for (i = 1; i < no; i++) { kk = pOrd[i]; var dk = pDepth[kk] / pCnt[kk]; j2 = i - 1; while (j2 >= 0 && pDepth[pOrd[j2]] / pCnt[pOrd[j2]] < dk) { pOrd[j2 + 1] = pOrd[j2]; j2--; } pOrd[j2 + 1] = kk; }
+      }
+      for (var oi = 0; oi < no; oi++) { var pc = pOrd[oi]; for (k = pStart[pc]; k < pEnd[pc]; k++) drawFace(m, k, ff); }
+      return;
+    }
+    if (sort) {
+      for (i = 1; i < nvis; i++) {
+        var kf = visF[i], kk2 = visK[i], kl = visL[i], j = i - 1;
+        while (j >= 0 && visK[j] < kk2) { visF[j + 1] = visF[j]; visK[j + 1] = visK[j]; visL[j + 1] = visL[j]; j--; }
+        visF[j + 1] = kf; visK[j + 1] = kk2; visL[j + 1] = kl;
+      }
+    }
+    for (k = 0; k < nvis; k++) drawFace(m, k, ff);
+  }
+  function drawFace(m, k, ff) {
+    var fc = m.f[visF[k]], idx = fc.i, n = idx.length, lum = visL[k], c = fc.c, i;
+    for (i = 0; i < n; i++) { bx[i] = VX[idx[i]]; by[i] = VY[idx[i]]; bz[i] = VZ[idx[i]]; }
+    var r = c[0] * lum, g = c[1] * lum, b = c[2] * lum;
+    fillPoly(n, rgbs(r + (FOG[0] - r) * ff, g + (FOG[1] - g) * ff, b + (FOG[2] - b) * ff));
+  }
+
+  /* ================= GAME STATE ================= */
+  var VTOP = 300 / 3.6, ACC = 24, LMAX = 8.5;
+  var state = 'ready';
+  var cars = [], player = null;
+  var raceTime = 0, lapStart = 0, bestLap = Infinity, finishTime = 0, rank = 8, prevRank = 8, rankCool = 0;
+  var goT = 0, bannerT = 0, bannerTxt = 'GO', contactT = 0, contactCool = 0, resultT = -1, bump = 0, lap = 1, posFlash = 0, posDir = 0, shake = 0, slip = 0;
+  var steer = 0, camYaw = 0, camInit = false;
+  var ptrActive = false, ptrId = -1, ptrX0 = 0, ptrSteer = 0, keySteer = 0, keyL = 0, keyR = 0;
+  var sparks = [];
+  var MC = [], HC = [];
+  var TEAMS = [
+    { c: [238, 232, 214], h: [88, 200, 190], pace: 0.955 },
+    { c: [142, 96, 190], h: [240, 236, 226], pace: 0.94 },
+    { c: [64, 160, 96], h: [240, 236, 226], pace: 0.925 },
+    { c: [56, 110, 205], h: [240, 232, 210], pace: 0.965 },
+    { c: [236, 206, 60], h: [250, 246, 236], pace: 0.935 },
+    { c: [72, 205, 196], h: [240, 232, 210], pace: 0.915 },
+    { c: [74, 80, 92], h: [240, 140, 70], pace: 0.945 }
+  ];
+  var PLAYER_COL = { c: [52, 54, 64], h: [240, 214, 110], acc: [206, 210, 216], wc: [74, 80, 92] };
+  function mkMesh(col) { return { hi: buildCar(col.c, col.h, false, col.acc, col.wc), lo: buildCar(col.c, col.h, true, col.acc, col.wc) }; }
+
+  function newRace(startNow) {
+    cars = [];
+    var k;
+    for (k = 0; k < GRID.length; k++) {
+      var g = GRID[k], col = g.player ? PLAYER_COL : TEAMS[k - 1];
+      var c = { s: g.s, d: g.d, v: 0, vd: 0, pace: g.player ? 1 : col.pace, meshes: null, col: col, yk: 0, ykv: 0, laneT: g.d, timer: Math.random() * 0.3, delay: g.player ? 0 : 0.05 + Math.random() * 0.2, isPlayer: !!g.player, x: 0, z: 0, hd: 0, kickCool: 0, home: g.d };
+      c.meshes = mkMesh(col);
+      cars.push(c);
+    }
+    player = cars[0];
+    raceTime = 0; lapStart = 0; bestLap = Infinity; finishTime = 0; rank = 8; prevRank = 8; rankCool = 0; lap = 1;
+    goT = 0; bannerT = 0; contactT = 0; contactCool = 0; resultT = -1; bump = 0; posFlash = 0; steer = 0; slip = 0; sparks.length = 0;
+    camInit = false;
+    $('result').hidden = true; $('vig').style.opacity = 0; $('banner').classList.remove('show');
+    if (startNow) { $('intro').hidden = true; startRace(); } else { $('intro').hidden = false; state = 'ready'; }
+  }
+  function startRace() { state = 'racing'; goT = 1.7; bannerT = 1.4; bannerTxt = 'GO'; }
+
+  /* ---------- audio ---------- */
+  var ac = null, osc = null, gainN = null;
+  function audioStart() {
+    if (ac) { if (ac.state === 'suspended') ac.resume(); return; }
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      ac = new AC(); osc = ac.createOscillator(); osc.type = 'sawtooth';
+      var f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 650;
+      gainN = ac.createGain(); gainN.gain.value = 0;
+      osc.connect(f); f.connect(gainN); gainN.connect(ac.destination); osc.start();
+    } catch (e) { ac = null; }
+  }
+  function audioUpdate(gf, sp) {
+    if (!ac || !osc) return;
+    var on = state === 'racing' || state === 'finished';
+    try {
+      osc.frequency.setTargetAtTime(62 + gf * 150 + sp * 40, ac.currentTime, 0.05);
+      gainN.gain.setTargetAtTime(on ? 0.035 + sp * 0.02 : 0, ac.currentTime, 0.08);
+    } catch (e) {}
+  }
+
+  /* ---------- input ---------- */
+  stage.addEventListener('pointerdown', function (e) {
+    if (e.target.closest && e.target.closest('button')) return;
+    ptrId = e.pointerId; ptrX0 = e.clientX; ptrSteer = 0; ptrActive = true;
+    try { stage.setPointerCapture(e.pointerId); } catch (_) {}
+    if (state === 'ready') { audioStart(); $('intro').hidden = true; startRace(); }
+  });
+  stage.addEventListener('pointermove', function (e) {
+    if (!ptrActive || e.pointerId !== ptrId) return;
+    var range = W * 0.17, d = e.clientX - ptrX0;
+    if (Math.abs(d) > range) { ptrX0 = e.clientX - (d > 0 ? range : -range); d = d > 0 ? range : -range; }
+    ptrSteer = clamp(d / range, -1, 1);
+  });
+  function endPtr(e) { if (e.pointerId === ptrId) { ptrActive = false; ptrSteer = 0; } }
+  stage.addEventListener('pointerup', endPtr); stage.addEventListener('pointercancel', endPtr); stage.addEventListener('lostpointercapture', endPtr);
+  window.addEventListener('keydown', function (e) {
+    var k = e.key;
+    if (k === 'ArrowLeft' || k === 'a' || k === 'A') keyL = 1;
+    else if (k === 'ArrowRight' || k === 'd' || k === 'D') keyR = 1;
+    else if ((k === 'Enter' || k === ' ') && state === 'ready') { audioStart(); $('intro').hidden = true; startRace(); }
+    keySteer = keyR - keyL;
+  });
+  window.addEventListener('keyup', function (e) {
+    var k = e.key;
+    if (k === 'ArrowLeft' || k === 'a' || k === 'A') keyL = 0;
+    else if (k === 'ArrowRight' || k === 'd' || k === 'D') keyR = 0;
+    keySteer = keyR - keyL;
+  });
+  $('again').addEventListener('click', function () { audioStart(); newRace(true); });
+
+  /* ---------- helpers ---------- */
+  function fmt(t) {
+    if (!isFinite(t)) return '0:00.000';
+    var m = Math.floor(t / 60), s = t - m * 60;
+    return m + ':' + (s < 10 ? '0' : '') + s.toFixed(3);
+  }
+  function relS(a, b) { var d = wrapS(b.s - a.s); return d > L / 2 ? d - L : d; }
+  function hit(x, z) {
+    if (contactCool > 0) return;
+    contactT = 1.1; contactCool = 1.4; shake = 1;
+    player.v *= 0.62; player.ykv = (Math.random() < 0.5 ? -1 : 1) * 6;
+    for (var k = 0; k < 22; k++) sparks.push({ x: x, y: 0.4 + Math.random() * 0.4, z: z, vx: (Math.random() - 0.5) * 14, vy: Math.random() * 6, vz: (Math.random() - 0.5) * 14, life: 0.35 + Math.random() * 0.4 });
+  }
+
+  /* ---------- update ---------- */
+  function carAI(c, dt) {
+    var kap = Math.abs(c.k || 0);
+    var vT = VTOP * c.pace * (1 - Math.min(0.14, 14 * Math.max(0, kap - 0.0035)));
+    c.timer -= dt;
+    var q, o, rel;
+    function blockedAt(l) {
+      for (var u = 0; u < cars.length; u++) {
+        var oo = cars[u]; if (oo === c) continue;
+        var r2 = relS(c, oo);
+        if (r2 > -6 && r2 < 28 && Math.abs(oo.d - l) < 2.3) return true;
+      }
+      return false;
+    }
+    if (c.timer <= 0) {
+      c.timer = 0.3 + Math.random() * 0.3;
+      if (blockedAt(c.laneT)) {
+        var lanes = [-3.6, -1.6, 0.4, 2.4, 3.9].sort(function () { return Math.random() - 0.5; });
+        for (q = 0; q < lanes.length; q++) if (!blockedAt(lanes[q])) { c.laneT = lanes[q]; break; }
+      } else if (Math.random() < 0.05) {
+        var l2 = [-3.6, -1.6, 0.4, 2.4, 3.9][Math.floor(Math.random() * 5)];
+        if (!blockedAt(l2)) c.laneT = l2;
+      }
+    }
+    for (q = 0; q < cars.length; q++) {
+      o = cars[q]; if (o === c) continue;
+      rel = relS(c, o);
+      if (rel > 0 && rel < 13 && Math.abs(o.d - c.d) < 2.1) vT = Math.min(vT, o.v * 0.98);
+    }
+    if (c.delay > 0) { c.delay -= dt; vT = 0; }
+    var a = ACC * (1 - Math.pow(c.v / (VTOP * 1.02), 2)) + 1;
+    c.v += clamp(vT - c.v, -28 * dt, a * dt);
+    var vdT = clamp((c.laneT - c.d) * 1.5, -5, 5);
+    c.vd += (vdT - c.vd) * Math.min(1, dt * 5);
+    c.d += c.vd * dt;
+    c.s += c.v * dt;
+  }
+  function updatePlayer(dt) {
+    var p = player, u;
+    if (state === 'finished') u = clamp(-p.d * 0.3, -1, 1); else u = ptrActive ? ptrSteer : keySteer;
+    steer += (u - steer) * Math.min(1, dt * 12);
+    var kap = p.k || 0;
+    var drift = clamp(-kap * p.v * p.v * 0.1, -8, 8);
+    var vdT = steer * LMAX * (0.4 + 0.6 * Math.min(1, p.v / 35)) + drift;
+    p.vd += (vdT - p.vd) * Math.min(1, dt * 6.5);
+    p.d += p.vd * dt;
+    var ad = Math.abs(p.d), sg = p.d < 0 ? -1 : 1;
+    if (ad > HW + 1.4) p.v -= 16 * dt * Math.min(1, (ad - HW - 1.4) / 1.5);
+    if (ad > OW - 0.95) {
+      p.d = sg * (OW - 0.95);
+      if (p.vd * sg > 0) p.vd = -p.vd * 0.25;
+      p.v *= 1 - 1.6 * dt;
+      if (p.v > 25) { posAt(p.s, p.d); hit(PQ.x, PQ.z); }
+    }
+    var slipT = 0, q, o, rel;
+    for (q = 1; q < cars.length; q++) {
+      o = cars[q]; rel = relS(p, o);
+      if (rel > 6 && rel < 32 && Math.abs(o.d - p.d) < 1.6 && p.v > 50) slipT = 1;
+    }
+    slip += (slipT - slip) * Math.min(1, dt * 3);
+    var vcap = state === 'finished' ? VTOP * 0.4 : VTOP * (1 + 0.045 * slip);
+    var a = ACC * (1 - Math.pow(Math.min(p.v, vcap * 1.2) / vcap, 2)) * (1 + slip * 0.5);
+    p.v += a * dt - Math.abs(p.vd) * p.v * 0.0045 * dt;
+    if (state === 'finished' && p.v > vcap) p.v -= 18 * dt;
+    p.v = clamp(p.v, 0, VTOP * 1.08);
+    p.s += p.v * dt;
+  }
+  function collide() {
+    var a, b;
+    for (a = 0; a < cars.length; a++) for (b = a + 1; b < cars.length; b++) {
+      var A = cars[a], B = cars[b], ds = relS(A, B), dd = B.d - A.d;
+      if (Math.abs(ds) < 4.6 && Math.abs(dd) < 1.95) {
+        var front = ds > 0 ? B : A, back = ds > 0 ? A : B;
+        var oS = 4.6 - Math.abs(ds), oD = 1.95 - Math.abs(dd);
+        if (oD < oS * 0.6 || Math.abs(ds) < 2.4) {
+          var sgn = dd >= 0 ? 1 : -1;
+          A.d -= sgn * oD * 0.5; B.d += sgn * oD * 0.5; A.vd -= sgn * 1.4; B.vd += sgn * 1.4;
+        } else {
+          back.s -= oS * 0.55; back.v = Math.min(back.v, front.v * 0.93);
+        }
+        if (A.isPlayer || B.isPlayer) {
+          var other = A.isPlayer ? B : A;
+          posAt(player.s, player.d); hit(PQ.x, PQ.z);
+          if (other.kickCool <= 0) { other.ykv = (Math.random() < 0.5 ? -1 : 1) * 4.5; other.kickCool = 1; other.v *= 0.92; }
+        } else {
+          if (A.kickCool <= 0) { A.ykv = (Math.random() < 0.5 ? -1 : 1) * 3; A.kickCool = 1; }
+          if (B.kickCool <= 0) { B.ykv = (Math.random() < 0.5 ? -1 : 1) * 3; B.kickCool = 1; }
+        }
+      }
+    }
+  }
+  function computeRank() {
+    var r = 1;
+    for (var k = 1; k < cars.length; k++) if (cars[k].s > player.s) r++;
+    return r;
+  }
+  function finishRace() {
+    state = 'finished';
+    finishTime = raceTime;
+    var lt = finishTime - lapStart; if (lt < bestLap) bestLap = lt;
+    rank = computeRank(); resultT = 1.3;
+    var pbText = '';
+    try {
+      var prev = parseFloat(localStorage.getItem('canyon-gp-best'));
+      if (rank === 1 && (!isFinite(prev) || finishTime < prev)) { localStorage.setItem('canyon-gp-best', String(finishTime)); if (isFinite(prev)) pbText = 'New personal best'; }
+    } catch (e) {}
+    $('pb').textContent = pbText;
+  }
+  function showResult() {
+    $('place').textContent = 'P' + rank;
+    $('msg').textContent = rank === 1 ? 'A drive to remember.' : rank <= 3 ? 'On the podium.' : 'Back to the grid and go again.';
+    $('rTime').textContent = fmt(finishTime); $('rBest').textContent = fmt(bestLap);
+    $('result').hidden = false;
+  }
+  var dtU = 1 / 60;
+  function update(dt) {
+    var k, c; dtU = dt;
+    for (k = 0; k < cars.length; k++) {
+      c = cars[k]; posAt(c.s, 0); c.k = PQ.k;
+    }
+    if (state === 'racing' || state === 'finished') {
+      raceTimeStep(dt);
+      for (k = 1; k < cars.length; k++) carAI(cars[k], dt);
+      updatePlayer(dt);
+      collide();
+      for (k = 0; k < cars.length; k++) { c = cars[k]; c.d = clamp(c.d, -(OW - 1), OW - 1); if (c.kickCool > 0) c.kickCool -= dt; }
+      if (state === 'racing') {
+        var nl = Math.min(3, Math.floor(player.s / L) + 1);
+        if (nl > lap) {
+          var lt = raceTime - lapStart; if (lt < bestLap) bestLap = lt;
+          lapStart = raceTime; lap = nl; bannerT = 2.2; bannerTxt = nl === 3 ? 'Final lap' : 'Lap ' + nl + ' / 3';
+        }
+        if (player.s >= 3 * L) finishRace();
+        if (rankCool > 0) rankCool -= dt;
+        var nr = computeRank();
+        if (nr !== rank && rankCool <= 0 && state === 'racing') {
+          if (nr < rank) { bannerT = 1.3; bannerTxt = 'P' + nr + ' Overtake'; posDir = 1; }
+          else { bannerT = 1.0; bannerTxt = 'P' + nr; posDir = -1; }
+          posFlash = 1.2; rankCool = 0.5;
+        }
+        rank = nr;
+      }
+    }
+    for (k = 0; k < cars.length; k++) {
+      c = cars[k];
+      c.ykv += (-c.yk * 38 - c.ykv * 4.5) * dt; c.yk += c.ykv * dt;
+    }
+    if (bump > 0) bump = Math.max(0, bump - dt * 3);
+    if (contactT > 0) contactT -= dt;
+    if (contactCool > 0) contactCool -= dt;
+    if (shake > 0) shake = Math.max(0, shake - dt * 2.2);
+    if (bannerT > 0) bannerT -= dt;
+    if (goT > 0) goT -= dt;
+    if (posFlash > 0) posFlash -= dt;
+    if (resultT > 0) { resultT -= dt; if (resultT <= 0) showResult(); }
+    for (k = sparks.length - 1; k >= 0; k--) {
+      var sp = sparks[k]; sp.life -= dt;
+      if (sp.life <= 0) { sparks.splice(k, 1); continue; }
+      sp.vy -= 18 * dt; sp.x += sp.vx * dt; sp.y = Math.max(0.02, sp.y + sp.vy * dt); sp.z += sp.vz * dt;
+    }
+    if (contactT > 0.6 && state === 'racing') {
+      posAt(player.s, player.d);
+      for (k = 0; k < 2; k++) sparks.push({ x: PQ.x, y: 0.3 + Math.random() * 0.3, z: PQ.z, vx: (Math.random() - 0.5) * 10, vy: Math.random() * 4, vz: (Math.random() - 0.5) * 10, life: 0.3 + Math.random() * 0.3 });
+    }
+    // world transforms
+    for (k = 0; k < cars.length; k++) {
+      c = cars[k]; posAt(c.s, c.d);
+      c.x = PQ.x; c.z = PQ.z;
+      var vdn = clamp(c.vd / Math.max(c.v, 12), -0.4, 0.4);
+      var hdT = Math.atan2(PQ.tx + PQ.tz * vdn, PQ.tz - PQ.tx * vdn);
+      c.hd = c.hdInit ? c.hd + wrapA(hdT - c.hd) * Math.min(1, dtU * 8) : hdT; c.hdInit = true;
+    }
+  }
+  function raceTimeStep(dt) { if (state === 'racing') raceTime += dt; }
+
+  /* ================= RENDER ================= */
+  var noisePat = null;
+  (function () {
+    var nc = document.createElement('canvas'); nc.width = nc.height = 96;
+    var nx = nc.getContext('2d'), id = nx.createImageData(96, 96);
+    for (var q = 0; q < id.data.length; q += 4) { var v = Math.random() * 255; id.data[q] = id.data[q + 1] = id.data[q + 2] = v; id.data[q + 3] = 255; }
+    nx.putImageData(id, 0, 0);
+    noisePat = ctx.createPattern(nc, 'repeat');
+  })();
+
+  var C_ASPH = [[48, 54, 60], [52, 58, 64]], C_RUM = [[226, 84, 52], [238, 232, 216]], C_RUN = [[190, 138, 92], [180, 128, 84]];
+  var C_GRASS = [[208, 164, 112], [200, 156, 105]], C_WALL = [170, 160, 148], C_WALLT = [204, 194, 180], C_WALLR = [190, 66, 46];
+  var PD = [-HW, -OR, -OW, -OWT, -OG, -OW, -OWT, HW, OR, OW, OWT, OG, OW, OWT];
+  var PY = [0, 0, 0, 0, 0, 0.9, 0.9, 0, 0, 0, 0, 0, 0.9, 0.9];
+  var PT = new Float64Array(160 * 14 * 3);
+  var listRel = new Int32Array(200), segOf = new Int32Array(600);
+  var tmpObj = [];
+
+  function drawSky(yh) {
+    var g = ctx.createLinearGradient(0, 0, 0, Math.max(1, yh));
+    g.addColorStop(0, 'rgb(142,168,196)'); g.addColorStop(0.55, 'rgb(212,200,182)'); g.addColorStop(1, 'rgb(' + FOG[0] + ',' + FOG[1] + ',' + FOG[2] + ')');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, Math.max(1, yh) + 1);
+    var g2 = ctx.createLinearGradient(0, yh, 0, yh + H * 0.1);
+    g2.addColorStop(0, 'rgb(' + FOG[0] + ',' + FOG[1] + ',' + FOG[2] + ')'); g2.addColorStop(1, 'rgb(208,164,112)');
+    ctx.fillStyle = g2; ctx.fillRect(0, yh, W, H * 0.1 + 1);
+    ctx.fillStyle = 'rgb(208,164,112)'; ctx.fillRect(0, yh + H * 0.1, W, H);
+    var par = (camYaw * W * 0.6), LW = W * 3, sc = H / 844;
+    function mesa(u, ph) { var v = Math.sin(PI2 * 3 * u + ph) + 0.6 * Math.sin(PI2 * 7 * u + 1.1 + ph); return v > 0.9 ? 52 : v > 0.2 ? 30 : v > -0.4 ? 14 : 5; }
+    [['rgb(226,186,150)', 0.55, 0.5, 0], ['rgb(208,150,110)', 0.4, 0.9, 2]].forEach(function (ly) {
+      ctx.fillStyle = ly[0]; ctx.beginPath(); ctx.moveTo(0, yh + 2);
+      for (var x = -12; x <= W + 12; x += 6) { var u = (((x + par * ly[2]) / LW) % 1 + 1) % 1; ctx.lineTo(x, yh - mesa(u, ly[3]) * ly[1] * sc * 1.6); }
+      ctx.lineTo(W + 12, yh + 2); ctx.closePath(); ctx.fill();
+    });
+    var bxp = W * 0.1 - par * 0.12, base = yh - 1, hw = W * 0.14, hh = H * 0.085;
+    ctx.fillStyle = 'rgb(166,84,58)'; ctx.beginPath(); ctx.moveTo(bxp - hw, base); ctx.lineTo(bxp - hw * 0.55, base - hh); ctx.lineTo(bxp + hw * 0.1, base - hh); ctx.lineTo(bxp + hw * 0.1, base); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgb(206,122,82)'; ctx.beginPath(); ctx.moveTo(bxp + hw * 0.1, base - hh); ctx.lineTo(bxp + hw * 0.5, base - hh * 0.5); ctx.lineTo(bxp + hw * 0.9, base); ctx.lineTo(bxp + hw * 0.1, base); ctx.closePath(); ctx.fill();
+  }
+
+  function qk(kn, kf, a, b, col, ext) {
+    var n1 = (kn * 14 + a) * 3, n2 = (kn * 14 + b) * 3, f1 = (kf * 14 + a) * 3, f2 = (kf * 14 + b) * 3;
+    bx[0] = PT[n1]; by[0] = PT[n1 + 1]; bz[0] = PT[n1 + 2];
+    bx[1] = PT[n2]; by[1] = PT[n2 + 1]; bz[1] = PT[n2 + 2];
+    bx[2] = PT[f2] + (PT[f2] - PT[n2]) * ext; by[2] = PT[f2 + 1] + (PT[f2 + 1] - PT[n2 + 1]) * ext; bz[2] = PT[f2 + 2] + (PT[f2 + 2] - PT[n2 + 2]) * ext;
+    bx[3] = PT[f1] + (PT[f1] - PT[n1]) * ext; by[3] = PT[f1 + 1] + (PT[f1 + 1] - PT[n1 + 1]) * ext; bz[3] = PT[f1 + 2] + (PT[f1 + 2] - PT[n1 + 2]) * ext;
+    var zavg = (bz[0] + bz[1] + bz[2] + bz[3]) / 4;
+    if (zavg < -5) return;
+    fillPoly(4, fogc(col, zavg));
+  }
+
+  function drawGantryExtras(o) {
+    // title board text and start lights
+    var wx = o.x, wz = o.z, h = o.h, rxv = Math.cos(h), rzv = -Math.sin(h);
+    toCam(wx, 9.7, wz); var zc = qz, cxm = qx, cym = qy;
+    if (zc < 6) return;
+    var pw = 19 * FL / zc, ph = 2.2 * FL / zc, sx = SCX + cxm * FL / zc, sy = SCY - cym * FL / zc;
+    if (ph > 7) {
+      ctx.save(); ctx.globalAlpha = 0.22; ctx.fillStyle = 'rgb(246,239,223)'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = 'italic 800 ' + Math.round(ph * 0.55) + 'px "Exo 2", sans-serif';
+      try { ctx.letterSpacing = Math.round(ph * 0.3) + 'px'; } catch (e) {}
+      ctx.fillText('CANYON', sx, sy);
+      try { ctx.letterSpacing = '0px'; } catch (e) {}
+      ctx.restore();
+    }
+    var green = goT > 0;
+    for (var q = -2; q <= 2; q++) {
+      toCam(wx + rxv * q * 2.1, 7.7, wz + rzv * q * 2.1);
+      if (qz < 1) continue;
+      var rr = 0.55 * FL / qz;
+      ctx.fillStyle = green ? 'rgb(150,224,64)' : 'rgb(233,120,60)';
+      ctx.beginPath(); ctx.arc(SCX + qx * FL / qz, SCY - qy * FL / qz, rr, 0, PI2); ctx.fill();
+    }
+  }
+
+  function render() {
+    var k, i;
+    var yh = SCY - FL * Math.tan(cam.pitch);
+    drawSky(yh);
+
+    var camIdx = Math.floor(wrapS(player.s - 11) / DS);
+    var iNear = camIdx - 8, nList = 0;
+    var rel = 0, relFar = 0;
+    while (nList < 150) {
+      listRel[nList] = rel;
+      var st = rel < 46 ? 1 : rel < 90 ? 2 : 4;
+      nList++;
+      rel += st;
+      if (rel > 190) { listRel[nList] = rel; nList++; break; }
+    }
+    // camera-space points for each list sample
+    for (k = 0; k < nList; k++) {
+      var ix = wrapI(iNear + listRel[k]), cx = PX[ix], cz = PZ[ix], rx = RXa[ix], rz = RZa[ix], base = k * 42;
+      for (var pp = 0; pp < 14; pp++) {
+        toCam(cx + rx * PD[pp], PY[pp], cz + rz * PD[pp]);
+        PT[base + pp * 3] = qx; PT[base + pp * 3 + 1] = qy; PT[base + pp * 3 + 2] = qz;
+      }
+    }
+    // map relative index to list segment
+    var lastRel = listRel[nList - 1];
+    for (k = 0; k < nList - 1; k++) for (i = listRel[k]; i < listRel[k + 1]; i++) segOf[i] = k;
+    // bucket cars
+    var carBuckets = [];
+    for (k = 0; k < cars.length; k++) {
+      var cc = cars[k], ci = Math.floor(wrapS(cc.s - 3.6) / DS) % N, crel = (ci - iNear + N) % N;
+      if (crel >= lastRel) continue;
+      var sidx = segOf[crel];
+      (carBuckets[sidx] = carBuckets[sidx] || []).push(cc);
+    }
+
+    for (k = nList - 2; k >= 0; k--) {
+      var kn = k, kf = k + 1, r0 = listRel[k], r1 = listRel[k + 1], absI = wrapI(iNear + r0);
+      var z0 = PT[kn * 42 + 2], z1 = PT[kf * 42 + 2];
+      if (z0 < -12 && z1 < -12) continue;
+      var par = (absI >> 2) & 1, par2 = (absI >> 1) & 1, wr = WALLRED[absI] && (absI & 7) < 5;
+      qk(kn, kf, 3, 4, C_GRASS[par], 0.08); qk(kn, kf, 10, 11, C_GRASS[par], 0.08);
+      qk(kn, kf, 1, 2, C_RUN[par], 0.08); qk(kn, kf, 8, 9, C_RUN[par], 0.08);
+      qk(kn, kf, 1, 0, C_RUM[par2], 0.08); qk(kn, kf, 7, 8, C_RUM[par2], 0.08);
+      qk(kn, kf, 0, 7, C_ASPH[(absI >> 2) & 1], 0.08);
+      qk(kn, kf, 2, 5, wr ? C_WALLR : C_WALL, 0.05); qk(kn, kf, 9, 12, wr ? C_WALLR : C_WALL, 0.05);
+      qk(kn, kf, 5, 6, C_WALLT, 0.05); qk(kn, kf, 12, 13, C_WALLT, 0.05);
+      // decals
+      for (var r = r0; r < r1; r++) {
+        var ai = wrapI(iNear + r), dl = decals[ai];
+        if (dl) for (var di = 0; di < dl.length; di++) {
+          var D = dl[di], zsum = 0;
+          for (var vv = 0; vv < 4; vv++) { toCam(D.p[vv][0], 0.03, D.p[vv][1]); bx[vv] = qx; by[vv] = qy; bz[vv] = qz; zsum += qz; }
+          fillPoly(4, fogc(D.c, zsum / 4));
+        }
+        // dashed lane lines
+        if (((ai >> 1) & 1) === 0 && ai % 4 < 2 && r < 150) {
+          var lx = [-2.7, 2.7];
+          for (var lq = 0; lq < 2; lq++) {
+            var a2 = wrapI(ai + 1);
+            var pts = [[PX[ai] + RXa[ai] * (lx[lq] - 0.07), PZ[ai] + RZa[ai] * (lx[lq] - 0.07)], [PX[ai] + RXa[ai] * (lx[lq] + 0.07), PZ[ai] + RZa[ai] * (lx[lq] + 0.07)], [PX[a2] + RXa[a2] * (lx[lq] + 0.07), PZ[a2] + RZa[a2] * (lx[lq] + 0.07)], [PX[a2] + RXa[a2] * (lx[lq] - 0.07), PZ[a2] + RZa[a2] * (lx[lq] - 0.07)]];
+            var zs2 = 0;
+            for (var vq = 0; vq < 4; vq++) { toCam(pts[vq][0], 0.025, pts[vq][1]); bx[vq] = qx; by[vq] = qy; bz[vq] = qz; zs2 += qz; }
+            fillPoly(4, fogc([226, 222, 208], zs2 / 4));
+          }
+        }
+      }
+      // objects in this segment
+      tmpObj.length = 0;
+      for (var r2 = r1 - 1; r2 >= r0; r2--) {
+        var bk = buckets[wrapI(iNear + r2)];
+        if (bk) for (var bi = 0; bi < bk.length; bi++) {
+          var ob = bk[bi]; toCam(ob.x, 0, ob.z);
+          var lim = ob.stand ? 60 : 8;
+          if (qz < -lim || qz > 430 || Math.abs(qx) > qz * 0.55 + lim + 6) continue;
+          tmpObj.push({ z: qz, o: ob, car: null });
+        }
+      }
+      var cb = carBuckets[k];
+      if (cb) for (var cj = 0; cj < cb.length; cj++) { toCam(cb[cj].x, 0, cb[cj].z); tmpObj.push({ z: qz, o: null, car: cb[cj] }); }
+      if (tmpObj.length > 1) tmpObj.sort(function (a, b) { return b.z - a.z; });
+      for (var oi = 0; oi < tmpObj.length; oi++) {
+        var to = tmpObj[oi];
+        if (to.car) drawCar(to.car, to.z);
+        else {
+          drawMesh(to.o.m, to.o.x, 0, to.o.z, to.o.yaw, to.o.sc, to.o.sort);
+          if (to.o.gantry) drawGantryExtras(to.o);
+        }
+      }
+    }
+    // sparks
+    if (sparks.length) {
+      ctx.strokeStyle = 'rgb(248,205,64)'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+      for (k = 0; k < sparks.length; k++) {
+        var s2 = sparks[k];
+        toCam(s2.x, s2.y, s2.z); var ax = qx, ay = qy, az = qz;
+        toCam(s2.x - s2.vx * 0.05, s2.y - s2.vy * 0.05, s2.z - s2.vz * 0.05);
+        if (az < 0.5 || qz < 0.5) continue;
+        ctx.beginPath(); ctx.moveTo(SCX + ax * FL / az, SCY - ay * FL / az); ctx.lineTo(SCX + qx * FL / qz, SCY - qy * FL / qz); ctx.stroke();
+      }
+    }
+    if (noisePat) { ctx.globalAlpha = 0.07; ctx.fillStyle = noisePat; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+  }
+
+  function drawCar(c, zc) {
+    var yaw = c.hd + c.yk + (c.isPlayer ? steer * 0.08 : 0);
+    // soft shadow
+    var ang, n = 10, zs = 0;
+    var cy = Math.cos(yaw), sy = Math.sin(yaw);
+    for (ang = 0; ang < n; ang++) {
+      var a = PI2 * ang / n, lx = Math.cos(a) * 1.25, lz = Math.sin(a) * 2.7;
+      toCam(c.x + lx * cy + lz * sy, 0.02, c.z - lx * sy + lz * cy);
+      bx[ang] = qx; by[ang] = qy; bz[ang] = qz; zs += qz;
+    }
+    fillPoly(n, 'rgba(10,16,22,' + (0.3 * (1 - fogF(zs / n))).toFixed(2) + ')');
+    if (c.lod) { if (zc < 200) c.lod = false; } else if (zc > 240) c.lod = true;
+    drawMesh(c.lod ? c.meshes.lo : c.meshes.hi, c.x, 0, c.z, yaw, 1, false, true);
+  }
+
+  /* ================= CAMERA ================= */
+  function updateCamera(dt) {
+    var p = player, tgt = p.hd - p.yk * 0;
+    // follow the path heading, not the spin
+    var vdn = clamp(p.vd / Math.max(p.v, 12), -0.4, 0.4);
+    posAt(p.s, p.d);
+    tgt = Math.atan2(PQ.tx + PQ.tz * vdn, PQ.tz - PQ.tx * vdn);
+    if (!camInit) { camYaw = tgt; camInit = true; }
+    var diff = wrapA(tgt - camYaw);
+    camYaw += diff * (1 - Math.exp(-dt * 3.2));
+    var dist = 18, sx = Math.sin(camYaw), cz = Math.cos(camYaw);
+    var shk = shake * 0.12;
+    cam.x = p.x - sx * dist + (Math.random() - 0.5) * shk;
+    cam.z = p.z - cz * dist + (Math.random() - 0.5) * shk;
+    cam.y = 6.6 + (Math.random() - 0.5) * shk;
+    cam.yaw = camYaw; cam.pitch = 0.33;
+    setCam();
+  }
+
+  /* ================= HUD ================= */
+  var el = { pos: $('pos'), time: $('time'), lap: $('lap'), gear: $('gear'), spd: $('spd'), slip: $('slip'), prog: $('prog'), dot: $('dot'), banner: $('banner'), vig: $('vig') };
+  var revs = [], rv = $('revs'), q0;
+  for (q0 = 0; q0 < 12; q0++) { var s2 = document.createElement('span'); if (q0 >= 9) s2.className = 'hot'; rv.appendChild(s2); revs.push(s2); }
+  var cache = {};
+  function setText(key, node, v) { if (cache[key] !== v) { cache[key] = v; node.textContent = v; } }
+  var GEARS = [0, 50, 92, 135, 172, 212, 250, 281];
+  function hud() {
+    var kmh = Math.min(player.v, VTOP * 1.05) * 3.6, q;
+    setText('pos', el.pos, String(state === 'finished' ? rank : rank));
+    var cls = posFlash > 0 ? (posDir > 0 ? 'up' : 'down') : '';
+    if (cache.pcls !== cls) { cache.pcls = cls; el.pos.className = cls; }
+    setText('time', el.time, fmt(state === 'finished' ? finishTime : raceTime));
+    setText('lap', el.lap, String(lap));
+    var gear = 1; for (q = 1; q < GEARS.length; q++) if (kmh >= GEARS[q]) gear = q + 1;
+    setText('gear', el.gear, String(gear));
+    setText('spd', el.spd, String(Math.round(kmh)));
+    var lo = GEARS[gear - 1], hi = gear < 8 ? GEARS[gear] : 305, frac = clamp((kmh - lo) / (hi - lo), 0, 1);
+    var lit = kmh < 1 ? 0 : Math.round((0.12 + 0.88 * frac) * 12);
+    for (q = 0; q < 12; q++) { var on = q < lit; if (revs[q]._on !== on) { revs[q]._on = on; revs[q].classList.toggle('on', on); } }
+    var showSlip = slip > 0.5 && state === 'racing';
+    if (cache.slip !== showSlip) { cache.slip = showSlip; el.slip.classList.toggle('show', showSlip); }
+    var isC = contactT > 0 && state === 'racing';
+    var showB = isC || bannerT > 0;
+    setText('bantxt', el.banner, isC ? 'Contact' : bannerTxt);
+    if (cache.banc !== isC) { cache.banc = isC; el.banner.classList.toggle('contact', isC); }
+    if (cache.ban !== showB) { cache.ban = showB; el.banner.classList.toggle('show', showB); }
+    el.vig.style.opacity = contactT > 0 ? Math.min(1, contactT * 1.2).toFixed(2) : '0';
+    el.prog.style.width = (state === 'finished' ? 100 : (wrapS(player.s) / L) * 100 * (lap === 1 && player.s < 12 ? 0 : 1)).toFixed(1) + '%';
+    el.dot.style.transform = 'translateX(' + (steer * 36).toFixed(1) + 'px) rotate(45deg)';
+    audioUpdate(clamp(kmh / 300, 0, 1), clamp(kmh / 300, 0, 1));
+  }
+
+  /* ================= LOOP ================= */
+  function resize() {
+    var r = stage.getBoundingClientRect();
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = Math.max(1, Math.round(r.width)); H = Math.max(1, Math.round(r.height));
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    FL = (H / 2) / Math.tan(30 * Math.PI / 180); SCX = W / 2; SCY = H / 2;
+    if (FL * 2 * Math.tan(Math.atan(W / 2 / FL)) < 1) FL = W;
+  }
+  window.addEventListener('resize', resize);
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
+
+  var last = performance.now(), acc = 0, STEP = 1 / 60;
+  function frame(now) {
+    var dt = Math.min(0.1, (now - last) / 1000); last = now; acc += dt;
+    var nsub = Math.max(1, Math.ceil(dt / STEP - 0.001));
+    for (var sub = 0; sub < nsub; sub++) update(dt / nsub);
+    updateCamera(dt);
+    render(); hud();
+    requestAnimationFrame(frame);
+  }
+  document.addEventListener('visibilitychange', function () { last = performance.now(); acc = 0; });
+
+  resize();
+  newRace(false);
+  update(0.0001);
+  requestAnimationFrame(frame);
+  window.__rgp = { cars: function () { return cars; }, state: function () { return state; } };
+})();
+
+</script>
+
+</body></html>
