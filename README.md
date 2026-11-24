@@ -1,43 +1,30 @@
-# PlayMotion - The Gaming Platform..
+# PlayMotion — entire project
 
-Welcome to **PlayMotion**, a beautiful, fully responsive, and single-page gaming platform hub designed with a sleek minimalist aesthetic.
+This project’s pages, files, and uploads as this browser tab had them at export.
+Anything left out is listed below.
 
-## 🚀 Features
+## Contents
 
-- **Minimalist Light Theme**: A clean, modern white-themed UI with bold blue accents that makes the gaming artwork pop.
-- **Single-Page Architecture**: Everything (HTML, CSS, JS) is streamlined into a single, lightning-fast `index.html` file.
-- **Dynamic Game Grid**: Game cards are generated dynamically using Vanilla JavaScript, making it incredibly easy to add or remove titles.
-- **Fully Responsive**: A flawless experience across desktops, tablets, and mobile devices, complete with a collapsible mobile hamburger menu.
-- **Interactive Elements**: Includes smooth hover animations, thick card borders, interactive FAQ accordions, and a professional multi-column footer.
-- **Framed Artwork**: Custom image rendering ensures cover art fits perfectly within the cards without being aggressively cropped.
+- `Main.dc.html`
+- `canvas.json` — the canvas: its pages, where each artboard sits, its notes and shapes
+- `assets/` — files uploaded to the design (images, fonts, media)
+- `_runtime/` — what runs the pages in a browser; not part of the design
 
-## 🎮 Featured Games
+## Uploaded files
 
-1. **Solar Race** - High-speed anti-gravity racing across solar systems and glowing tracks.
-2. **City Drive** - Cruise through an expansive open-world city with fully customizable vehicles.
-3. **Capital Empire** - Build, manage, and expand your ultimate sprawling metropolis into an empire.
-4. **Galactic Wars** - Command massive star fleets in intense tactical space battles.
-5. **Survival Island** - Gather resources and survive against harsh natural elements.
-6. **Zombie Outbreak** - Co-op survival shooter where teamwork is the only way to live.
+Images, fonts and media uploaded to the design are written once each under
+`assets/` — 3 in this export — and the exported files refer to them there. A
+reference a script puts together while the page runs (for example
+`"/_blob/" + id`) is not rewritten and does not load from this folder.
 
-## 🛠️ Tech Stack
+A page in a subfolder may not show an upload that reaches it through a script, a data
+file or an imported component, because those files link to `assets/` from a different folder.
 
-- **HTML5**: Semantic and accessible document structure.
-- **CSS3**: CSS Variables, Flexbox/Grid layouts, Media Queries, and smooth transitions.
-- **Vanilla JavaScript**: DOM manipulation, dynamic content rendering, and interactive UI states.
+## Viewing
 
-## 📂 Getting Started
+To view a page, start a local web server in this folder (for example `python3 -m http.server`), then open an artboard’s `.dc.html` file through it. Opening the file directly may not work, because some browsers block its scripts.
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/venkatesh0963/PlayMotion-The-Gaming-Platform.git
-   ```
-2. Open the directory and simply double-click `index.html` to launch it in any modern web browser. No build steps, servers, or dependencies required!
+## Left out of this export
 
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to check the issues page or submit a pull request.
-
----
-
-**Developed by One Square 98**
+The export never includes hidden files (files whose names start with a dot) or
+files the editor keeps for its own use.
