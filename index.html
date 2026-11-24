@@ -583,48 +583,59 @@ Can I suggest a game?
 
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":3300}}'>
-class Component extends DCLogic {
-constructor(props) {
-super(props);
-this.state = { filter: 'All' };
-}
-renderVals() {
-const games = [
-['littleVale', 'Builder'], ['formulaCar', 'Racing'], ['duneDrift', 'Racing'],
-['tinyAcres', 'Builder'], ['miniMotel', 'Tycoon'], ['stickman', 'Action'],
-['towerWar', 'Strategy'], ['harbour', 'Tycoon'], ['mobMaster', 'Action'],
-['tinyTransit', 'Strategy'], ['streetRush', 'Action'], ['taxi', 'Tycoon'],
-['airline', 'Tycoon']
-];
-const cats = ['All', 'Tycoon', 'Racing', 'Builder', 'Action', 'Strategy'];
-const current = this.state.filter;
-const matches = games.filter((g) => current === 'All' || g[1] === current);
-const shown = matches;
-const show = {};
-games.forEach((g) => { show[g[0]] = shown.indexOf(g) >= 0; });
-const filters = cats.map((c) => {
-const active = c === current;
-return {
-label: c,
-count: c === 'All' ? games.length : games.filter((g) => g[1] === c).length,
-pressed: active ? 'true' : 'false',
-bg: active ? '#10202A' : '#FFFFFF',
-color: active ? '#F6F8F7' : '#10202A',
-border: active ? '#10202A' : '#C5D1CE',
-pick: () => this.setState({ filter: c })
-};
+
+<script>
+document.addEventListener("click", function (event) {
+    const button = event.target.closest(".chip");
+    if (!button) return;
+
+    const category = button.querySelector("span").textContent.trim();
+
+    const categories = {
+        "Little Vale": "Builder",
+        "Canyon GP": "Racing",
+        "DuneDrift": "Racing",
+        "Tiny Acres": "Builder",
+        "Mini Motel": "Tycoon",
+        "Stickman Game": "Action",
+        "Tower War": "Strategy",
+        "Harbour Tycoon": "Tycoon",
+        "MobMaster": "Action",
+        "Tiny Transit": "Strategy",
+        "Street Rush 3D": "Action",
+        "Taxi Tycoon": "Tycoon",
+        "Airplane Business Tycoon": "Tycoon"
+    };
+
+    const cards = document.querySelectorAll("#games article.card");
+    let visible = 0;
+
+    cards.forEach(card => {
+        const title = card.querySelector("h3")?.textContent.trim();
+        const match = categories[title];
+
+        const show = category === "All" || match === category;
+
+        card.style.display = show ? "flex" : "none";
+
+        if (show) visible++;
+    });
+
+    document.querySelectorAll(".chip").forEach(chip => {
+        const active = chip === button;
+
+        chip.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+
+    const status = document.querySelector("#games [aria-live='polite']");
+
+    if (status) {
+        status.textContent = category === "All"
+            ? `Showing ${visible} games`
+            : `Showing ${visible} ${category.toLowerCase()} games`;
+    }
 });
-const status = current === 'All'
-? 'Showing ' + shown.length + ' of ' + matches.length + ' games'
-: 'Showing ' + shown.length + ' ' + current.toLowerCase() + (shown.length === 1 ? ' game' : ' games');
-return {
-show,
-filters,
-status
-};
-}
-}
 </script>
+
 </body>
 </html>
